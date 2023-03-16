@@ -1,0 +1,223 @@
+/* LOADER GUI. ~source[:] w3school.com */
+.loading{
+    border: 5px solid #ffffff; 
+    border-top: 5px solid #4a0e8f; 
+    width:30px;
+    height: 30px;
+    border-radius: 50%;
+    animation: spin 700ms linear infinite;
+    box-shadow: 0 4px 45px 0 rgb(255, 255, 255);
+  }
+  
+  @keyframes spin {
+    0%{transform: rotate(0deg)}
+    100%{transform: rotate(360deg) }
+  }
+  
+  .d-cen{
+    display: flex;
+    justify-content: center;
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+body{
+    background: rgb(216, 232, 233); 
+    direction: rtl;
+}
+
+.d-box-shadow{
+    box-shadow: 0 0px 40px 10px rgb(60, 100, 102);
+}
+.d-container{
+    width: 100%;
+    height: auto;
+    height: 50vh;
+}
+
+.d-body-center{
+    display: flex;
+    justify-content: center ;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    
+}
+.header{
+    background:rgb(30, 35, 35);
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    padding: 5px;
+    color: whitesmoke;
+    height: 70vh;
+
+}
+
+.inp > span{
+    position: absolute;
+    color: rgb(30, 35, 35);
+    padding: 10px 7px 0 7px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.d-input{
+    border: 1px solid rgb(28, 28, 80);
+    position: relative;
+    font-size: 18px;
+    outline: none;
+    border-radius: 6px;
+    padding: 8px;
+    font-family: 'consolas';   
+}
+
+.inp{
+    padding-top: 40px;
+}
+.d-body-center input{
+    text-align: center !important;
+}
+
+.inp input:valid ~ span,
+.inp input:focus ~ span,
+.inp input:hover ~ span
+{
+  
+  font-weight: 700;
+  transform: translateX(55px) translateY(-15px);
+  -webkit-transform: translateX(55px) translateY(-15px);
+  -webkit-transition: 400ms;
+  transition: 400ms;
+  font-size: 16px;
+  color: whitesmoke;
+  background: rgb(30, 35, 35);
+  border-bottom-left-radius: 5px;
+  padding-left: 4px;
+  padding-top: 2px;
+}
+
+
+.d-button{
+    background: rgb(58, 96, 235);
+    border: 0px solid #0000;
+    border-radius: 6px;
+    transition: 400ms;
+    width: 100px;
+    box-sizing: border-box;
+    box-shadow: 0px 0px 10px 0px rgba(245, 245, 245, 0.345);
+    color:whitesmoke;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+}
+
+
+
+.remember input{
+    filter: sepia(100%) brightness(80%) hue-rotate(170deg) saturate(80%) contrast(300%);
+    font-size: 20px;
+} 
+
+
+.remember span{
+    padding-right: 10px;
+}
+
+.d-button:hover{
+    background: rgb(157, 201, 201);
+    color: rgb(0, 0, 0);
+    font-size: 20px;
+    font-weight: 800;
+
+}
+
+@media screen and (max-width:536px) {
+    .header{
+        font-size:14px !important;
+        width: 100%;
+        margin-left: 0px;
+        margin-right: 0px;
+
+        
+    }
+    .d-input{
+        width:240px;
+    }
+    .d-container{
+        height: auto;
+    }
+    
+}  
+    
+
+
+/* FOOTER END DOCUMENT FILE */
+
+.footer{
+    padding-top: 60px;
+    background: rgb(44, 74, 76);
+    color: whitesmoke;
+    height: 60vh;
+}
+
+/* SHOW ALERT */
+.modal-show{
+    display: none;
+    position: fixed;
+    z-index: 10;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0,0,0,0.4);
+    text-align: center;
+}
+
+.modal-show-body{
+    background-color: #000000;
+    margin: auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 50%;
+}
+
+.modal-show-close {
+    color: #2175ec;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+.modal-show-close:hover,
+.modal-show-close:focus {
+  color: rgb(189, 209, 242);
+  text-decoration: none;
+  cursor: pointer;
+}
+.modal-show-body > h1{
+    color: rgb(255, 70, 70);
+    font-weight: 800;
+    margin-left: 20px;
+}
+.modal-show-body > p{
+    margin-top:30px;
+}
+
+/** phone style */
+
+@media screen and (max-width:536px){
+    .modal-show-body{
+        width: 80%;
+    }  
+    .modal-show{
+        background-color: rgba(0,0,0,0.6);
+    }  
+}

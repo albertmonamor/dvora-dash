@@ -1,0 +1,44 @@
+<div class="dashboard">
+    <div class="dashboard-tab">
+        <button class="button-dash" onclick="getSubTemplpateDashboard(this)" id="15">
+            <span>הוסף לקוח <i class="fa-solid fa-plus"></i></span>
+        </button>
+        <button class="button-dash">
+            <span> חיפוש <i class="fa-brands fa-searchengin"></i></span>
+        </button>
+        <button class="button-dash">
+            <span>סנן <i class="fa-solid fa-filter"></i></span>
+        </button>
+    </div>
+    <div class="dashboard-list-leads">
+        <div class="leads">
+            {% for lead_box in leads%}
+                <div class="lead-box">
+                    <div class="lead-option">
+                        <a href=""><i class="fa-solid fa-angles-down"></i></a>
+                    </div>
+                    <div class="lead-box-tab">
+                        <h4>שם הלקוח</h4>
+                    </div>
+                    <!-- <span class="lead-status"><i class="fa-solid fa-circle-dot status"></i> סטטוס</span> -->
+                    <div class="lead-box-info">
+                        <div class="lead-profile">
+                            <span><i class="fa-regular fa-circle-xmark"></i></span>
+                        </div>
+                        <div class="lead-profile">
+                            <span><i class="fa-regular fa-circle-check"></i></span>
+                        </div>
+                    </div>
+                    
+                </div>
+            {% else %}
+                <div class="empty-lead">
+                    <i class="fa-solid fa-list"></i>
+                    <span>{{ empty_lead }}</span>
+                </div>
+                
+            {% endfor %}
+        </div>
+        
+    </div>
+</div>

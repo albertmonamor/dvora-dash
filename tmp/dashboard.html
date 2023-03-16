@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="static/styles/dash.css">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/11e3bcf364.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- ALERT -->
+    <div id="modal-show" class="modal-show">
+        <div class="modal-show-body">
+            <span class="modal-show-close">&times;</span>
+            <h1 id="alert-title"></h1>
+            <p id="alert-des"></p> 
+        </div>
+    </div>
+    <div id="mfull" class="modal-show mfull">
+        <div class="mfull-main">
+            <header class="mfull-head">
+                <button onclick="closeModal(1)"><i class="fa-regular fa-share-from-square"></i></button>
+                <h1 style="flex:1;">הוספת לקוח</h1>
+                <span id="level">1/10</span>
+            </header>
+            <div class="levels-prog">
+                <ul class="ul-prog">
+                    <li>
+                        <i class="ico fa-solid fa-signature"></i>
+                        <div class="l0 status-prog">
+                            <p>1</p>
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <span class="des">שם-לקוח</span>
+                    </li>
+                    <li>
+                        <i class="ico fa-solid fa-mobile-screen"></i>
+                        <div class="l2 status-prog">
+                            <p>2</p>
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <span class="des">פלאפון-נייד</span>
+                    </li>
+                    <li>
+                        <i class=" ico fa-solid fa-id-card"></i>
+                        <div class="l3 status-prog">
+                            <p>3</p>
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <span class="des">תעודת-זהות</span>
+                    </li>
+                    <li>
+                        <i class="ico fa-solid fa-truck-field"></i>
+                        <div class="l4 status-prog">
+                            <p>4</p>
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <span class="des">ציוד-לאירוע</span>
+                    </li>
+                    <li>
+                        <i class="ico fa-regular fa-calendar-days"></i>
+                        <div class="l5 status-prog">
+                            <p>5</p>
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <span class="des">תאריך-האירוע</span>
+                    </li>
+                    <li>
+                        <i class="ico fa-solid fa-location-dot"></i>
+                        <div class="l6 status-prog">
+                            <p>6</p>
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <span class="des">מיקום-האירוע</span>
+                    </li>
+                    <li>
+                        <i class="ico fa-solid fa-money-check-dollar"></i>
+                        <div class="l7 status-prog">
+                            <p>7</p>
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <span class="des">תשלום-מקדמה</span>
+                    </li>
+                    <li>
+                        <i class="ico fa-solid fa-percent"></i>
+                        <div class="l8 status-prog">
+                            <p>8</p>
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <span class="des">סיכום-תשלום</span>
+                    </li>
+                    <li>
+                        <i class="ico fa-solid fa-circle-check"></i>
+                        <div class="l9 status-prog">
+                            <p>9</p>
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <span class="des">לא-ידוע</span>
+                    </li>
+                    <li>
+                        <i class="ico fa-solid fa-circle-check"></i>
+                        <div class="l10 status-prog">
+                            <p>10</p>
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <span class="des">לא-ידוע</span>
+                    </li>
+                </ul>
+            </div>
+            <div id="mfull-body" class="mfull-body"></div>
+        </div>
+    </div>
+
+    </div>
+    <div class="nav-bar concen">
+        <h1 class='nav-title'>לקוחות</h1>
+
+    </div>
+    <div class="tabs concen">
+        
+        <div class="tabs-button">
+            <button class="button-tab" onclick="getTemplate(this)" id="0">
+                <span>לקוחות</span>
+            </button>
+            
+        </div>
+        <div class="tabs-button">
+            <button class="button-tab" onclick="getTemplate(this)" id="1">
+                <span>היסטוריה</span>
+            </button>
+            
+        </div>
+        <div class="tabs-button">
+            <button class="button-tab" onclick="getTemplate(this)" id="2">
+                <span>הוצאות/הכנסות</span>
+            </button>
+        </div>
+        <div class="tabs-button">
+            <button class="button-tab" onclick="getTemplate(this)" id="3">
+                <span>הגדרות</span>
+            </button>
+        </div>
+    </div>
+    <div class="concen dash-template"></div>
+
+</body>
+<script src="static/js/func-css.js"></script>
+<script src="static/js/requests.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="static/js/progress.js"></script>
+
+<script>
+    getTemplate($('#0')[0]);
+</script>
+</html>
