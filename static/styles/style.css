@@ -167,6 +167,7 @@ body{
 }
 
 /* SHOW ALERT */
+/* SHOW ALERT */
 .modal-show{
     display: none;
     position: fixed;
@@ -177,13 +178,12 @@ body{
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgb(0, 0, 0);
     background-color: rgba(0,0,0,0.4);
     text-align: center;
 }
 
 .modal-show-body{
-    background-color: #000000;
+    background-color: #cac8c8;
     margin: auto;
     padding: 20px;
     border-radius: 8px;
@@ -191,24 +191,26 @@ body{
 }
 
 .modal-show-close {
-    color: #2175ec;
+    color: #252328;
     float: right;
     font-size: 28px;
     font-weight: bold;
+    transition: 700ms;
 }
 .modal-show-close:hover,
 .modal-show-close:focus {
-  color: rgb(189, 209, 242);
   text-decoration: none;
   cursor: pointer;
+  transform:rotate(360deg);
 }
 .modal-show-body > h1{
-    color: rgb(255, 70, 70);
+    color: rgb(16, 7, 7);
     font-weight: 800;
     margin-left: 20px;
 }
 .modal-show-body > p{
     margin-top:30px;
+    color: rgb(26, 21, 45);
 }
 
 /** phone style */

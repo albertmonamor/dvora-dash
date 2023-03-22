@@ -12,13 +12,21 @@
     </div>
     <div class="dashboard-list-leads">
         <div class="leads">
-            {% for lead_box in leads%}
+            {% for k, lead_box in leads.items()%}
                 <div class="lead-box">
                     <div class="lead-option">
-                        <a href=""><i class="fa-solid fa-angles-down"></i></a>
+                        <a><i class="fa-solid fa-angles-down"></i></a>
                     </div>
                     <div class="lead-box-tab">
-                        <h4>שם הלקוח</h4>
+                        <span class="n">{{ lead_box.fn}}</span>
+                        <span id="wb">
+                            כתב/ה:
+                            <span>{{lead_box.wb}}</span>
+                        </span>
+                        <span id="lw">
+                            ב:
+                            <span>{{lead_box.lw}}</span>
+                        </span>
                     </div>
                     <!-- <span class="lead-status"><i class="fa-solid fa-circle-dot status"></i> סטטוס</span> -->
                     <div class="lead-box-info">

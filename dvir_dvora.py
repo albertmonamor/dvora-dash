@@ -1,7 +1,10 @@
+from json import loads, dumps
+
 from Api.api_function import check_level_new_lead
-from Api.protocol import m_app, get_random_key, LOGIN_FAILED, LOGIN_SUCCESS, UN_ERROR, EMPTY_LEAD_T, T404, TMP_DENIED
+from Api.protocol import m_app, get_random_key, LOGIN_FAILED, LOGIN_SUCCESS, UN_ERROR, EMPTY_LEAD_T, T404, TMP_DENIED, LEAD_ERROR
 from flask import render_template, request, render_template_string, session, jsonify, redirect, url_for
-from Api.databases import Users, DBase, signup, new_lead, SUPPLY
+from Api.databases import Users, DBase, signup, db_new_lead, add_supply, get_all_supply, verify_supply, \
+    get_all_leads_open
 
 
 #  ******************* ROUTES *************************
@@ -66,6 +69,9 @@ def get_template_dashboard(tmp):
     # /* <    *---MAIN TAB TEMPLATE---*    >
     if tmp == "0":
         res_tmp = "/dash_tmp/leads.html"
+        return jsonify({"success":True,
+                        "template":render_template(res_tmp, leads=get_all_leads_open(),empty_lead=EMPTY_LEAD_T),
+                        })
     elif tmp == "1":
         res_tmp = "/dash_tmp/history.html"
     elif tmp == "2":
@@ -80,35 +86,68 @@ def get_template_dashboard(tmp):
                         "template":render_template(res_tmp,
                                                    welcome=render_template("/dash_tmp/wel_add_lead"),
                                                    user=session['user']),
-                        "supply":SUPPLY})
+                        "supply":get_all_supply()})
 
-    return jsonify({"success":True, "template":render_template(res_tmp, empty_lead=EMPTY_LEAD_T)})
+    return jsonify({"success":True, "template":render_template(res_tmp)})
 
 
 
 @m_app.route("/new_lead", methods=["POST"])
-def add_lead():
+def new_lead():
     if not session.get("is_admin"):
         return jsonify(TMP_DENIED)
 
-    level    = request.form.get("level", "-1")
+    level    = request.form.get("level", "-1") or "-1"
     value    = request.form.get('value', "error")
-    print(level, value)
-    return check_level_new_lead(level, value)
+    return check_level_new_lead(level, value)[1]
 
+@m_app.route("/add_lead", methods=["POST"])
+def add_lead():
+    res:dict = dict(LEAD_ERROR)
+    if not session.get("is_admin"):
+        return jsonify(TMP_DENIED)
 
+    name       = request.form.get("name")       or 0
+    phone      = request.form.get("phone")      or 0
+    id_lead    = request.form.get("id_lead")    or 0
+    supply:str  = request.form.get("supply", "{}") or 0
+    date       = request.form.get("date")       or 0
+    location   = request.form.get("location")   or 0
+    sub_pay    = request.form.get("sub_pay")    or 0
+    payment    = request.form.get("payment")    or 0
+    if not (name and phone and supply and date and location and payment):
+        res["notice"] = "אחד מהנתונים חסר או לא ברור!"
+        return jsonify(res)
+
+    # // SUCCESS
+    for _index, (k, v) in enumerate(request.form.items()):
+        result:tuple[int, jsonify] = check_level_new_lead(str(_index+2), v)
+        if isinstance(v, dict):continue
+        if not result[0]:
+            return result[1]
+
+    # // SUCCESS
+    supply_is_ok, _name, s_lead = verify_supply(loads(supply))
+    if not supply_is_ok:
+        res["notice"] = f"כמות הציוד של {_name} חורגת!"
+        return jsonify(res)
+
+    # // SUCCESS
+    db_new_lead(write_by=session['user'],
+                full_name=name,
+                phone=phone,
+                ID=id_lead,
+                event_supply=dumps(s_lead),
+                event_date=date,
+                event_place=location,
+                determine_money=payment,
+                pay_sub=bool(sub_pay),
+                money_left=float(payment)-float(sub_pay),
+                is_open=True)
+    # add data to database
+    return jsonify({"success":True})
 
 if __name__ == "__main__":
     with m_app.app_context():
         DBase.create_all()
-
-        from json import dumps
-        from time import ctime, time
-        # signup(user='דבי', pwd='משי', ip='2.55.187.108')
-        # new_lead(write_by="אברהם", full_name="משה רועי", phone="0585005617", ID="324104173",
-        #          event_supply=dumps(['0', '12', '56', '2']), event_date=time() + 10000,
-        #          event_place="31.783203, 34.625719", determine_money=4850, pay_sub=True, money_left=4850 / 2,
-        #          is_open=True)
-
-
     m_app.run(host="0.0.0.0", port=45000, debug=True)

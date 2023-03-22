@@ -8,7 +8,7 @@
 <div id="2" class="mf-body">
     <h1>שם לקוח</h1>
     <div class="mf-body-center">
-        <input type="name" placeholder="שם מלא" class="dash-input input-width-m" id="sfulln">
+        <input type="name" placeholder="שם מלא" class="dash-input input-width-m" id="d2" name="שם מלא">
     </div> 
     <div class="mf-body-left">
         <button class="button-dash" onclick="showNextLevel(this, '3')">
@@ -21,7 +21,7 @@
 <div id="3" class="mf-body">
     <h1>פלאפון לקוח</h1>
     <div class="mf-body-center">
-        <input type="number" id="sphone" placeholder="מספר פלאפון" class="dash-input input-width-s" style='text-align: left;direction: ltr;'>
+        <input type="tel" id="d3" placeholder="מספר פלאפון" class="dash-input input-width-s" style='text-align: left;direction: ltr;' name="פלאפון">
         <input placeholder="+972" disabled="true" style="width:50px;"> 
     </div> 
     <div class="mf-body-sb">
@@ -38,7 +38,7 @@
 <div id="4" class="mf-body">
     <h1>ת.ז לקוח</h1>
     <div class="mf-body-center">
-        <input type="number" placeholder="ת.ז " class="dash-input input-width-m" id="sid" maxlength="9">
+        <input type="tel" placeholder="ת.ז " class="dash-input input-width-m" id="d4" maxlength="9" name="תעודת זהות">
     </div> 
     <div class="mf-body-sb">
         <button class="button-dash" onclick="showPrevLevel(this, '3')">
@@ -55,7 +55,7 @@
 <div id="5" class="mf-body">
     <h1>ציוד לאירוע</h1>
     <div class="mf-body-center">
-        <input type="search" id="ssupply" onfocus="showSupplyBySearch(this.value)" onchange="showSupplyBySearch(this.value)" placeholder="חפש ציוד" class="dash-input input-width-m">
+        <input type="search" id="d5" onfocus="showSupplyBySearch(this.value)" onchange="showSupplyBySearch(this.value)" placeholder="חפש ציוד" class="dash-input input-width-m" name="ציוד">
     </div>
     <div id="list-supply" class="list-supply">
 
@@ -75,13 +75,17 @@
 <div id="6" class="mf-body">
     <h1>תאריך האירוע </h1>
     <div class="mf-body-center">
-        <input type="date" class="dash-input input-width-m" id="sdate">
+        <input type="date" class="dash-input input-width-m" id="d6" onchange="showDate(this)" name="תאריך">
+
+        <div class="date-place">
+            <span></span>
+        </div>
     </div>
     <div class="mf-body-sb">
         <button class="button-dash" onclick="showPrevLevel(this, '5')">
             הקודם
         </button>
-        <button class="button-dash" onclick="showNextLevel(this, '7', call_java=1)">
+        <button class="button-dash" onclick="showNextLevel(this, '7')">
             הבא
         </button>
     </div>
@@ -92,7 +96,8 @@
 <div id="7" class="mf-body">
     <h1>מיקום האירוע</h1>
     <div class="mf-body-center">
-        <input class="dash-input input-width-m" id="location" onclick="pasteToInput(this)">
+        <input class="dash-input input-width-m" id="d7" onclick="pasteToInput(this)" name="כתובת">
+        <!-- <a href="https://waze.com/ul?q=66%20Acacia%20Avenue">click me</a> -->
     </div>
     <div class="mf-body-sb">
         <button class="button-dash" onclick="showPrevLevel(this, '6')">
@@ -108,7 +113,7 @@
 <div id="8" class="mf-body">
     <h1>תשלום מקדמה</h1>
     <div class="mf-body-center">
-        <input type="number" class="dash-input input-width-m" id="location">
+        <input type="number" class="dash-input input-width-m" id="d8" name="מקדמה (בטחון)">
     </div>
     <div class="mf-body-sb">
         <button class="button-dash" onclick="showPrevLevel(this, '7')">
@@ -124,18 +129,36 @@
 <div id="9" class="mf-body">
     <h1>תשלום כולל</h1>
     <div class="mf-body-center">
-        <input  class="dash-input input-width-m" id="location">
+        <input  type="number" class="dash-input input-width-m" id="d9" name="סך כולל ברוטו">
     </div>
     
     <div class="mf-body-sb">
         <button class="button-dash" onclick="showPrevLevel(this, '8')">
             הקודם
         </button>
-        <button class="button-dash" onclick="showNextLevel(this, '10')">
+        <button class="button-dash" onclick="showSummery(this, '10')">
             הבא
         </button>
     </div>
 
+</div>
+
+
+<div id="10" class="mf-body">
+    <h1>סיכום לקוח</h1>
+    <div class="mf-body-center">
+        <div class="summery" id="summery">
+
+        </div>
+        <button class="button-dash" id="fini-lead" onclick="addLead(this)">
+            <span>הוסף לקוח <i class="fa-solid fa-plus"></i></span>
+        </button>
+    </div>
+    <div class="mf-body-sb">
+        <button class="button-dash" onclick="showPrevLevel(this, '9')">
+            הקודם
+        </button>
+    </div>
 </div>
 
 

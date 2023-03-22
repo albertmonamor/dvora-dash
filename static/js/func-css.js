@@ -8,6 +8,11 @@ function loading(_this){
 }
 
 
+/**
+ * 
+ * @param {object} _this 
+ * @param {String} text 
+ */
 function unloading(_this, text){
     _this.children[0].remove();
     span = document.createElement("span");
@@ -41,10 +46,13 @@ function setLevelText(nl){
 }
 function showNextLevel(_this, nl, force=null, call_java=0){
     if (force){
-        if (_this != undefined){_this.parentElement.parentElement.style.display = "none";}
+        if (_this != undefined){$(_this.parentElement.parentElement).hide("slow")}
         document.getElementById(nl).style.display = "block";
         setLevelText(nl);
         return  0;
+    }
+    if (nl ==10){
+        document.getElementById("summery").innerHTML="";
     }
     if (_this != undefined){
         $.ajax({
@@ -55,9 +63,9 @@ function showNextLevel(_this, nl, force=null, call_java=0){
                 if (!res.success){
                     showAlert(res.title, res.notice)
                 }else{
-                    _this.parentElement.parentElement.style.display = "none";
-                    document.getElementById(nl).style.display = "block";
-                    setLevelText(nl)
+                    $(_this.parentElement.parentElement).hide("slow");
+                    $(document.getElementById(nl)).show("slow");
+                    setLevelText(nl);
                 }
             }
         })
@@ -65,8 +73,43 @@ function showNextLevel(_this, nl, force=null, call_java=0){
 
 }
 
+function addLead(_this){
+    text =_this.innerText
+    loading(_this);
+    $.ajax({
+        url:"/add_lead",
+        type:"POST",
+        data:{
+            "name":     document.getElementById("d2").value,
+            "phone":    document.getElementById("d3").value,
+            "id_lead":  document.getElementById("d4").value,
+            "supply" :  JSON.stringify(supply_json),
+            "date":     document.getElementById("d6").value,
+            "location": document.getElementById("d7").value,
+            "sub_pay":  document.getElementById("d8").value,
+            "payment":  document.getElementById("d9").value
+        },
+        success:(res)=>{
+            if (res.success){
+                closeModal(null)
+
+            }else{
+                showAlert(res.title, res.notice);
+
+            }
+            unloading(_this, text);
+        }
+    })
+}
+
+function showDate(_this){
+    var date = _this.value;
+    if (!date == ""){
+       // var format = new Date(date);
+       document.getElementsByClassName("date-place")[0].children[0].textContent = date;
+    }
+}
 function showPrevLevel(_this, nl, force=null, call_java=0){
-    console.log(nl)
     _this.parentElement.parentElement.style.display = 'none';
     document.getElementById(nl).style.display = "block";
     setLevelText(nl);
@@ -83,32 +126,43 @@ function showSupplyBySearch(word){
     element.innerHTML = "";
     for ([key, value] of Object.entries(supply_json)){
         if (value.name.indexOf(word) > -1 && word.length > 0){
+            // box
             box = document.createElement("div");
             box.className = "box-supply";
             box.id = value.id;
+            // price
             price = document.createElement("h1");
             price.textContent = value.price + "₪";
+            // number of supply
             n_supply = document.createElement('span')
             n_supply.textContent = value.name
+            // supply exist on server
+            exist_supp = document.createElement("span")
+            exist_supp.textContent = "ציוד זמין: " + value.exist;
+
             div_btn = document.createElement("div")
             div_btn.className = "box-action"; 
             btnp=document.createElement("button");btnm=document.createElement("button")
             btnp.className="button-dash";btnm.className="button-dash";
             num_supply = document.createElement("span");
-            num_supply.textContent = "0";
-            btnp.onclick = ()=>{addSupply(div_btn, 1)};
+            num_supply.textContent = value.count;
+            btnp.onclick = function(){addSupply(this, 1);}
             btnp.innerHTML += '<i class="fa-solid fa-plus"></i>';
             btnp.id = "plus";
-            btnm.onclick = ()=>{addSupply(div_btn, 0)};
+
+            btnm.onclick = function(){addSupply(this, 0); }
             btnm.innerHTML += '<i class="fa-solid fa-minus"></i>';
             btnm.id = "minus";
+
             box.appendChild(price);
-            box.appendChild(n_supply)
+            box.appendChild(n_supply);
+            box.appendChild(exist_supp);
             div_btn.appendChild(btnp); 
             div_btn.appendChild(num_supply);
             div_btn.appendChild(btnm);
             box.appendChild(div_btn);
             element.appendChild(box);
+        
         }
     }
 }
@@ -119,16 +173,76 @@ function showSupplyBySearch(word){
  * @param {Int16Array} operator
  */
 function addSupply(_this, operator){
-    nums = _this.children[1];
-    nadd = parseInt(nums.innerText);
+    nums = _this.parentElement.children[1];
+    nadd = parseInt(nums.textContent);
+    supply = supply_json[_this.parentElement.parentElement.id];
+    if (operator && nadd >= parseInt(supply["exist"]) ){setTimeout(()=>{_this.classList.remove("rotate")}, 500); _this.classList.add("rotate");return ;}
     if (operator){
-        nums.innerText = parseInt(nums.innerText)+1;
+        nums.innerText = nadd+1;
+        
     }else if (nadd){
-        nums.innerText = parseInt(nums.innerText)-1;
+        nums.innerText = nadd-1;
     }
     
+    supply_json[_this.parentElement.parentElement.id]["count"] = nums.innerText;
+    
 }
+function showSummery(_this, nl){
+    showNextLevel(_this,nl, true);
+    parent = document.getElementById("summery");
+    parent.innerHTML = "";
+    //
+    for(var i=2;i<10;i++){
+        // varable
+        _id = "d"+i;
+        oper= "";
+        text = document.getElementById(_id).value;
+        type = document.getElementById(_id).name
 
+        box = document.createElement("div");
+        box.classList.add("box-summery");
+        if (!text){
+            text = "לא צוין"
+            box.classList.add("summ-worng")
+        }
+        else if (_id == "d9" || _id == 'd8'){
+            oper = "₪"
+        }
+        // header
+        _head = document.createElement("div");
+        _head.classList.add("box-summery-head");
+        _title = document.createElement("p");
+        _title.textContent = type
+        _level = document.createElement("span");
+        _level.textContent = (i-1)+" מתוך 8"
+        _head.appendChild(_title);
+        _head.appendChild(_level);
+        box.appendChild(_head)
+        // selfbox
+       if (_id == "d5"){
+            for ([key, value] of Object.entries(supply_json)){
+                if (value["count"]> 0){
+                    _div_s = document.createElement("div");
+                    _div_s.className = "list-summery-supply"
+                    _name = document.createElement("span");
+                    _name.textContent = value["name"];
+                    _count = document.createElement("span");
+                    _count.textContent = value["count"];
+                    _div_s.appendChild(_name);
+                    _div_s.appendChild(_count);
+                    box.appendChild(_div_s);
+                    
+                }
+            }
+            parent.appendChild(box);
+            continue;
+       }
+       _name = document.createElement("h1");
+       _name.textContent = text+oper;
+       box.appendChild(_name);
+       parent.appendChild(box);
+    }
+}
 function startAddLead(_this){
     $.ajax({
         url:'/new_lead',
@@ -180,8 +294,7 @@ function tabSelected(_this){
  * contain all templates of dashboard that need
  */
 const templates         = {}
-var supply_json         = []
-const supply_seleceted  = {}  
+var supply_json         = {}
 /**
  * 
  * @param {object} _this 

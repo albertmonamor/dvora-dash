@@ -12,7 +12,7 @@ const int_to_str = {
 }
 
 function ShowProgressStatus(lvl){
-    for (i =1; i < 11; i++){
+    for (i =1; i < 10; i++){
         element = document.querySelector("."+int_to_str[i]);
         if ((lvl+1) > i){
             element.classList.add("p-active")

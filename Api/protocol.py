@@ -27,12 +27,9 @@ LOGIN_SUCCESS: dict     = {"success":True,  "title":None, "notice":None, 'locati
 UN_ERROR: dict          = {"success":False, "title":"שגיאה", "notice":"אין לי מושג אחשילי"}
 TMP_DENIED: dict        = {"success":False, "title":"שגיאת אימות","notice": "התחבר מחדש כדי להמשיך"}
 LEAD_ERROR: dict        = {"success":False, "title":"שם לב!", "notice":None}
+DB_SUPPLY:dict          = {"name":"", "desc":"", "id":"", "exist":""}
+
 # /** empty lead
 EMPTY_LEAD_T            = "אין אירועים קרובים"
 # /** templates
 T404                    = "/error_tmp/404.html"
-
-
-supply = {
-    "name":"באפר", "price":1300, "is_select":0, 'count':0, 'exist':2
-}
