@@ -92,6 +92,7 @@ function addLead(_this){
         success:(res)=>{
             if (res.success){
                 closeModal(null)
+                location.href='';
 
             }else{
                 showAlert(res.title, res.notice);
@@ -100,14 +101,6 @@ function addLead(_this){
             unloading(_this, text);
         }
     })
-}
-
-function showDate(_this){
-    var date = _this.value;
-    if (!date == ""){
-       // var format = new Date(date);
-       document.getElementsByClassName("date-place")[0].children[0].textContent = date;
-    }
 }
 function showPrevLevel(_this, nl, force=null, call_java=0){
     _this.parentElement.parentElement.style.display = 'none';
@@ -352,7 +345,31 @@ function getSubTemplpateDashboard(_this)
     
 }
 
+function leadAction(value, _ty){
+    if (_ty == 0){
+        location.href = "tel:"+value;
+    }
+    else if (_ty == 1){
+        location.href = encodeURI(value);
+    }
+}
 
+function showMenuLeadAction(_this){
+    _this.textContent = "סגירה "
+    li = _this.nextElementSibling;
+    li.style.display = 'block';
+    _this.onclick = function(){
+        closeMenuLeadAction(_this)
+    }
+}
+function closeMenuLeadAction(_this){
+    _this.textContent = "פעולות"
+    li = _this.nextElementSibling;
+    li.style.display = 'none';
+    _this.onclick = function(){
+        showMenuLeadAction(_this)
+    }
+}
 /***
  * show alert 
  */
@@ -368,7 +385,14 @@ sp_close.onclick = function() {
 // sp_mfull_close.onclick = function(){}
 
 window.onclick = function(event) {
-    if (event.target == modal_show) {
-        modal_show.style.display = "none";
-}
+    try{
+        if (event.target == modal_show) {
+            modal_show.style.display = "none";
+        }
+        if (event.target != document.getElementsByClassName("lbt-options")[0]){
+            document.getElementById("menu-action-li").style.display = 'none'
+        }
+    }catch{
+
+    }
 }

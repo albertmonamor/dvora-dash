@@ -14,19 +14,31 @@
         <div class="leads">
             {% for k, lead_box in leads.items()%}
                 <div class="lead-box">
-                    <div class="lead-option">
+                    <!-- <div class="lead-option">
                         <a><i class="fa-solid fa-angles-down"></i></a>
-                    </div>
+                    </div> -->
                     <div class="lead-box-tab">
-                        <span class="n">{{ lead_box.fn}}</span>
-                        <span id="wb">
-                            כתב/ה:
-                            <span>{{lead_box.wb}}</span>
-                        </span>
-                        <span id="lw">
-                            ב:
-                            <span>{{lead_box.lw}}</span>
-                        </span>
+                        <span class="n">{{ lead_box.fn.split(" ")[0][0:6]}}{{ ".." if lead_box.fn.split(" ")[0]|length > 6}}</span>
+
+                        <div class="l-b-t-info"><i class="fa-solid fa-user-plus fa-flip-horizontal"></i><span>{{lead_box.wb}}</span></div>
+                        <div class="l-b-t-info"><i class="fa-regular fa-clock fa-spin"></i> <span> {{lead_box.lw}}</span></div>
+                        <div class="l-b-t-info lbt-action">
+                            <i class="fa-solid fa-ellipsis fa-fade"></i>
+                             <span onclick="showMenuLeadAction(this)">פעולות</span>
+                             <ul class="lbt-options">
+                                <li onclick='leadAction("{{ lead_box.phone }}", 0)'> 
+                                    <a><i class="fa-solid fa-phone-flip fa-bounce"></i> חייג </a>
+                                </li>
+                                <li onclick='leadAction("https:\/\/waze.com/ul?q={{ lead_box.ep }}", 1)'>
+                                    <a> <i class="fa-brands fa-waze fa-bounce"></i> waze</a>
+                                </li>
+                                <li>
+                                    <a><i class="fa-solid fa-pen-to-square fa-fade"></i> עדכון פרטים</a>
+                                </li>
+                            
+                            </ul>
+                        </div>
+
                     </div>
                     <!-- <span class="lead-status"><i class="fa-solid fa-circle-dot status"></i> סטטוס</span> -->
                     <div class="lead-box-info">

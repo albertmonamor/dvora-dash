@@ -1,5 +1,6 @@
 import random
 
+from Api.api_function import get_format_last_write
 from Api.protocol import DBase, m_app
 from time import time, ctime, gmtime, sleep
 
@@ -70,28 +71,6 @@ def get_all_supply():
     return _all
 
 
-def get_format_last_write(date:float):
-    from time import gmtime, time
-    __now       = gmtime(time())
-    date        = gmtime(date)
-    is_year     = date.tm_year == __now.tm_year
-    is_month    = date.tm_mon == __now.tm_mon
-    today       = is_year and is_month and date.tm_mday == __now.tm_mday
-    half_hour   = today and date.tm_hour == __now.tm_hour and ((60-__now.tm_min)+date.tm_min) > 30
-    hour        = today and date.tm_hour == __now.tm_hour-1
-    _2h         = today and date.tm_hour == __now.tm_hour-2
-    _3h         = today and date.tm_hour == __now.tm_hour-3
-    if half_hour:
-        return "ממש עכשיו"
-    elif hour:
-        return "לפני שעה"
-    elif _2h:
-        return "לפני שעתיים"
-    elif _3h:
-        return "לפני 3 שעות"
-    elif today:
-        return "היום"
-
 def get_all_leads_open()-> dict[int, dict]:
     _all = {}
     leads:list[Leads] = Leads.query.filter_by(is_open=True).all()
@@ -120,7 +99,7 @@ def verify_supply(supp: dict) -> tuple[bool, str, dict]:
                 _supply_lead[key] = supply
             db_supply.exist = db_supply.exist - int(supply["count"])
             DBase.session.commit()
-    except (KeyError,) as error:
+    except (KeyError,Exception) as error:
         print(f"verify_supply {error}")
         return False, "unknown", {}
 
@@ -168,11 +147,3 @@ SUPPLY = {"s1":
           "s6":
               {"name":"שולחן ישיבה", "price":"40", "desc":"", "id":"s6", "count":"0", "exist":"14"}
           }
-
-d = time()-1400
-print(get_format_last_write(d))
-
-"""
-16:01:00
-16:24:00
-"""

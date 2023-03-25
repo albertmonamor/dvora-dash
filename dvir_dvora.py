@@ -4,7 +4,7 @@ from Api.api_function import check_level_new_lead
 from Api.protocol import m_app, get_random_key, LOGIN_FAILED, LOGIN_SUCCESS, UN_ERROR, EMPTY_LEAD_T, T404, TMP_DENIED, LEAD_ERROR
 from flask import render_template, request, render_template_string, session, jsonify, redirect, url_for
 from Api.databases import Users, DBase, signup, db_new_lead, add_supply, get_all_supply, verify_supply, \
-    get_all_leads_open
+    get_all_leads_open, time
 
 
 #  ******************* ROUTES *************************
@@ -137,6 +137,7 @@ def add_lead():
                 full_name=name,
                 phone=phone,
                 ID=id_lead,
+                last_write=time(),
                 event_supply=dumps(s_lead),
                 event_date=date,
                 event_place=location,
@@ -150,4 +151,4 @@ def add_lead():
 if __name__ == "__main__":
     with m_app.app_context():
         DBase.create_all()
-    m_app.run(host="0.0.0.0", port=45000, debug=True)
+    m_app.run(host="0.0.0.0", port=80, debug=True)

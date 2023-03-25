@@ -1,7 +1,5 @@
 from flask import jsonify
 import time
-
-from Api.databases import get_supply_by_id
 from Api.protocol import UN_ERROR, LEAD_ERROR
 
 
@@ -69,6 +67,21 @@ def verify_date(value):
     return True
 
 
+def get_format_last_write(date:float):
+    from time import gmtime, time
+    __now       = gmtime(time())
+    date        = gmtime(date)
+    is_year     = date.tm_year == __now.tm_year
+    is_month    = date.tm_mon == __now.tm_mon
+    week        = is_year and is_month
+    today       = is_year and is_month and date.tm_mday == __now.tm_mday
+    half_hour   = today and date.tm_hour == __now.tm_hour and ((60-__now.tm_min)+date.tm_min) > 30
 
-
-
+    if half_hour:
+        return "ממש עכשיו"
+    elif today:
+        return f"לפני {__now.tm_hour-date.tm_hour} שעות"
+    elif week:
+        return f"לפני {(__now.tm_mday-date.tm_mday)} ימים"
+    elif is_year:
+        return f"לפני {__now.tm_mon-date.tm_mon} חודשים"
