@@ -40,7 +40,7 @@ def login():
     user= request.form.get("user", "?").lower()
     pwd = request.form.get('pwd')
     key = request.form.get('key')
-    print(pwd, key, user)
+    print(request.form)
     in_db = Users.query.filter_by(user=user).first()
     if key == session['sess-login'] and in_db and in_db.pwd == pwd:
         session['is_admin'] = True
@@ -151,4 +151,4 @@ def add_lead():
 if __name__ == "__main__":
     with m_app.app_context():
         DBase.create_all()
-    m_app.run(host="0.0.0.0", port=80, debug=True)
+    m_app.run(host="10.0.0.3", port=80, debug=True)
