@@ -1,1 +1,73 @@
-<h2>setting</h2>
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    form {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+      font-family: Arial, sans-serif;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    
+    input[type="text"],
+    input[type="tel"],
+    input[type="date"],
+    textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    
+    input[type="submit"] {
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    
+    input[type="submit"]:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <form>
+    <label for="customer-name">Customer Name:</label>
+    <input type="text" id="customer-name" name="customer-name" required>
+    
+    <label for="client-phone">Client Cell Phone:</label>
+    <input type="tel" id="client-phone" name="client-phone" required>
+    
+    <label for="customer-id">Customer ID Card:</label>
+    <input type="text" id="customer-id" name="customer-id" required>
+    
+    <label for="equipment">Equipment the Customer Wants:</label>
+    <input type="text" id="equipment" name="equipment" required>
+    
+    <label for="event-date">Date of Event:</label>
+    <input type="date" id="event-date" name="event-date" required>
+    
+    <label for="event-location">Location of Event:</label>
+    <input type="text" id="event-location" name="event-location" required>
+    
+    <label for="advance-payment">Advance Payment:</label>
+    <input type="text" id="advance-payment" name="advance-payment" required>
+    
+    <label for="total-payment">Total Payment:</label>
+    <input type="text" id="total-payment" name="total-payment" required>
+    
+    <input type="submit" value="Submit">
+  </form>
+</body>
+</html>

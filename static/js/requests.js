@@ -14,7 +14,14 @@ function connect(_this){
 
 
             }else{
-                showAlert(res.title, res.notice);
+                $(_this).hide(300);
+                var popup = document.getElementById("popup");
+                var title = document.getElementById("popup-title");
+                var notice = document.getElementById("popup-notice");
+                title.innerHTML += res.title;
+                notice.innerText = res.notice;
+                popup.style.display = "block";
+                setTimeout(()=>{popup.style.display = "none";title.innerText="";notice.innerText="";$(_this).show(300);},2000);
             }
             unloading(_this, text);
         }

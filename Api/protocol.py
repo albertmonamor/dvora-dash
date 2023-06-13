@@ -24,11 +24,12 @@ get_random_key: callable = lambda: binascii.b2a_hex(os.urandom(5)).decode()
 # /* global scope of flags
 LOGIN_FAILED: dict      = {"success":False, "title":"שגיאה" , "notice": "הסיסמה או השם לא מוכרים"}
 LOGIN_SUCCESS: dict     = {"success":True,  "title":None, "notice":None, 'location':'/dashboard'}
-UN_ERROR: dict          = {"success":False, "title":"שגיאה", "notice":"אין לי מושג אחשילי"}
+UN_ERROR: dict          = {"success":False, "title":"שגיאה", "notice":"תרענן את הדף"}
 TMP_DENIED: dict        = {"success":False, "title":"שגיאת אימות","notice": "התחבר מחדש כדי להמשיך"}
 LEAD_ERROR: dict        = {"success":False, "title":"שם לב!", "notice":None}
 DB_SUPPLY:dict          = {"name":"", "desc":"", "id":"", "exist":""}
-
+EQUIP_ERROR:dict        = {"success":False, "title":"שגיאת ציוד", "notice":"שגיאה בעת הוספת הציוד"}
+EQUIP_SUCCESS:dict      = {"success":True, "title":"הושלם!", "notice":"הלקוח נוסף לרשימה"}
 # /** empty lead
 EMPTY_LEAD_T            = "אין אירועים קרובים"
 # /** templates

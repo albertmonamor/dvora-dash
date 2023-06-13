@@ -1,10 +1,11 @@
 from json import loads, dumps
-
-from Api.api_function import check_level_new_lead
-from Api.protocol import m_app, get_random_key, LOGIN_FAILED, LOGIN_SUCCESS, UN_ERROR, EMPTY_LEAD_T, T404, TMP_DENIED, LEAD_ERROR
+from time import sleep
+from Api.api_function import check_level_new_lead, get_clear_money
+from Api.protocol import m_app, get_random_key, LOGIN_FAILED, LOGIN_SUCCESS, UN_ERROR, EMPTY_LEAD_T, T404, TMP_DENIED, \
+    LEAD_ERROR, EQUIP_ERROR, EQUIP_SUCCESS
 from flask import render_template, request, render_template_string, session, jsonify, redirect, url_for
 from Api.databases import Users, DBase, signup, db_new_lead, add_supply, get_all_supply, verify_supply, \
-    get_all_leads_open, time
+    get_all_leads_open, time, SUPPLY
 
 
 #  ******************* ROUTES *************************
@@ -23,6 +24,7 @@ def _404(n_error):
 @m_app.route("/index",  methods=['GET'])
 @m_app.route("/",       methods=['GET'])
 @m_app.route("/home",   methods=['GET'])
+
 def index():
     if session.get('sess-login') and session.get('is_admin', None):
         return redirect(url_for("dashboard"))
@@ -40,11 +42,11 @@ def login():
     user= request.form.get("user", "?").lower()
     pwd = request.form.get('pwd')
     key = request.form.get('key')
-    print(request.form)
     in_db = Users.query.filter_by(user=user).first()
     if key == session['sess-login'] and in_db and in_db.pwd == pwd:
         session['is_admin'] = True
         session['user']     = user
+        del session['sess-login']
         print(request.remote_user, request.remote_addr, request.environ['REMOTE_ADDR'], request.environ.get('HTTP_X_FORWARDED_FOR'))
         return jsonify(LOGIN_SUCCESS)
     else:
@@ -66,29 +68,35 @@ def get_template_dashboard(tmp):
         return jsonify(TMP_DENIED)
 
     res_tmp:str = T404
+    name = "404"
     # /* <    *---MAIN TAB TEMPLATE---*    >
     if tmp == "0":
         res_tmp = "/dash_tmp/leads.html"
         return jsonify({"success":True,
                         "template":render_template(res_tmp, leads=get_all_leads_open(),empty_lead=EMPTY_LEAD_T),
-                        })
+                        "name":"לקוחות"})
     elif tmp == "1":
-        res_tmp = "/dash_tmp/history.html"
-    elif tmp == "2":
-        res_tmp = "/dash_tmp/money.html"
-    elif tmp == "3":
-        res_tmp = "/dash_tmp/setting.html"
+        res_tmp = "/dash_tmp/equipment.html"
         return jsonify({"success":True,
-                        "template":render_template(res_tmp)})
+                        "template":render_template(res_tmp, equipment=get_all_supply()),
+                        "name":"ציוד"})
+    elif tmp == "2":
+        res_tmp = "/dash_tmp/history.html"
+        name = "היסטוריה"
+    elif tmp == "3":
+        res_tmp = "/dash_tmp/money.html"
+        name = "הוצאות/הכנסות"
+    elif tmp == "4":
+        res_tmp = "/dash_tmp/setting.html"
+        name = "הגדרות"
     elif tmp == '15':
         res_tmp = "/dash_tmp/add_lead.html"
         return jsonify({"success":True,
-                        "template":render_template(res_tmp,
-                                                   welcome=render_template("/dash_tmp/wel_add_lead"),
-                                                   user=session['user']),
-                        "supply":get_all_supply()})
+                        "template":render_template(res_tmp,user=session['user']),
+                        "supply":get_all_supply(),
+                        "welcome":render_template("/dash_tmp/wel_add_lead")})
 
-    return jsonify({"success":True, "template":render_template(res_tmp)})
+    return jsonify({"success":True, "template":render_template(res_tmp), "name":name})
 
 
 
@@ -103,19 +111,20 @@ def new_lead():
 
 @m_app.route("/add_lead", methods=["POST"])
 def add_lead():
+    sleep(1)
     res:dict = dict(LEAD_ERROR)
     if not session.get("is_admin"):
         return jsonify(TMP_DENIED)
 
     name       = request.form.get("name")       or 0
     phone      = request.form.get("phone")      or 0
-    id_lead    = request.form.get("id_lead")    or 0
-    supply:str  = request.form.get("supply", "{}") or 0
+    id_lead    = request.form.get("id_lead")    or -1
+    equipment:str  = request.form.get("supply", "{}")
     date       = request.form.get("date")       or 0
     location   = request.form.get("location")   or 0
     sub_pay    = request.form.get("sub_pay")    or 0
     payment    = request.form.get("payment")    or 0
-    if not (name and phone and supply and date and location and payment):
+    if not any(request.form.values()):
         res["notice"] = "אחד מהנתונים חסר או לא ברור!"
         return jsonify(res)
 
@@ -127,11 +136,9 @@ def add_lead():
             return result[1]
 
     # // SUCCESS
-    supply_is_ok, _name, s_lead = verify_supply(loads(supply))
-    if not supply_is_ok:
-        res["notice"] = f"כמות הציוד של {_name} חורגת!"
-        return jsonify(res)
-
+    equipment_is_ok, s_lead = verify_supply(loads(equipment))
+    if not equipment_is_ok:
+        return jsonify(EQUIP_ERROR)
     # // SUCCESS
     db_new_lead(write_by=session['user'],
                 full_name=name,
@@ -141,14 +148,16 @@ def add_lead():
                 event_supply=dumps(s_lead),
                 event_date=date,
                 event_place=location,
-                determine_money=payment,
+                determine_money=sub_pay,
                 pay_sub=bool(sub_pay),
-                money_left=float(payment)-float(sub_pay),
-                is_open=True)
+                total_money=payment,
+                order_equip=bool(s_lead),
+                is_open=True,
+                clear_money=get_clear_money(payment))
     # add data to database
-    return jsonify({"success":True})
+    return jsonify(EQUIP_SUCCESS)
 
 if __name__ == "__main__":
     with m_app.app_context():
         DBase.create_all()
-    m_app.run(host="10.0.0.3", port=80, debug=True)
+    m_app.run(host="10.0.0.1", port=80, debug=True)

@@ -1,160 +1,263 @@
-<div id="1" class="mf-body">
-    <h1> ברוך הבא {{ user }}</h1>
-    <p>{{ welcome }} </p>
-    <div class="mf-body-left">
-        <button class="button-dash" onclick="startAddLead(this)">התחל</button>
-    </div>
-</div>
-<div id="2" class="mf-body">
-    <h1>שם לקוח</h1>
-    <div class="mf-body-center">
-        <input type="name" placeholder="שם מלא" class="dash-input input-width-m" id="d2" name="שם מלא">
-    </div> 
-    <div class="mf-body-left">
-        <button class="button-dash" onclick="showNextLevel(this, '3')">
-            הבא
-        </button>
-    </div>
-    
-</div>
+ <form class="form-addlead" onsubmit="clientSummary(event, this)" id="add-lead-form">
+    <label for="name">שם מלא<span>*</span>
+        <p>שלב 1</p>
+    </label>
+    <input type="text" id="name" name="customer-name" none>
 
-<div id="3" class="mf-body">
-    <h1>פלאפון לקוח</h1>
-    <div class="mf-body-center">
-        <input type="tel" id="d3" placeholder="מספר פלאפון" class="dash-input input-width-s" style='text-align: left;direction: ltr;' name="פלאפון">
-        <input placeholder="+972" disabled="true" style="width:50px;"> 
-    </div> 
-    <div class="mf-body-sb">
-        <button class="button-dash" onclick="showPrevLevel(this, '2')">
-            הקודם
-        </button>
-        <button class="button-dash" onclick="showNextLevel(this, '4')">
-            הבא
-        </button>
-    </div>
-    
-</div>
+    <label for="phone">פאלפון<span>*</span>
+        <p>שלב 2</p>
+    </label>
+    <input type="tel" id="phone" name="client-phone" none>
 
-<div id="4" class="mf-body">
-    <h1>ת.ז לקוח</h1>
-    <div class="mf-body-center">
-        <input type="tel" placeholder="ת.ז " class="dash-input input-width-m" id="d4" maxlength="9" name="תעודת זהות">
-    </div> 
-    <div class="mf-body-sb">
-        <button class="button-dash" onclick="showPrevLevel(this, '3')">
-            הקודם
-        </button>
-        <button class="button-dash" onclick="showNextLevel(this, '5')">
-            הבא
-        </button>
+    <label for="id">תעודת זהות
+        <p>שלב 3</p>
+    </label>
+    <input type="tel" id="id" name="customer-id">
+
+    <label for="equipment">ציוד שהלקוח בחר<span>*</span>
+         <p>שלב 4</p>
+    </label>
+    <input type="text" id="equipment" name="equipment" placeholder="חפש/י ציוד" oninput="showEquipmentBySearch(this.value)" ondblclick="this.value='';showEquipmentBySearch(this.value)">
+    <div id="list-equipment" class="list-equipment">
     </div>
-    
-</div>
 
 
-<div id="5" class="mf-body">
-    <h1>ציוד לאירוע</h1>
-    <div class="mf-body-center">
-        <input type="search" id="d5" onfocus="showSupplyBySearch(this.value)" onchange="showSupplyBySearch(this.value)" placeholder="חפש ציוד" class="dash-input input-width-m" name="ציוד">
-    </div>
-    <div id="list-supply" class="list-supply">
+    <label for="event-date">תאריך האירוע<span>*</span>
+        <p>שלב 5</p>
+    </label>
+    <input type="date" id="event-date" name="event-date" none>
 
-    </div>
-    <div class="mf-body-sb">
-        <button class="button-dash" onclick="showPrevLevel(this, '4')">
-            הקודם
-        </button>
-        <button class="button-dash" onclick="showNextLevel(this, '6')">
-            הבא
-        </button>
-    </div>
-    
-</div>
+    <label for="event-location">מיקום האירוע<span>*</span>
+        <p>שלב 6</p>
+    </label>
+    <input type="text" id="event-location" name="event-location" none>
 
+    <!-- <label for=""> (בקרוב)<span>*</span>
+        <p>שלב 7</p>
+    </label>
+    <input type="tel" name="advance-payment" none>
 
-<div id="6" class="mf-body">
-    <h1>תאריך האירוע </h1>
-    <div class="mf-body-center">
-       </span><input type="date" class="dash-input input-width-s" id="d6" name="תאריך">
-    </div>
-    <div class="mf-body-sb">
-        <button class="button-dash" onclick="showPrevLevel(this, '5')">
-            הקודם
-        </button>
-        <button class="button-dash" onclick="showNextLevel(this, '7')">
-            הבא
-        </button>
-    </div>
-    
-</div>
+    <label for="total-payment">(בקרוב)<span>*</span>
+        <p>שלב 8</p>
+    </label>
+    <input type="tel" name="total-payment" none> -->
 
-
-<div id="7" class="mf-body">
-    <h1>מיקום האירוע</h1>
-    <div class="mf-body-center">
-        <input class="dash-input input-width-m" id="d7" onclick="pasteToInput(this)" name="כתובת">
-        <!-- <a href="https://waze.com/ul?q=66%20Acacia%20Avenue">click me</a> -->
+    <button id="submitaddlead" type="submit" class="button-addlead-summary">
+        <span>לסיכום</span>
+    </button>
+</form>
+<div id="lead-summary" class="lead-summary">
+  <h3 class="lead-summary-title">
+    <i onclick="backAddLead()" class="fa-solid fa-circle-chevron-left fa-flip-horizontal"></i> סיכום לקוח</h3>
+  <table id="table-summary">
+    <tr>
+      <th>שם מלא</th>
+      <td></td>
+    </tr>
+    <tr>
+      <th>פאלפון</th>
+      <td></td>
+    </tr>
+    <tr>
+      <th>תעודת זהות</th>
+      <td></td>
+    </tr>
+    <tr>
+      <th>ציוד </th>
+      <td  style="background: rgb(29, 26, 33);">
+      </td>
+    </tr>
+    <tr>
+      <th>תאריך האירוע</th>
+      <td></td>
+    </tr>
+    <tr>
+      <th>מיקום האירוע</th>
+      <td></td>
+    </tr>
+  </table>
+  <div class="leader-expense">
+    <h3 class="lead-summary-title">הוצאות ותשלום</h3>
+    <div class="manager-expense-item">
+        <label for="fuel-usage">הוצאות דלק</label>
+        <input type="range" id="range-fuel" name="fuel-usage" min="0" max="700" step="10" value="0" oninput="function a(t){document.getElementById('fuel-usage').value=t.value+' ₪';};a(this);updateTotalSummary(this.value)">
+        <output for="fuel-usage" id="fuel-usage">0 ש"ח</output>
     </div>
-    <div class="mf-body-sb">
-        <button class="button-dash" onclick="showPrevLevel(this, '6')">
-            הקודם
-        </button>
-        <button class="button-dash" onclick="showNextLevel(this, '8')">
-            הבא
-        </button>
+    <div class="manager-expense-item">
+        <label for="payment-safe">מקדמה</label>
+        <input type="tel" class="payment-total-safe" id="payment-safe" name="payment-safe" none>
     </div>
-
+    <div class="manager-expense-item">
+        <label for="payment-total"> ברוטו</label>
+        <input type="tel" class="payment-total-safe" id="payment-total" name="payment-total" oninput="function x(v){total=v};x(this.value)" none>
+    </div>
+  </div>
+    <button type="button" class="button-addlead" onclick="addLead(this)">
+        <span>הוסף לקוח</span>
+    </button>  
 </div>
 
-<div id="8" class="mf-body">
-    <h1>תשלום מקדמה</h1>
-    <div class="mf-body-center">
-        <input type="number" class="dash-input input-width-m" id="d8" name="מקדמה (בטחון)">
-    </div>
-    <div class="mf-body-sb">
-        <button class="button-dash" onclick="showPrevLevel(this, '7')">
-            הקודם
-        </button>
-        <button class="button-dash" onclick="showNextLevel(this, '9')">
-            הבא
-        </button>
-    </div>
 
-</div>
 
-<div id="9" class="mf-body">
-    <h1>תשלום כולל</h1>
-    <div class="mf-body-center">
-        <input  type="number" class="dash-input input-width-m" id="d9" name="סך כולל ברוטו">
-    </div>
-    
-    <div class="mf-body-sb">
-        <button class="button-dash" onclick="showPrevLevel(this, '8')">
-            הקודם
-        </button>
-        <button class="button-dash" onclick="showSummery(this, '10')">
-            הבא
-        </button>
-    </div>
 
-</div>
 
-<div id="10" class="mf-body">
-    <h1>סיכום לקוח</h1>
-    <div class="mf-body-center">
-        <div class="summery" id="summery">
+<!--<div id="1" class="mf-body">-->
+<!--    <h1> ברוך הבא {{ user }}</h1>-->
+<!--    <p>{{ welcome }} </p>-->
+<!--    <div class="mf-body-left">-->
+<!--        <button class="button-dash" onclick="startAddLead(this)">התחל</button>-->
+<!--    </div>-->
+<!--</div>-->
+<!--<div id="2" class="mf-body">-->
+<!--    <h1>שם לקוח</h1>-->
+<!--    <div class="mf-body-center">-->
+<!--        <input type="name" placeholder="שם מלא" class="dash-input input-width-m" id="d2" name="שם מלא">-->
+<!--    </div> -->
+<!--    <div class="mf-body-left">-->
+<!--        <button class="button-dash" onclick="showNextLevel(this, '3')">-->
+<!--            הבא-->
+<!--        </button>-->
+<!--    </div>-->
+<!--    -->
+<!--</div>-->
 
-        </div>
-        <button class="button-dash" id="fini-lead" onclick="addLead(this)">
-            <span>הוסף לקוח <i class="fa-solid fa-plus"></i></span>
-        </button>
-    </div>
-    <div class="mf-body-sb">
-        <button class="button-dash" onclick="showPrevLevel(this, '9')">
-            הקודם
-        </button>
-    </div>
-</div>
+<!--<div id="3" class="mf-body">-->
+<!--    <h1>פלאפון לקוח</h1>-->
+<!--    <div class="mf-body-center">-->
+<!--        <input type="tel" id="d3" placeholder="מספר פלאפון" class="dash-input input-width-s" style='text-align: left;direction: ltr;' name="פלאפון">-->
+<!--        <input placeholder="+972" disabled="true" style="width:50px;"> -->
+<!--    </div> -->
+<!--    <div class="mf-body-sb">-->
+<!--        <button class="button-dash" onclick="showPrevLevel(this, '2')">-->
+<!--            הקודם-->
+<!--        </button>-->
+<!--        <button class="button-dash" onclick="showNextLevel(this, '4')">-->
+<!--            הבא-->
+<!--        </button>-->
+<!--    </div>-->
+<!--    -->
+<!--</div>-->
+
+<!--<div id="4" class="mf-body">-->
+<!--    <h1>ת.ז לקוח</h1>-->
+<!--    <div class="mf-body-center">-->
+<!--        <input type="tel" placeholder="ת.ז " class="dash-input input-width-m" id="d4" maxlength="9" name="תעודת זהות">-->
+<!--    </div> -->
+<!--    <div class="mf-body-sb">-->
+<!--        <button class="button-dash" onclick="showPrevLevel(this, '3')">-->
+<!--            הקודם-->
+<!--        </button>-->
+<!--        <button class="button-dash" onclick="showNextLevel(this, '5')">-->
+<!--            הבא-->
+<!--        </button>-->
+<!--    </div>-->
+<!--    -->
+<!--</div>-->
+
+
+<!--<div id="5" class="mf-body">-->
+<!--    <h1>ציוד לאירוע</h1>-->
+<!--    <div class="mf-body-center">-->
+<!--        <input type="search" id="d5" onfocus="showSupplyBySearch(this.value)" onchange="showSupplyBySearch(this.value)" placeholder="חפש ציוד" class="dash-input input-width-m" name="ציוד">-->
+<!--    </div>-->
+<!--    <div id="list-supply" class="list-supply">-->
+
+<!--    </div>-->
+<!--    <div class="mf-body-sb">-->
+<!--        <button class="button-dash" onclick="showPrevLevel(this, '4')">-->
+<!--            הקודם-->
+<!--        </button>-->
+<!--        <button class="button-dash" onclick="showNextLevel(this, '6')">-->
+<!--            הבא-->
+<!--        </button>-->
+<!--    </div>-->
+<!--    -->
+<!--</div>-->
+
+
+<!--<div id="6" class="mf-body">-->
+<!--    <h1>תאריך האירוע </h1>-->
+<!--    <div class="mf-body-center">-->
+<!--       </span><input type="date" class="dash-input input-width-s" id="d6" name="תאריך">-->
+<!--    </div>-->
+<!--    <div class="mf-body-sb">-->
+<!--        <button class="button-dash" onclick="showPrevLevel(this, '5')">-->
+<!--            הקודם-->
+<!--        </button>-->
+<!--        <button class="button-dash" onclick="showNextLevel(this, '7')">-->
+<!--            הבא-->
+<!--        </button>-->
+<!--    </div>-->
+<!--    -->
+<!--</div>-->
+
+
+<!--<div id="7" class="mf-body">-->
+<!--    <h1>מיקום האירוע</h1>-->
+<!--    <div class="mf-body-center">-->
+<!--        <input class="dash-input input-width-m" id="d7" onclick="pasteToInput(this)" name="כתובת">-->
+<!--        &lt;!&ndash; <a href="https://waze.com/ul?q=66%20Acacia%20Avenue">click me</a> &ndash;&gt;-->
+<!--    </div>-->
+<!--    <div class="mf-body-sb">-->
+<!--        <button class="button-dash" onclick="showPrevLevel(this, '6')">-->
+<!--            הקודם-->
+<!--        </button>-->
+<!--        <button class="button-dash" onclick="showNextLevel(this, '8')">-->
+<!--            הבא-->
+<!--        </button>-->
+<!--    </div>-->
+
+<!--</div>-->
+
+<!--<div id="8" class="mf-body">-->
+<!--    <h1>תשלום מקדמה</h1>-->
+<!--    <div class="mf-body-center">-->
+<!--        <input type="number" class="dash-input input-width-m" id="d8" name="מקדמה (בטחון)">-->
+<!--    </div>-->
+<!--    <div class="mf-body-sb">-->
+<!--        <button class="button-dash" onclick="showPrevLevel(this, '7')">-->
+<!--            הקודם-->
+<!--        </button>-->
+<!--        <button class="button-dash" onclick="showNextLevel(this, '9')">-->
+<!--            הבא-->
+<!--        </button>-->
+<!--    </div>-->
+
+<!--</div>-->
+
+<!--<div id="9" class="mf-body">-->
+<!--    <h1>תשלום כולל</h1>-->
+<!--    <div class="mf-body-center">-->
+<!--        <input  type="number" class="dash-input input-width-m" id="d9" name="סך כולל ברוטו">-->
+<!--    </div>-->
+<!--    -->
+<!--    <div class="mf-body-sb">-->
+<!--        <button class="button-dash" onclick="showPrevLevel(this, '8')">-->
+<!--            הקודם-->
+<!--        </button>-->
+<!--        <button class="button-dash" onclick="showSummery(this, '10')">-->
+<!--            הבא-->
+<!--        </button>-->
+<!--    </div>-->
+
+<!--</div>-->
+
+<!--<div id="10" class="mf-body">-->
+<!--    <h1>סיכום לקוח</h1>-->
+<!--    <div class="mf-body-center">-->
+<!--        <div class="summery" id="summery">-->
+
+<!--        </div>-->
+<!--        <button class="button-dash" id="fini-lead" onclick="addLead(this)">-->
+<!--            <span>הוסף לקוח <i class="fa-solid fa-plus"></i></span>-->
+<!--        </button>-->
+<!--    </div>-->
+<!--    <div class="mf-body-sb">-->
+<!--        <button class="button-dash" onclick="showPrevLevel(this, '9')">-->
+<!--            הקודם-->
+<!--        </button>-->
+<!--    </div>-->
+<!--</div>-->
 
 
 

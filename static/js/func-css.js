@@ -22,9 +22,9 @@ function unloading(_this, text){
 
 
 function showAlert(title, des){
-    document.getElementById("modal-show").style.display = "block";
-    $("#alert-title").html(title);
-    $("#alert-des").html(des);
+    // document.getElementById("modal-show").style.display = "block";
+    // $("#alert-title").html(title);
+    // $("#alert-des").html(des);
 }
 
 function showModal(_temp){
@@ -37,7 +37,7 @@ function closeModal(action=null){
         next_level = []
         
     }
-    document.getElementById("mfull").style.display = "none";
+    document.getElementById("model-addlead").style.display = "none";
 }
 
 function setLevelText(nl){
@@ -63,44 +63,14 @@ function showNextLevel(_this, nl, force=null, call_java=0){
                 if (!res.success){
                     showAlert(res.title, res.notice)
                 }else{
-                    $(_this.parentElement.parentElement).hide("slow");
-                    $(document.getElementById(nl)).show("slow");
+                    $(_this.parentElement.parentElement).hide(300);
+                    $(document.getElementById(nl)).show(300);
                     setLevelText(nl);
                 }
             }
         })
     }
 
-}
-
-function addLead(_this){
-    text =_this.innerText
-    loading(_this);
-    $.ajax({
-        url:"/add_lead",
-        type:"POST",
-        data:{
-            "name":     document.getElementById("d2").value,
-            "phone":    document.getElementById("d3").value,
-            "id_lead":  document.getElementById("d4").value,
-            "supply" :  JSON.stringify(supply_json),
-            "date":     document.getElementById("d6").value,
-            "location": document.getElementById("d7").value,
-            "sub_pay":  document.getElementById("d8").value,
-            "payment":  document.getElementById("d9").value
-        },
-        success:(res)=>{
-            if (res.success){
-                closeModal(null)
-                location.href='';
-
-            }else{
-                showAlert(res.title, res.notice);
-
-            }
-            unloading(_this, text);
-        }
-    })
 }
 function showPrevLevel(_this, nl, force=null, call_java=0){
     _this.parentElement.parentElement.style.display = 'none';
@@ -271,12 +241,12 @@ function pasteToInput(_this){
  * 
 */
 function tabSelected(_this){
-    div_exist = document.getElementsByClassName('tab-selected')
+    div_exist = document.getElementsByClassName('tabs-button-selected')
     
     if (div_exist.length > 0){
         div_exist[0].parentNode.removeChild(div_exist[0])
     }
-    _this.innerHTML += "<div class='tab-selected'></div>";
+    _this.innerHTML += "<div class='tabs-button-selected'></div>";
 }
 
 /**
@@ -288,6 +258,7 @@ function tabSelected(_this){
  */
 const templates         = {}
 var supply_json         = {}
+var total             = 0
 /**
  * 
  * @param {object} _this 
@@ -296,10 +267,11 @@ var supply_json         = {}
 function getTemplate(_this){
 
     tmp_num = _this.id
-    _parent = document.getElementsByClassName("dash-template")[0]
+    _parent = document.getElementsByClassName("dashboard-template")[0]
     tabSelected(_this);
     if (templates[tmp_num] != undefined){
-        _parent.innerHTML = templates[tmp_num];
+        _parent.innerHTML = templates[tmp_num].tmp;
+        document.getElementById("tab-name").innerText = templates[tmp_num].name;
         return 0;
     }
     $.ajax({
@@ -309,18 +281,211 @@ function getTemplate(_this){
             (res) => {
                 if (res.success){
                     _parent.innerHTML = res.template
-                    templates[tmp_num] =  res.template
+                    templates[tmp_num] = {"tmp":res.template, "name":res.name};
+                    document.getElementById("tab-name").innerText = res.name;
+                    
+                }else{
                     
                 }
-                else{
-                    showAlert(res.title, res.notice);
-                }
             }
-        
     })
     
 }
 
+function createTableEquipmentSelected(parent){
+    parent.innerHTML="";
+    tmp_total_money_equip = 0
+    equipment_selected = []
+    for ([key, values] of Object.entries(supply_json)){ 
+        if (!values.count){continue;}
+        tmp_total_money_equip+=values.count*values.price;
+        equipment_selected.push({"שם":values.name, "כמות":values.count, "סך הכול": values.count*values.price +" ש\"ח"})
+    }
+    elem = document.getElementById("payment-total");
+    elem.value = tmp_total_money_equip
+    total = tmp_total_money_equip;
+    // create table & create titles (headers)
+    table = document.createElement('table');
+    table.classList.add('table-equipment');
+    const titleR = document.createElement('tr');
+    for (const key in equipment_selected[0]) {
+        headerC = document.createElement('th');
+        headerC.textContent = key;
+        titleR.appendChild(headerC);
+    }
+    // done
+    table.appendChild(titleR);
+    // body of table with values
+    equipment_selected.forEach(item => {
+        bodyR = document.createElement('tr');
+        for (const key in item) {
+            bodyC = document.createElement('td');
+            bodyC.textContent = item[key];
+            bodyR.appendChild(bodyC);
+        }
+        table.appendChild(bodyR);
+    });
+    // DONE!!
+    parent.appendChild(table);
+}
+function closeModalAddLead(){
+    if (confirm("לבטל הוספת לקוח?")){
+        $(document.getElementById("model-addlead")).fadeOut(100);
+        $(document.getElementById("modaldes")).fadeIn(300);
+        $(document.getElementById("modalstart")).fadeIn(300);
+        document.getElementById("modalcontent").innerHTML = "";
+        $(document.getElementById("modalcontent")).fadeOut(0);
+
+    }
+    else{
+
+    }
+}
+function openModalAddLead(_this){
+    $(document.getElementById("model-addlead")).show(300);
+    if (document.getElementById("modalcontent").innerHTML!=""){return;}
+    $.ajax({
+        url:"/template/"+_this.id,
+        type:"post",
+        success:(res)=>{
+            if (res.success){
+                document.getElementById("aleadtitle").innerText = "הוספת לקוח לרשימות"
+                document.getElementById("modaldes").innerText = res.welcome
+                document.getElementById("modalcontent").innerHTML = res.template
+                supply_json = res.supply;
+            }
+            else{
+
+            }
+        }
+    })
+
+}
+function showModalContent(_this){
+    $(document.getElementById("modaldes")).fadeOut(300)
+    $(document.getElementById("modalstart")).fadeOut(300)
+    $(document.getElementById("modalcontent")).fadeIn(300);
+}
+function backAddLead(){
+    $(document.getElementById("lead-summary")).fadeOut(300);
+    $(document.getElementById("add-lead-form")).fadeIn(300);
+}
+function clientSummary(event, _this){
+    event.preventDefault();
+    $(_this).fadeOut(1);
+    leadS   = document.getElementById("lead-summary");
+    tableS  = document.getElementById("table-summary");
+    array_values = [];
+    for (i=0;i!=14;i++){o = _this.children[i];
+        if(o.type != undefined){
+            array_values.push(o.value);
+        }
+        
+    }
+    for (i=0;i!=6;i++){
+        elementK = tableS.children[0].children[i].children[0];
+        elementV = tableS.children[0].children[i].children[1];
+        if (elementK.innerText.includes("ציוד")){
+            createTableEquipmentSelected(elementV);
+            continue;
+        }
+
+        elementV.innerText = array_values[i] ? array_values[i]: "לא צוין";
+    }
+    $(leadS).fadeIn(300);
+
+}
+function addLead(_this){
+    text = _this.innerText
+    loading(_this);
+    $.ajax({
+        url:"/add_lead",
+        type:"POST",
+        data:{
+            "name":     document.getElementById("name").value,
+            "phone":    document.getElementById("phone").value,
+            "id_lead":  document.getElementById("id").value,
+            "supply" :  JSON.stringify(supply_json),
+            "date":     document.getElementById("event-date").value,
+            "location": document.getElementById("event-location").value,
+            "sub_pay":  document.getElementById("payment-safe").value,
+            "payment":  document.getElementById("payment-total").value
+        },
+        success:(res)=>{
+            if (res.success){
+                location.href='';
+
+            }else{
+                alert(res.title + "   "+ res.notice) ;
+
+            }
+            unloading(_this, text);
+        }
+    })
+}
+function showEquipmentBySearch(word){
+    ListE = document.getElementById("list-equipment");
+    ListE.innerHTML = "";
+    for ([key, value] of Object.entries(supply_json)){
+        if (value.name.indexOf(word) > -1 && word.length > 0){
+            // box
+            boxE = document.createElement('div');
+            boxE.classList.add('box-equipment');
+            boxE.id = value.id;
+            // name of equipment
+            nameE = document.createElement('p');
+            nameE.classList.add('box-equipment-title');
+            nameE.textContent = value.name;
+            // price of equipment
+            priceE = document.createElement('span');
+            priceE.textContent = value.price + "₪";
+            // action of add or remove 1 value 
+            LEAction = document.createElement('div');
+            LEAction.classList.add('list-equipment-action');
+            // plus
+            PButton = document.createElement('button');
+            PButton.id = 'plus';
+            PButton.type = 'button';
+            PButton.classList.add('button-equipment');
+            PButton.innerHTML = '<i class="fa-solid fa-plus"></i>';
+            PButton.onclick = function(){addEquipment(this, 1);}
+            // count of specific 
+            countE = document.createElement('span');
+            countE.id = 'count-equipment';
+            countE.textContent = value.count;
+
+            const MButton = document.createElement('button');
+            MButton.id = 'minus';
+            MButton.type = 'button';
+            MButton.classList.add('button-equipment');
+            MButton.innerHTML = '<i class="fa-solid fa-minus"></i>';
+            // onclick
+            MButton.onclick = function(){addEquipment(this, -1);}
+
+            LEAction.appendChild(PButton);
+            LEAction.appendChild(countE);
+            LEAction.appendChild(MButton);
+
+            boxE.appendChild(nameE);
+            boxE.appendChild(priceE);
+            boxE.appendChild(LEAction);
+            ListE.appendChild(boxE);
+        }
+    }
+}
+function addEquipment(_this, number){
+    nums = _this.parentElement.children[1];
+    nadd = parseInt(nums.textContent);
+    equipment = supply_json[_this.parentElement.parentElement.id];
+    if (!nadd && number == -1){return;}
+    nums.innerText = nadd += number;
+    supply_json[_this.parentElement.parentElement.id].count = parseInt(nums.innerText);
+}
+function updateTotalSummary(value){
+    if (total-value<0){return;}
+    elem = document.getElementById("payment-total");
+    elem.value = total-value;
+}
 function getSubTemplpateDashboard(_this)
 {
 
@@ -334,15 +499,14 @@ function getSubTemplpateDashboard(_this)
                 if (res.supply!=undefined){
                     supply_json = res.supply;
                 }
+
             }
 
             else{
                 showAlert(res.title, res.notice);
             }
         }
-    })
-    
-    
+    })    
 }
 
 function leadAction(value, _ty){
@@ -375,20 +539,11 @@ function closeMenuLeadAction(_this){
  */
 
 
-sp_close = document.getElementsByClassName("modal-show-close")[0];
-// sp_mfull_close = document.getElementsByClassName("mfull-close")[0];
 modal_show = document.getElementById("modal-show")
 
-sp_close.onclick = function() {
-    modal_show.style.display = "none";
-}
-// sp_mfull_close.onclick = function(){}
 
 window.onclick = function(event) {
     try{
-        if (event.target == modal_show) {
-            modal_show.style.display = "none";
-        }
         if (event.target != document.getElementsByClassName("lbt-options")[0]){
             document.getElementById("menu-action-li").style.display = 'none'
         }

@@ -1,0 +1,26 @@
+<div class="head-equipment">
+    <div class="equipments-status">
+            <button class="item" onclick="openModalAddLead(this,0)" id="15">
+                <span>הוסף ציוד <i class="fa-solid fa-plus"></i></span>
+            </button>
+        </div>
+    </div>
+    <div class="equipment-table">
+        <table id="equipment-table-edit">
+            <tbody>
+                {% for k,v in equipment.items() %}
+                <tr class="table-items" id={{k}}>
+                    <td class="table-item iname">{{v.name}}</td>
+                    <td class="table-item iprice">{{v.price}} ₪</td>
+                    <td class="table-item icount">{{v.count}}</td>
+                    <td class="table-item iedit">
+                        <button onclick="alert(4)">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
