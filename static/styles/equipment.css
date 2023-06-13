@@ -1,0 +1,106 @@
+
+.head-equipment{
+    padding-bottom: 3px;
+    width: auto;
+    height: auto;
+    margin-left: 15%;
+    margin-right: 15%;
+
+}
+
+.equipments-status{
+    display: flex;
+    padding-top: 20px;
+    display: flex;
+    /* border-bottom:1px solid #b2a9d130; */
+    color: rgb(188, 188, 188);
+    padding-bottom: 20px;
+
+}
+.equipments-status > .item{
+    border-radius: 6px;
+    border: 2px solid rgb(125, 101, 220);
+    background: rgb(63, 43, 145);
+    color: whitesmoke;
+    margin-left: 10px;
+    transition: 200ms;
+}
+.equipments-status > .item:hover,.item:focus{
+    background: whitesmoke;
+    color: rgb(63, 43, 145);
+    border:2px solid rgb(62, 49, 116);
+}
+
+.equipment-table{
+    padding-top: 30px;
+    width: auto;
+    height: auto;
+    margin-left: 15%;
+    margin-right: 15%;
+}
+
+#equipment-table-edit{
+    width: 100%;
+}
+.table-items{
+    transition: 100ms;
+    margin: 2px 0px 2px 0px;
+    border-bottom: 1px solid rgba(153, 153, 153, 0.196);
+    
+}
+.table-items:hover,
+.table-items:focus-visible,
+.table-items:focus-within{
+    border-bottom: 1px solid rgb(83, 71, 107);
+    border-top: 1px solid rgb(83, 71, 107);
+    box-shadow: 0px 0px 11px 0px rgb(114, 114, 114);
+    background:rgba(29, 36, 33, 0.45);
+}
+
+.table-item{
+    text-align: right;
+}
+
+.iname{
+    font-weight: bold;
+    font-size: 17px;
+}
+.iedit > button{
+    border-radius: 6px;
+    border: 2px solid rgb(125, 101, 220);
+    background: rgb(63, 43, 145);
+    color: whitesmoke;
+    margin-left: 10px;
+    transition: 200ms;
+    width: 50%;
+}
+
+
+
+@media screen and (max-width:1000px) {
+    .head-equipment{
+        width: auto;
+        height: auto;
+        margin-left: 1%;
+        margin-right: 1%;
+    }  
+    .equipments-status{
+        width: auto;
+        height: auto;
+        margin-left: 0%;
+        margin-right: 0%;
+    
+    }
+    .equipment-table{
+        width: auto;
+        height: auto;
+        margin-left: 0%;
+        margin-right: 0%;
+    }
+    #equipment-table-edit{
+        width: 100%;
+    }
+    .iedit > button{
+        width: 100%;
+    }
+}

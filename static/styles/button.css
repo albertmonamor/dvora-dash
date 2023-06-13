@@ -1,0 +1,102 @@
+
+button{
+    border: 0;
+}
+
+.button-tab-leads{
+    border-radius: 6px;
+    border: 2px solid rgb(125, 101, 220);
+    background: rgb(63, 43, 145);
+    color: whitesmoke;
+    margin-left: 10px;
+    transition: 200ms;
+}
+
+.button-tab-leads:hover{
+    background: whitesmoke;
+    color: rgb(63, 43, 145);
+    border:2px solid rgb(62, 49, 116);
+}
+.button-tab-leads:focus{
+    box-shadow: 0 4px 40px 0px rgb(134, 154, 185);
+}
+
+.button-start-addlead{
+    position: relative;
+    background:rgb(63, 43, 145);
+    color: aliceblue;
+    border-radius: 9px;
+    width: 30%;
+}
+.button-start-addlead>i{
+    position: absolute;
+    left: 10px;
+    top: 20%;
+}
+
+.button-addlead-summary{
+    background:rgb(63, 43, 145);
+    color: aliceblue;
+    border-radius: 9px;
+    width: 100%;
+    font-size: 24px;
+    box-shadow: 0px 0px 4px 5px rgba(59, 42, 125, 0.37);
+}
+
+.button-start-addlead>i{
+    position: absolute;
+    left: 10px;
+    top: 20%;
+}
+
+.button-box-lead-more-action{
+    position: relative;
+    background: rgb(63, 43, 145);
+    color: aliceblue;
+    width: 40%;
+    height: auto;
+    transition: 300ms;
+}
+.button-box-lead-more-action i{
+    position: absolute;
+    left: 20px;
+    top: 40%;
+}
+.button-box-lead-more-action:hover{
+    box-shadow: 0px 0px 4px 5px rgba(63, 43, 145, 0.413);
+}
+
+.button-equipment{
+    background: rgb(77, 57, 160);
+    color: aliceblue;
+    border-radius: 5px;
+    transition: 200ms;
+
+}
+
+.button-equipment:hover{
+    box-shadow: 0px 0px 10px 1px rgba(131, 122, 170, 0.498);
+    font-size: 20px;
+}
+
+.button-addlead{
+    background:rgb(63, 43, 145);
+    color: aliceblue;
+    border-radius: 9px;
+    width: 60% !important;
+    height: auto;
+    margin-left: 20%;
+    margin-right: 20%;
+    margin-top:30px;
+    font-size: 24px;
+    box-shadow: 0px 0px 4px 5px rgba(59, 42, 125, 0.37);
+}
+@media screen and (max-width:1000px) {
+    .button-start-addlead{
+        width: 50%;
+    }
+    .button-box-lead-more-action i{
+        left: 10px;
+        top: 40%;
+    }
+}

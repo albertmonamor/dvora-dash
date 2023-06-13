@@ -1,0 +1,175 @@
+body{
+    background: rgb(52,53,65) !important;
+}
+input{
+    border: 0;
+}
+
+
+.box-login{
+    position:relative;
+    width: auto;
+    height: auto;
+    margin-right: 35%;
+    margin-left: 35%;
+    color:aliceblue;
+    background: rgb(22,23,25);
+    box-shadow: 0px 2px 8px 7px #9f94c978;
+    border-radius: 6px;
+    direction: rtl !important;
+    margin-top: 100px;
+}
+.box-title{
+    font-size: 35px;
+    padding: 10px;
+    padding-right: 40px;    
+}
+.box-sub-title{
+    font-size: 14px;
+    color: rgb(166, 166, 166);
+    padding-top: 10px;
+    display: block;
+}
+
+
+.box-form{
+    display: flex;
+    justify-content: center;
+    padding-bottom: 10px;
+}
+.box-form-label{
+    width: auto;
+    height: auto;
+    margin-left: 40%;
+    margin-right: 10%;
+    padding-top: 30px;
+    padding-bottom: 5px;
+    color: rgb(166, 166, 166);
+    font-size: 16px;
+}
+.box-form-input{
+    position: relative;
+    width: 80%;
+    height:42px !important;
+    border-radius:6px;
+    outline: none;
+    background: rgb(52,53,65);
+    border: 1px solid #7767b3 !important;
+    color: aliceblue;
+    font-weight: bold;
+    padding: .5em 1.1428571429em;
+}
+.box-form-input:focus,
+.box-form-input:hover{
+    border: 1px solid #7767b3 !important;
+    box-shadow: 0px 0px 1px 1px #b2aad0;
+    outline: none;
+}
+.box-form-submit{
+    display: flex;
+    justify-content: center;
+    padding-top:10px;
+    padding-bottom: 10px;
+}
+
+.box-form-button{
+    padding: 10px;
+    text-decoration: none;
+    cursor: pointer;
+    background: #43309a;
+    text-align: center;
+    color: aliceblue;
+    width: 80%;
+    border-radius: 6px;
+    transition: 300ms;
+    margin-bottom: 40px;
+    margin-top: 20px;
+
+
+}
+.box-form-button:hover{
+    color: aliceblue;
+    box-shadow: 2px 0px 3px 8px #2e2945;
+}
+
+.box-form-footer{
+    width: auto;
+    height: auto;
+    margin-right:20%;
+    margin-left: 20%;
+    border-bottom: 1px solid #5e4ab7b2;
+    padding-bottom: 30px;
+}
+
+/* POPUP RESPONSE */
+.popup {
+    direction: rtl;
+    right: 0;
+    left: 0;
+    bottom: 20px;
+    display: none;
+    width: auto;
+    height: auto;
+    margin-left:35%;
+    margin-right: 35%;
+    color: aliceblue;
+    background: rgba(211, 70, 70, 0.692);
+    border-radius: 9px;
+    position: absolute;
+    transition: 300ms;
+    padding: 0;
+}
+.popup > i{
+    padding-right: 10px;
+}
+#popup-title{
+    text-align: center;
+    padding-right: 10px;
+    font-weight: bold;
+}
+
+#popup-notice{
+    color: rgb(207, 200, 200);
+    padding-right: 15px;
+
+}
+
+
+/* MEDIA SCREEN */
+
+@media screen and (max-width:1000px) {
+    .box-login{
+        margin-top: 30px;
+        width: auto;
+        height: auto;
+        margin-left: 5%;
+        margin-right: 5%;
+        box-shadow: 0px 2px 7px 4px #9f94c978;
+    }
+    
+    .popup{
+        width: auto;
+        height: auto;
+        margin-left: 5%;
+        margin-right: 5%;
+
+    }
+
+}
+
+/* LOADING on REQUESTS */
+
+.loading{
+    border: 5px solid #ffffff; 
+    border-top: 5px solid #4a0e8f; 
+    width:30px;
+    height: 30px;
+    border-radius: 50%;
+    animation: spin 700ms linear infinite;
+    box-shadow: 0 4px 45px 0 rgb(255, 255, 255);
+  }
+  
+  @keyframes spin {
+    0%{transform: rotate(0deg)}
+    100%{transform: rotate(360deg) }
+  }
