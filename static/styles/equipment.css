@@ -12,7 +12,7 @@
     display: flex;
     padding-top: 20px;
     display: flex;
-    /* border-bottom:1px solid #b2a9d130; */
+    border-bottom:1px solid #b2a9d130;
     color: rgb(188, 188, 188);
     padding-bottom: 20px;
 
@@ -31,6 +31,26 @@
     border:2px solid rgb(62, 49, 116);
 }
 
+.empty-list-equipment{
+    margin-top: 30px;
+    color: rgb(197, 197, 197);
+    font-size: 40px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+.table-title{
+    width: auto;
+    height: auto;
+    margin-left: 15%;
+    margin-right: 15%;
+    margin-top: 20px;
+    position: relative;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: rgb(197, 186, 244);
+    text-shadow: 2px 2px 4px rgba(133, 133, 133, 0.498);;
+}
+
 .equipment-table{
     padding-top: 30px;
     width: auto;
@@ -42,6 +62,14 @@
 #equipment-table-edit{
     width: 100%;
 }
+.thitem-edit{
+    color: aliceblue;
+    font-weight: bold;
+    background: rgb(34, 34, 34);
+}
+.thitem-edit > th{
+    padding-right: 10px;
+}
 .table-items{
     transition: 100ms;
     margin: 2px 0px 2px 0px;
@@ -49,30 +77,74 @@
     
 }
 .table-items:hover,
-.table-items:focus-visible,
-.table-items:focus-within{
+.table-items:focus-visible{
     border-bottom: 1px solid rgb(83, 71, 107);
     border-top: 1px solid rgb(83, 71, 107);
-    box-shadow: 0px 0px 11px 0px rgb(114, 114, 114);
+    box-shadow: 0px 0px 11px 0px rgb(0, 0, 0);
     background:rgba(29, 36, 33, 0.45);
+    
 }
 
 .table-item{
     text-align: right;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    border-bottom: 1px solid #8787873a;
+    color: aliceblue;
+    white-space: nowrap; 
+    text-overflow: ellipsis; 
 }
 
 .iname{
     font-weight: bold;
     font-size: 17px;
 }
+
+.iedit{
+    display: flex;
+     
+}
 .iedit > button{
     border-radius: 6px;
     border: 2px solid rgb(125, 101, 220);
-    background: rgb(63, 43, 145);
+    background: rgba(63, 43, 145, 0.717);
     color: whitesmoke;
-    margin-left: 10px;
-    transition: 200ms;
+    transition: 300ms;
+    width: 100%;
+}
+.iedit > button:hover{
+    box-shadow: 0 -1px 0 0 rgba(100, 121, 143, 0.434);
+}
+button.update-equip{
+    margin-left: 2px;
+}
+
+.edit-table-input{
     width: 50%;
+    border-radius: 6px;
+    background: rgba(25, 18, 45, 0.534);
+    color: aliceblue;
+    font-weight: bold;
+    border: 1px solid rgba(128, 128, 128, 0.317);
+    margin-left: -40px;
+
+}
+.edit-table-input:hover,
+.edit-table-input:focus-visible{
+    border: 1px solid rgba(128, 128, 128, 0.664);
+    outline: none;
+}
+
+.update-equip.cancel{
+    background: rgb(78, 82, 105);
+    color: aliceblue;
+    border: 1px solid rgba(240, 248, 255, 0.767);
+
+}
+.update-equip.grab{
+    background: rgb(112, 66, 66);
+    color: aliceblue;
+    border: 1px solid rgba(240, 248, 255, 0.767);
 }
 
 
@@ -91,16 +163,38 @@
         margin-right: 0%;
     
     }
+    .empty-list-equipment{
+        font-size: 25px;
+        margin-right: 25%;
+    }
     .equipment-table{
         width: auto;
         height: auto;
-        margin-left: 0%;
-        margin-right: 0%;
+        margin-left: 1%;
+        margin-right: 1%;
     }
     #equipment-table-edit{
         width: 100%;
     }
-    .iedit > button{
+    
+    .table-items:hover,
+    .table-items:focus-visible{
+        border-bottom: 1px solid rgb(83, 71, 107);
+        border-top: 1px solid rgb(83, 71, 107);
+        box-shadow: 0px 0px 11px 0px rgb(114, 114, 114);
+        background:rgba(29, 36, 33, 0.806);
+        
+    }
+    .edit-table-input{
         width: 100%;
+        border-radius: 6px;
+        background: rgba(25, 18, 45, 0.534);
+        color: aliceblue;
+        font-weight: bold;
+        border: 1px solid rgba(128, 128, 128, 0.317);
+        
+    }
+    .iedit > button{
+        padding: 2px 6px 2px 6px;
     }
 }

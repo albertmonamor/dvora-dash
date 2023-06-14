@@ -25,27 +25,27 @@
     </div>
     <div class="tabs-dashboard">
         <div class="tabs-dashboard-button">
-            <button class="tabs-button" onclick="getTemplate(this)" id="0">
+            <button class="tabs-button" onclick="getTemplate(this, this.id)" id="0">
                 <span> לקוחות </span>
             </button>
         </div>
         <div class="tabs-dashboard-button">
-            <button class="tabs-button" onclick="getTemplate(this)" id="1">
+            <button class="tabs-button" onclick="getTemplate(this, this.id)" id="1">
                 <span> ציוד </span>
             </button>
         </div>
         <div class="tabs-dashboard-button">
-            <button class="tabs-button" onclick="getTemplate(this)" id="2">
+            <button class="tabs-button" onclick="getTemplate(this, this.id)" id="2">
                 <span>היסטוריה</span>
             </button>
         </div>
         <div class="tabs-dashboard-button">
-            <button class="tabs-button" onclick="getTemplate(this)" id="3">
+            <button class="tabs-button" onclick="getTemplate(this, this.id)" id="3">
                 <span>הוצאות/הכנסות</span>
             </button>
         </div>
         <div class="tabs-dashboard-button">
-            <button class="tabs-button" onclick="getTemplate(this)" id="4">
+            <button class="tabs-button" onclick="getTemplate(this, this.id)" id="4">
                 <span>הגדרות</span>
             </button>
         </div>
@@ -70,6 +70,11 @@
     <footer>
             
     </footer>
+    <div id="popup" class="popup">
+        <i class="fa-solid fa-triangle-exclamation fa-bounce"></i>
+        <span id="popup-title"></span>
+        <span id="popup-notice"></span>
+    </div>
 </body>
 <script src="static/js/func-css.js"></script>
 <script src="static/js/requests.js"></script>
@@ -78,150 +83,6 @@
 <script src="static/js/equipment.js"></script>
 
 <script>
-    getTemplate($('#0')[0]);
+    getTemplate($("#0")[0],"0");
 </script>
 </html>
-
-
-
-
-
-
-
-<!--<body>-->
-<!--    &lt;!&ndash; ALERT &ndash;&gt;-->
-<!--    <div id="modal-show" class="modal-show">-->
-<!--        <div class="modal-show-body">-->
-<!--            <span class="modal-show-close">&times;</span>-->
-<!--            <h1 id="alert-title"></h1>-->
-<!--            <p id="alert-des"></p> -->
-<!--        </div>-->
-<!--    </div>-->
-<!--    <div id="mfull" class="modal-show mfull">-->
-<!--        <div class="mfull-main">-->
-<!--            <header class="mfull-head">-->
-<!--                <button onclick="closeModal(1)"><i class="fa-regular fa-share-from-square"></i></button>-->
-<!--                <h1 style="flex:1;" id="level">1/10</h1>-->
-<!--            </header>-->
-<!--            <div class="levels-prog">-->
-<!--                <ul class="ul-prog">-->
-<!--                    <li>-->
-<!--                        <i class="ico fa-solid fa-signature"></i>-->
-<!--                        <div class="l0 status-prog">-->
-<!--                            <p>1</p>-->
-<!--                            <i class="fa-solid fa-check"></i>-->
-<!--                        </div>-->
-<!--                        <span class="des">שם-לקוח</span>-->
-<!--                    </li>-->
-<!--                    <li>-->
-<!--                        <i class="ico fa-solid fa-mobile-screen"></i>-->
-<!--                        <div class="l2 status-prog">-->
-<!--                            <p>2</p>-->
-<!--                            <i class="fa-solid fa-check"></i>-->
-<!--                        </div>-->
-<!--                        <span class="des">פלאפון-נייד</span>-->
-<!--                    </li>-->
-<!--                    <li>-->
-<!--                        <i class=" ico fa-solid fa-id-card"></i>-->
-<!--                        <div class="l3 status-prog">-->
-<!--                            <p>3</p>-->
-<!--                            <i class="fa-solid fa-check"></i>-->
-<!--                        </div>-->
-<!--                        <span class="des">תעודת-זהות</span>-->
-<!--                    </li>-->
-<!--                    <li>-->
-<!--                        <i class="ico fa-solid fa-truck-field"></i>-->
-<!--                        <div class="l4 status-prog">-->
-<!--                            <p>4</p>-->
-<!--                            <i class="fa-solid fa-check"></i>-->
-<!--                        </div>-->
-<!--                        <span class="des">ציוד-לאירוע</span>-->
-<!--                    </li>-->
-<!--                    <li>-->
-<!--                        <i class="ico fa-regular fa-calendar-days"></i>-->
-<!--                        <div class="l5 status-prog">-->
-<!--                            <p>5</p>-->
-<!--                            <i class="fa-solid fa-check"></i>-->
-<!--                        </div>-->
-<!--                        <span class="des">תאריך-האירוע</span>-->
-<!--                    </li>-->
-<!--                    <li>-->
-<!--                        <i class="ico fa-solid fa-location-dot"></i>-->
-<!--                        <div class="l6 status-prog">-->
-<!--                            <p>6</p>-->
-<!--                            <i class="fa-solid fa-check"></i>-->
-<!--                        </div>-->
-<!--                        <span class="des">מיקום-האירוע</span>-->
-<!--                    </li>-->
-<!--                    <li>-->
-<!--                        <i class="ico fa-solid fa-money-check-dollar"></i>-->
-<!--                        <div class="l7 status-prog">-->
-<!--                            <p>7</p>-->
-<!--                            <i class="fa-solid fa-check"></i>-->
-<!--                        </div>-->
-<!--                        <span class="des">תשלום-מקדמה</span>-->
-<!--                    </li>-->
-<!--                    <li>-->
-<!--                        <i class="ico fa-solid fa-percent"></i>-->
-<!--                        <div class="l8 status-prog">-->
-<!--                            <p>8</p>-->
-<!--                            <i class="fa-solid fa-check"></i>-->
-<!--                        </div>-->
-<!--                        <span class="des">תשלום-כולל</span>-->
-<!--                    </li>-->
-<!--                    <li>-->
-<!--                        <i class="ico fa-solid fa-circle-check"></i>-->
-<!--                        <div class="l9 status-prog">-->
-<!--                            <p>9</p>-->
-<!--                            <i class="fa-solid fa-check"></i>-->
-<!--                        </div>-->
-<!--                        <span class="des">סיום</span>-->
-<!--                    </li>-->
-<!--                </ul>-->
-<!--            </div>-->
-<!--            <div id="mfull-body" class="mfull-body"></div>-->
-<!--        </div>-->
-<!--    </div>-->
-
-<!--    </div>-->
-<!--    <div class="nav-bar concen">-->
-<!--        <h1 class='nav-title'>לקוחות</h1>-->
-
-<!--    </div>-->
-<!--    <div class="tabs concen">-->
-<!--        -->
-<!--        <div class="tabs-dashboard-button">-->
-<!--            <button class="tabs-button" onclick="getTemplate(this)" id="0">-->
-<!--                <span>לקוחות</span>-->
-<!--            </button>-->
-<!--            -->
-<!--        </div>-->
-<!--        <div class="tabs-dashboard-button">-->
-<!--            <button class="tabs-button" onclick="getTemplate(this)" id="1">-->
-<!--                <span>היסטוריה</span>-->
-<!--            </button>-->
-<!--            -->
-<!--        </div>-->
-<!--        <div class="tabs-dashboard-button">-->
-<!--            <button class="tabs-button" onclick="getTemplate(this)" id="2">-->
-<!--                <span>הוצאות/הכנסות</span>-->
-<!--            </button>-->
-<!--        </div>-->
-<!--        <div class="tabs-dashboard-button">-->
-<!--            <button class="tabs-button" onclick="getTemplate(this)" id="3">-->
-<!--                <span>הגדרות</span>-->
-<!--            </button>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--    <div class="concen dash-template"></div>-->
-
-<!--</body>-->
-<!--<script src="static/js/func-css.js"></script>-->
-<!--<script src="static/js/requests.js"></script>-->
-<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
-<!--<script src="static/js/progress.js"></script>-->
-
-<!--<script>-->
-<!--    getTemplate($('#0')[0]);-->
-<!--</script>-->
-<!--</html>-->

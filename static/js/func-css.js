@@ -264,32 +264,47 @@ var total             = 0
  * @param {object} _this 
  * @returns null
  */
-function getTemplate(_this){
+function show_popup_error(res, _this){
+    //$(_this).hide(300);
+    var popup = document.getElementById("popup");
+    var title = document.getElementById("popup-title");
+    var notice = document.getElementById("popup-notice");
+    title.innerHTML += res.title;
+    notice.innerText = res.notice;
+    popup.style.display = "block";
+    setTimeout(()=>{popup.style.display = "none";title.innerText="";notice.innerText="";$(_this).show(300);},2000);
+}
+function getTemplate(_this, _id, reget=0){
 
-    tmp_num = _this.id
-    _parent = document.getElementsByClassName("dashboard-template")[0]
+    tmp_num = _id;    
+    _parent = document.getElementsByClassName("dashboard-template")[0];
     tabSelected(_this);
-    if (templates[tmp_num] != undefined){
+    if (templates[tmp_num] != undefined && !reget){
         _parent.innerHTML = templates[tmp_num].tmp;
         document.getElementById("tab-name").innerText = templates[tmp_num].name;
         return 0;
     }
+    
     $.ajax({
         url:"/template/"+_this.id,
         type:"POST",
         success:
             (res) => {
                 if (res.success){
-                    _parent.innerHTML = res.template
-                    templates[tmp_num] = {"tmp":res.template, "name":res.name};
+                    _parent.innerHTML = res.template;
                     document.getElementById("tab-name").innerText = res.name;
+                    templates[tmp_num] = {"tmp":res.template, "name":res.name};
                     
                 }else{
-                    
+                    show_popup_error(res, _this);
                 }
             }
     })
     
+}
+
+function regetTemplate(_id){
+
 }
 
 function createTableEquipmentSelected(parent){
@@ -355,7 +370,7 @@ function openModalAddLead(_this){
                 supply_json = res.supply;
             }
             else{
-
+                show_popup_error(res, _this);
             }
         }
     })
@@ -448,7 +463,7 @@ function showEquipmentBySearch(word){
             PButton.type = 'button';
             PButton.classList.add('button-equipment');
             PButton.innerHTML = '<i class="fa-solid fa-plus"></i>';
-            PButton.onclick = function(){addEquipment(this, 1);}
+            PButton.onclick = function(){addEquipmentToList(this, 1);}
             // count of specific 
             countE = document.createElement('span');
             countE.id = 'count-equipment';
@@ -460,7 +475,7 @@ function showEquipmentBySearch(word){
             MButton.classList.add('button-equipment');
             MButton.innerHTML = '<i class="fa-solid fa-minus"></i>';
             // onclick
-            MButton.onclick = function(){addEquipment(this, -1);}
+            MButton.onclick = function(){addEquipmentToList(this, -1);}
 
             LEAction.appendChild(PButton);
             LEAction.appendChild(countE);
@@ -473,7 +488,7 @@ function showEquipmentBySearch(word){
         }
     }
 }
-function addEquipment(_this, number){
+function addEquipmentToList(_this, number){
     nums = _this.parentElement.children[1];
     nadd = parseInt(nums.textContent);
     equipment = supply_json[_this.parentElement.parentElement.id];

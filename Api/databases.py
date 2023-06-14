@@ -3,9 +3,6 @@ import random
 from Api.api_function import get_format_last_write, get_name_date_by_str
 from Api.protocol import DBase, m_app
 from time import time, ctime, gmtime, sleep
-from flask_migrate import Migrate
-
-db_migrate = Migrate(m_app, DBase)
 
 class Users(DBase.Model):
     __tablename__ = "users"
@@ -91,6 +88,8 @@ def get_all_leads_open()-> dict[int, dict]:
 def get_supply_by_id(_id) -> Supply:
     return Supply.query.filter_by(_id=_id).first()
 
+def generate_id_supply() ->str:
+    return "E"+str(len(Supply.query.all()))
 
 def verify_supply(supp: dict) -> tuple[bool, dict]:
     _supply_lead = {}

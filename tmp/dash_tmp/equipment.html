@@ -1,26 +1,47 @@
 <div class="head-equipment">
     <div class="equipments-status">
-            <button class="item" onclick="openModalAddLead(this,0)" id="15">
+            <button class="item" onclick="openModalAddEquipment(this)" id="16">
                 <span>הוסף ציוד <i class="fa-solid fa-plus"></i></span>
+            </button>
+            <button class="item" onclick="getTemplate($('#1')[0], '1', 1)">
+                <span><i class="fa-solid fa-rotate-right"></i></span>
             </button>
         </div>
     </div>
+    <div class="table-title">
+        <span>ציוד במערכת</span>
+    </div>
     <div class="equipment-table">
         <table id="equipment-table-edit">
+            <thead>
+                <tr class="thitem-edit">
+                    <th>שם</th>
+                    <th>מחיר</th>
+                    <th>כמות</th>
+                    <th style="text-align: center;padding: 0;">פעולות</th>
+                </tr>
+
+            </thead>
             <tbody>
                 {% for k,v in equipment.items() %}
                 <tr class="table-items" id={{k}}>
                     <td class="table-item iname">{{v.name}}</td>
                     <td class="table-item iprice">{{v.price}} ₪</td>
-                    <td class="table-item icount">{{v.count}}</td>
+                    <td class="table-item iexist">{{v.exist}}</td>
                     <td class="table-item iedit">
-                        <button onclick="alert(4)">
-                            <i class="fa-solid fa-pen-to-square"></i>
+                        <button onclick="editEquipment(this)">
+                            <i class="fa-solid fa-ellipsis fa-fade"></i>
                         </button>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% if equipment|length == 0%}
+            <div class="empty-list-equipment">
+                <i class="fa-solid fa-truck-field"></i>
+                <span>אין ציוד זמין</span>
+            </div>
+        {% endif %}
     </div>
 </div>

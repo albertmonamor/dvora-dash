@@ -3,9 +3,15 @@ body{
     font-family: 'Roboto', 'consolas';
     direction: rtl;
 }
+body::-webkit-scrollbar,
+body::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-track{
+    display: none;
+}
 input{
     border: 0;
 }
+
 
 
 .head-dashboard{
@@ -169,12 +175,48 @@ footer{
     border-radius: 50%;
     animation: spin 700ms linear infinite;
     box-shadow: 0 4px 45px 0 rgb(255, 255, 255);
-  }
+}
   
-  @keyframes spin {
+@keyframes spin {
     0%{transform: rotate(0deg)}
     100%{transform: rotate(360deg) }
-  }
+}
+
+
+/* POPUP RESPONSE */
+.popup{
+    direction: rtl;
+    right: 0;
+    left: 0;
+    z-index: 1000;
+    bottom: 20px;
+    display: none;
+    width: auto;
+    height: auto;
+    margin-left:35%;
+    margin-right: 35%;
+    color: aliceblue;
+    background: rgba(211, 70, 70, 0.692);
+    border-radius: 9px;
+    position: absolute;
+    transition: 300ms;
+    padding: 0;
+}
+.popup > i{
+    padding-right: 10px;
+}
+#popup-title{
+    text-align: center;
+    padding-right: 10px;
+    font-weight: bold;
+}
+
+#popup-notice{
+    color: rgb(207, 200, 200);
+    padding-right: 15px;
+
+}
+
 
 /* MEDIA SCREEN */
 
@@ -197,5 +239,11 @@ footer{
     }
     .modal-dashboard-title::after{
         right: 30%;
+    }
+    .popup{
+        width: auto;
+        height: auto;
+        margin-left:5%;
+        margin-right: 5%;
     }
 }

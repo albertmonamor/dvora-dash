@@ -99,22 +99,21 @@
 }
 
 
-
-th, td {
+.thitem, .tditem{
     padding: 12px;
     border-bottom: 1px solid #8787873a;
 }
-
-th {
+.thitem{
     background-color: rgb(29, 26, 33);
     font-weight: bold;
     color: rgb(187, 187, 187);
 }
 
-td {
+.tditem{
     color: aliceblue;
     text-align: center;
 }
+
 
 .lead-summary{
     display: none;
@@ -158,8 +157,12 @@ td {
     width: 100%;
     margin-top: 0;
 }
+.table-equipment > tr{
+    border-bottom: 1px solid rgba(255, 255, 255, 0.078) !important;
+}
 .table-equipment > tr > td{
     border-bottom: 1px solid rgba(255, 255, 255, 0.078) !important;
+    padding: 10px;
 }
 .table-equipment > tr > td:hover{
     background: rgb(34, 34, 34);;

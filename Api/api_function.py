@@ -112,3 +112,19 @@ def get_name_date_by_str(_time:str):
 
 def get_clear_money(payment:int|str):
     return int(payment)-990.90
+
+
+def check_equipment(data:dict[str]) -> tuple[bool, str]:
+    name:str = data.get("name")
+    price:str = data.get("price", "")
+    exist:str = data.get("exist", "")
+
+    if not name or name.__len__() > 15:
+        return False, "שם ארוך מידיי"
+    if not price or not price.isdigit():
+        return False, "מחיר לא תקין"
+    if not exist or not exist.isdigit():
+        return False, "כמות לא תקינה"
+
+    # SUCCESS
+    return True, ""

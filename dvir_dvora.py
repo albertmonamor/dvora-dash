@@ -1,11 +1,11 @@
 from json import loads, dumps
 from time import sleep
-from Api.api_function import check_level_new_lead, get_clear_money
+from Api.api_function import check_level_new_lead, get_clear_money, check_equipment
 from Api.protocol import m_app, get_random_key, LOGIN_FAILED, LOGIN_SUCCESS, UN_ERROR, EMPTY_LEAD_T, T404, TMP_DENIED, \
-    LEAD_ERROR, EQUIP_ERROR, EQUIP_SUCCESS
+    LEAD_ERROR, EQUIP_ERROR, EQUIP_SUCCESS, UPDATE_EQUIP_ERR
 from flask import render_template, request, render_template_string, session, jsonify, redirect, url_for
 from Api.databases import Users, DBase, signup, db_new_lead, add_supply, get_all_supply, verify_supply, \
-    get_all_leads_open, time, SUPPLY
+    get_all_leads_open, time, SUPPLY, get_supply_by_id, generate_id_supply
 
 
 #  ******************* ROUTES *************************
@@ -52,7 +52,6 @@ def login():
     else:
         return jsonify(LOGIN_FAILED)
 
-
 # response: <html template>                  << HTML
 @m_app.route("/dashboard", methods=['GET'])
 def dashboard():
@@ -60,7 +59,6 @@ def dashboard():
         return redirect(url_for("index"))
 
     return render_template('dashboard.html')
-
 
 @m_app.route("/template/<tmp>", methods=['POST'])
 def get_template_dashboard(tmp):
@@ -95,10 +93,13 @@ def get_template_dashboard(tmp):
                         "template":render_template(res_tmp,user=session['user']),
                         "supply":get_all_supply(),
                         "welcome":render_template("/dash_tmp/wel_add_lead")})
+    elif tmp == '16':
+        res_tmp = "/dash_tmp/add_equip.html"
+        return jsonify({"success":True,
+                        "template":render_template(res_tmp, user=session['user']),
+                        "welcome":render_template("/dash_tmp/wel_add_equip")})
 
     return jsonify({"success":True, "template":render_template(res_tmp), "name":name})
-
-
 
 @m_app.route("/new_lead", methods=["POST"])
 def new_lead():
@@ -157,7 +158,55 @@ def add_lead():
     # add data to database
     return jsonify(EQUIP_SUCCESS)
 
+@m_app.route("/add_equipment", methods=["POST"])
+def add_equipment():
+    error = dict(UPDATE_EQUIP_ERR)
+
+    if not session.get("is_admin"):
+        return jsonify(TMP_DENIED)
+    result = check_equipment(request.form)
+    if not result[0]:
+        error["notice"] = result[1]
+        return jsonify(error)
+
+    # add to the database
+    add_supply(name=request.form["name"],
+               price=int(request.form["price"]),
+               exist=int(request.form["exist"]),
+               desc="",
+               _id=generate_id_supply(),
+               count=0)
+    return jsonify({"success":True})
+
+
+@m_app.route("/update_equipment/<eq_id>", methods=["POST"])
+def update_equipment(eq_id):
+    error = dict(UPDATE_EQUIP_ERR)
+
+    if not session.get("is_admin"):
+        return jsonify(TMP_DENIED)
+
+    result = check_equipment(request.form)
+    if not result[0]:
+        error["notice"] = result[1]
+        return jsonify(error)
+
+    equip = get_supply_by_id(eq_id)
+    if not equip:
+        error["notice"] = "ציוד לא מוכר"
+        return jsonify(error)
+
+    equip.name = request.form["name"]
+    equip.price = int(request.form["price"])
+    equip.exist = int(request.form["exist"])
+
+    # update db
+    DBase.session.commit()
+    return jsonify({"success":True})
+
+
 if __name__ == "__main__":
     with m_app.app_context():
         DBase.create_all()
-    m_app.run(host="10.0.0.1", port=80, debug=True)
+    m_app.run(host="0.0.0.0", port=80, debug=True)
+
