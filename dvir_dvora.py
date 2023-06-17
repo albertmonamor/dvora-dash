@@ -2,10 +2,10 @@ from json import loads, dumps
 from time import sleep
 from Api.api_function import check_level_new_lead, get_clear_money, check_equipment
 from Api.protocol import m_app, get_random_key, LOGIN_FAILED, LOGIN_SUCCESS, UN_ERROR, EMPTY_LEAD_T, T404, TMP_DENIED, \
-    LEAD_ERROR, EQUIP_ERROR, EQUIP_SUCCESS, UPDATE_EQUIP_ERR
+    LEAD_ERROR, EQUIP_ERROR, EQUIP_SUCCESS, SEARCH_LEAD_ERR
 from flask import render_template, request, render_template_string, session, jsonify, redirect, url_for
-from Api.databases import Users, DBase, signup, db_new_lead, add_supply, get_all_supply, verify_supply, \
-    get_all_leads_open, time, SUPPLY, get_supply_by_id, generate_id_supply
+from Api.databases import Users, DBase, signup, db_new_client, add_supply, get_all_supply, verify_supply \
+    , time, SUPPLY, get_supply_by_id, generate_id_supply, DBClientApi
 
 
 #  ******************* ROUTES *************************
@@ -69,9 +69,10 @@ def get_template_dashboard(tmp):
     name = "404"
     # /* <    *---MAIN TAB TEMPLATE---*    >
     if tmp == "0":
+        client_open = DBClientApi().get_all_client_by_mode("open")
         res_tmp = "/dash_tmp/leads.html"
         return jsonify({"success":True,
-                        "template":render_template(res_tmp, leads=get_all_leads_open(),empty_lead=EMPTY_LEAD_T),
+                        "template":render_template(res_tmp, leads=client_open,empty_lead=EMPTY_LEAD_T),
                         "name":"לקוחות"})
     elif tmp == "1":
         res_tmp = "/dash_tmp/equipment.html"
@@ -119,12 +120,14 @@ def add_lead():
 
     name       = request.form.get("name")       or 0
     phone      = request.form.get("phone")      or 0
-    id_lead    = request.form.get("id_lead")    or -1
+    id_client    = request.form.get("id_lead") or -1
     equipment:str  = request.form.get("supply", "{}")
     date       = request.form.get("date")       or 0
     location   = request.form.get("location")   or 0
     sub_pay    = request.form.get("sub_pay")    or 0
     payment    = request.form.get("payment")    or 0
+    exp_fuel   = request.form.get("exp_fuel")    or 0
+    exp_employee = request.form.get("exp_employee") or 0
     if not any(request.form.values()):
         res["notice"] = "אחד מהנתונים חסר או לא ברור!"
         return jsonify(res)
@@ -141,26 +144,47 @@ def add_lead():
     if not equipment_is_ok:
         return jsonify(EQUIP_ERROR)
     # // SUCCESS
-    db_new_lead(write_by=session['user'],
-                full_name=name,
-                phone=phone,
-                ID=id_lead,
-                last_write=time(),
-                event_supply=dumps(s_lead),
-                event_date=date,
-                event_place=location,
-                determine_money=sub_pay,
-                pay_sub=bool(sub_pay),
-                total_money=payment,
-                order_equip=bool(s_lead),
-                is_open=True,
-                clear_money=get_clear_money(payment))
-    # add data to database
+    db_new_client(write_by=session['user'],
+                  last_write=time(),
+                  is_open=True,
+                  is_garbage=False,
+                  #client_id
+                  full_name=name,
+                  phone=phone,
+                  ID=id_client,
+                  event_supply=dumps(s_lead),
+                  event_date=date,
+                  event_place=location,
+                  expen_employee=exp_employee,
+                  expen_fuel=exp_fuel,
+                  d_money=sub_pay,
+                  total_money=payment)
+    # SUCCESS
     return jsonify(EQUIP_SUCCESS)
+
+
+@m_app.route("/search_lead/<data>", methods=["POST"])
+def search_lead(data):
+    error = dict(SEARCH_LEAD_ERR)
+
+    if not session.get("is_admin"):
+        return jsonify(TMP_DENIED)
+
+    if not data:
+        return jsonify({error})
+
+    res_tmp = "/dash_tmp/leads.html"
+    client_found = DBClientApi().search_client(data)
+    if not client_found:
+        return jsonify(error)
+    return jsonify({"success": True,
+                    "template": render_template(res_tmp, leads=client_found, empty_lead=EMPTY_LEAD_T),
+                    "name": "לקוחות"})
+
 
 @m_app.route("/add_equipment", methods=["POST"])
 def add_equipment():
-    error = dict(UPDATE_EQUIP_ERR)
+    error = dict(EQUIP_ERROR)
 
     if not session.get("is_admin"):
         return jsonify(TMP_DENIED)
@@ -181,7 +205,7 @@ def add_equipment():
 
 @m_app.route("/update_equipment/<eq_id>", methods=["POST"])
 def update_equipment(eq_id):
-    error = dict(UPDATE_EQUIP_ERR)
+    error = dict(EQUIP_ERROR)
 
     if not session.get("is_admin"):
         return jsonify(TMP_DENIED)
@@ -199,9 +223,25 @@ def update_equipment(eq_id):
     equip.name = request.form["name"]
     equip.price = int(request.form["price"])
     equip.exist = int(request.form["exist"])
-
     # update db
     DBase.session.commit()
+    return jsonify({"success":True})
+
+
+@m_app.route("/del_equipment/<eq_id>", methods=["POST"])
+def del_equipment(eq_id):
+    error = dict(EQUIP_ERROR)
+
+    if not session.get("is_admin"):
+        return jsonify(TMP_DENIED)
+    equip = get_supply_by_id(eq_id)
+    if not equip:
+        error["notice"] = "נמחק או לא קיים"
+        return jsonify(error)
+    # delete
+    DBase.session.delete(equip)
+    DBase.session.commit()
+    # SUCCESS
     return jsonify({"success":True})
 
 

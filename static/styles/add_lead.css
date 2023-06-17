@@ -178,36 +178,38 @@
 }
 
 .manager-expense-item{
-    padding: 10px 0 10px 0;
+    padding: 5px 0 5px 0;
     margin-right: 20%;
     margin-left: 20%;
     width: auto;
     height: auto;
     margin-top: 20px;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     border-radius: 5px;
+    position: relative;
 }
 .manager-expense-item:hover{
     box-shadow: 0px 0px 3px 3px rgba(57, 57, 57, 0.345);
 }
 .manager-expense-item>label{
+    padding-bottom: 10px;
     font-size: 20px;
     margin-right: 10px;
     color: rgb(175, 175, 175);
-}
-.manager-expense-item>input[type=range]{
-    background: rgb(77, 57, 160);
-    
-}
+    font-weight: bold;
+}   
+
 .manager-expense-item>output{
     color: aliceblue;
     font-size: 20px;
     margin-left: 15px;
+    color: rgb(78, 70, 97);
 }
-.manager-expense-item > .payment-total-safe{
+
+.payment-total-safe{
     flex-grow: 1;
-    margin-right: 10px;
+    margin: 0 10px 0 10px;
     padding: 10px;
     border-radius: 5px;
     background: rgba(25, 18, 45, 0.534);
@@ -217,6 +219,14 @@
     border: 1px solid rgba(128, 128, 128, 0.317);
 }
 
+.input-pay{
+    display: inherit;
+}
+.input-pay >i{
+    position: absolute;
+    left: 25px;
+    bottom:20px;
+}
 .manager-expense-item .payment-total-safe:hover,
 .manager-expense-item .payment-total-safe:focus{
     outline: none;
@@ -262,6 +272,7 @@
     .manager-expense-item>output{
         font-size: 17px;
     }
+    .manager-expense-item > label{
+        font-size: 15px;
+    }
 }
-
-

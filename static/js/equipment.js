@@ -94,8 +94,22 @@ function addEquipment(e, _this){
 
 
 function deleteEquipment(_this){
-    
-    
+    console.log("/del_equipment/"+_this.parentElement.parentElement.id)
+    $.ajax({
+        url:"/del_equipment/"+_this.parentElement.parentElement.id,
+        type:"post",
+        success:(res)=>{
+            if (res.success){
+                $(_this.parentElement.parentElement.id).fadeOut(300);
+                setTimeout(()=>{_this.parentElement.parentElement.remove();}, 300);
+            }
+            else{
+                show_popup_error(res, $("body"));
+
+            }
+            
+        }
+    })
 }
 
 function openModalAddEquipment(_this){
@@ -109,6 +123,7 @@ function openModalAddEquipment(_this){
                 document.getElementById("aleadtitle").innerText = "הוספת ציוד למערכת"
                 document.getElementById("modaldes").innerText = res.welcome
                 document.getElementById("modalcontent").innerHTML = res.template
+                document.getElementById("closeModalButton").onclick = ()=>{closeModalAddEquipment();};
                 supply_json = res.supply;
             }
             else{
@@ -119,7 +134,7 @@ function openModalAddEquipment(_this){
 }
 
 function closeModalAddEquipment(ask=0){
-    if (ask || confirm("לבטל הוספת ציוד?")){
+    if (1){//ask || confirm("לבטל הוספת ציוד?")){
         $(document.getElementById("model-addlead")).fadeOut(100);
         $(document.getElementById("modaldes")).fadeIn(300);
         $(document.getElementById("modalstart")).fadeIn(300);

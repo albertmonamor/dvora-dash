@@ -9,7 +9,7 @@
     </label>
     <input type="tel" id="phone" name="client-phone" none>
 
-    <label for="id">תעודת זהות
+    <label for="id">מספר זהות
         <p>שלב 3</p>
     </label>
     <input type="tel" id="id" name="customer-id">
@@ -79,17 +79,32 @@
   <div class="leader-expense">
     <h3 class="lead-summary-title">הוצאות ותשלום</h3>
     <div class="manager-expense-item">
-        <label for="fuel-usage">הוצאות דלק</label>
-        <input type="range" id="range-fuel" name="fuel-usage" min="0" max="700" step="10" value="0" oninput="function a(t){document.getElementById('fuel-usage').value=t.value+' ₪';};a(this);updateTotalSummary(this.value)">
-        <output for="fuel-usage" id="fuel-usage">0 ש"ח</output>
+        <label for="exp-fuel">הוצאות דלק</label>
+        <div class="input-pay">
+          <i class="fa-solid fa-shekel-sign"></i>
+          <input class="payment-total-safe" type="tel" id="exp-fuel" name="exp-fuel" oninput="updateTotalSummary(this)">
+        </div>
     </div>
     <div class="manager-expense-item">
+      <label for="exp-employee">הוצאות עובדים</label>
+      <div class="input-pay">
+        <i class="fa-solid fa-shekel-sign"></i>
+        <input type="tel" class="payment-total-safe" id="exp-employee" name="exp-employe" oninput="updateTotalSummary(this)">
+      </div>
+  </div>
+    <div class="manager-expense-item">
         <label for="payment-safe">מקדמה</label>
-        <input type="tel" class="payment-total-safe" id="payment-safe" name="payment-safe" none>
+        <div class="input-pay">
+          <i class="fa-solid fa-shekel-sign"></i>
+          <input type="tel" class="payment-total-safe" id="payment-safe" name="payment-safe">
+        </div>
     </div>
     <div class="manager-expense-item">
         <label for="payment-total"> ברוטו</label>
-        <input type="tel" class="payment-total-safe" id="payment-total" name="payment-total" oninput="function x(v){total=v};x(this.value)" none>
+        <div class="input-pay">
+          <i class="fa-solid fa-shekel-sign"></i>
+          <input type="tel" class="payment-total-safe" id="payment-total" value="0" name="payment-total">
+        </div>
     </div>
   </div>
     <button type="button" class="button-addlead" onclick="addLead(this)">

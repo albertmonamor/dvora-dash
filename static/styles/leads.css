@@ -21,6 +21,35 @@
     padding-bottom: 20px;
 }
 
+.search-leads{
+    margin-top: 15px;
+    display: none;
+    width: auto;
+    height: auto;
+    margin-left: 15%;
+    margin-right: 15%;
+}
+
+.input-search-leads{
+    padding: 8px;
+    border-radius: 0px 6px 6px 0px ;
+    background: rgba(25, 18, 45, 0.534);
+    color: aliceblue;
+    font-weight: bold;
+    height:42px !important;
+    border: 1px solid rgba(128, 128, 128, 0.317);
+}
+.input-search-leads:hover,
+.input-search-leads:focus-visible{
+    border: 1px solid rgba(128, 128, 128, 0.664);
+    outline: none;
+}
+
+.search-leads > .button-tab-leads{
+    border-radius: 6px 0px 0px 6px;
+    padding: 0px 7px 0px 7px ;
+}
+
 .leads-list{
     display: flex;
     flex-direction: row;

@@ -258,7 +258,9 @@ function tabSelected(_this){
  */
 const templates         = {}
 var supply_json         = {}
-var total             = 0
+var total               = 0
+const identify_total    = {}
+var search_is_open      = 0
 /**
  * 
  * @param {object} _this 
@@ -282,6 +284,9 @@ function getTemplate(_this, _id, reget=0){
     if (templates[tmp_num] != undefined && !reget){
         _parent.innerHTML = templates[tmp_num].tmp;
         document.getElementById("tab-name").innerText = templates[tmp_num].name;
+        if (search_is_open && tmp_num==0){
+            showSearchLeads(document.getElementById('opensearch'))
+        }
         return 0;
     }
     
@@ -294,6 +299,7 @@ function getTemplate(_this, _id, reget=0){
                     _parent.innerHTML = res.template;
                     document.getElementById("tab-name").innerText = res.name;
                     templates[tmp_num] = {"tmp":res.template, "name":res.name};
+
                     
                 }else{
                     show_popup_error(res, _this);
@@ -317,7 +323,7 @@ function createTableEquipmentSelected(parent){
         equipment_selected.push({"שם":values.name, "כמות":values.count, "סך הכול": values.count*values.price +" ש\"ח"})
     }
     elem = document.getElementById("payment-total");
-    elem.value = tmp_total_money_equip
+    elem.value = tmp_total_money_equip;
     total = tmp_total_money_equip;
     // create table & create titles (headers)
     table = document.createElement('table');
@@ -367,6 +373,7 @@ function openModalAddLead(_this){
                 document.getElementById("aleadtitle").innerText = "הוספת לקוח לרשימות"
                 document.getElementById("modaldes").innerText = res.welcome
                 document.getElementById("modalcontent").innerHTML = res.template
+                document.getElementById("closeModalButton").onclick = ()=>{closeModalAddLead();};
                 supply_json = res.supply;
             }
             else{
@@ -376,10 +383,52 @@ function openModalAddLead(_this){
     })
 
 }
+
+function showSearchLeads(_this){
+    element = document.getElementById("searchleads");
+    button = document.getElementById("opensearch");
+    $(element).show(300);
+    $(element).css("display", "flex");
+    // replace call
+    button.onclick = ()=>{hideSearchLeads(_this);};
+    search_is_open =1;
+}
+
+function hideSearchLeads(_this){
+    element = document.getElementById("searchleads");
+    button = document.getElementById("opensearch");
+    $(element).hide(300);
+    button.onclick = ()=>{showSearchLeads(_this);};
+    getTemplate($("#0")[0], 0, 1);
+}
 function showModalContent(_this){
     $(document.getElementById("modaldes")).fadeOut(300)
     $(document.getElementById("modalstart")).fadeOut(300)
     $(document.getElementById("modalcontent")).fadeIn(300);
+}
+function searchLeads(_this){
+    element = document.getElementById("searchinput");
+    value = element.value;
+    if (!value){return;}
+    bhtml = _this.innerHTML;
+    _this.innerHTML = '<i class="fa-solid fa-atom fa-spin"></i>'
+    $.ajax({
+        url:"/search_lead/"+value,
+        type:"post",
+        success:(res)=>{
+            if (res.success){
+                templates[0].tmp = res.template;
+                document.getElementsByClassName("dashboard-template")[0].innerHTML = res.template;
+
+                showSearchLeads();
+                document.getElementById("searchinput").value = value;
+            }
+            else{
+                show_popup_error(res, _this);
+            }
+            _this.innerHTML = bhtml;
+        }
+    })
 }
 function backAddLead(){
     $(document.getElementById("lead-summary")).fadeOut(300);
@@ -408,6 +457,7 @@ function clientSummary(event, _this){
         elementV.innerText = array_values[i] ? array_values[i]: "לא צוין";
     }
     $(leadS).fadeIn(300);
+    updateTotalSummary($("#payment-safe"));
 
 }
 function addLead(_this){
@@ -424,7 +474,9 @@ function addLead(_this){
             "date":     document.getElementById("event-date").value,
             "location": document.getElementById("event-location").value,
             "sub_pay":  document.getElementById("payment-safe").value,
-            "payment":  document.getElementById("payment-total").value
+            "payment":  document.getElementById("payment-total").value,
+            "exp_fuel": document.getElementById("exp-fuel").value,
+            "exp_employee": document.getElementById("exp-employee").value
         },
         success:(res)=>{
             if (res.success){
@@ -496,10 +548,19 @@ function addEquipmentToList(_this, number){
     nums.innerText = nadd += number;
     supply_json[_this.parentElement.parentElement.id].count = parseInt(nums.innerText);
 }
-function updateTotalSummary(value){
-    if (total-value<0){return;}
+function updateTotalSummary(_this){
+    if (!_this.value){_this.value=0;}
+    identify_total[_this.id]=_this.value;
+    var values = get_summery_exp();
     elem = document.getElementById("payment-total");
-    elem.value = total-value;
+    elem.value = (total+values) ;
+}
+
+function get_summery_exp(){
+    values=0;
+    var idens = Object.values(identify_total);
+    idens.forEach(function(value) {values+=parseFloat(value)});
+    return values;
 }
 function getSubTemplpateDashboard(_this)
 {

@@ -4,13 +4,20 @@
        <button class="button-tab-leads" onclick="openModalAddLead(this,0)" id="15">
            <span>הוסף לקוח <i class="fa-solid fa-plus"></i></span>
        </button>
-       <button class="button-tab-leads">
+       <button  id="opensearch" class="button-tab-leads" onclick="showSearchLeads(this)">
            <span> חיפוש <i class="fa-brands fa-searchengin"></i></span>
        </button>
        <button class="button-tab-leads">
            <span>סנן <i class="fa-solid fa-filter"></i></span>
        </button>
    </div>
+   
+</div>
+<div class="search-leads" id="searchleads">
+    <input type="text" class="input-search-leads" id="searchinput" placeholder="פאלפון, שם לקוח">
+    <button type="button" class="button-tab-leads" onclick="searchLeads(this)">
+        <span><i class="fa-solid fa-magnifying-glass fa-fade"></i></span>
+    </button>
 </div>
 <div class="leads-list">
     {% for k, lead_box in leads.items()%}
@@ -61,14 +68,21 @@
                     </p>
                 </div>
                 <div class="lead-profile">
-                    <p><span><i class="fa-solid fa-circle-check v-valid"></i></span>  הוצאות נמוכות</p>
+                    <p>
+                        <span>
+                            {% if lead_box.low_e %}
+                                <i class="fa-solid fa-circle-check v-valid"></i>
+                            {% else %}
+                                <i class="fa-solid fa-circle-xmark x-invalid"></i>
+                            {% endif %}
+                    </span>  הוצאות נמוכות</p>
                 </div>
             </div>
             <div class="lead-box-footer">
                 <div class="lead-box-money">
-                    <span id="money-neto">{{ lead_box.cm }}</span>₪
+                    ₪ <span id="money-neto">{{ lead_box.cm }}</span>
                     <span id="des">נטו מתוך</span>
-                    <span id="money-bruto">{{ lead_box.tm }}₪</span>
+                    <span id="money-bruto">₪ {{ lead_box.tm }}</span>
                 </div>
                     <button type="button" class="button-box-lead-more-action">פרטים <i class="fa-solid fa-arrow-left fa-fade"></i></button>
             </div>

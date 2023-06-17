@@ -14,6 +14,10 @@ DAYS_HEBREW = {
 }
 
 
+def contain_html_entities(_str:str)-> bool:
+    return "<" in _str or ">" in _str or "</" in _str
+
+
 
 def check_level_new_lead(level:str, value:str) -> tuple[int, jsonify]:
     __err = dict(LEAD_ERROR)
@@ -62,7 +66,14 @@ def check_level_new_lead(level:str, value:str) -> tuple[int, jsonify]:
         if not value.isdigit():
             __err['notice'] = "סך כולל לא תקין"
             return 0, jsonify(__err)
-
+    elif level == "10":
+        if not value.isdigit():
+            __err["notice"] = 'הוצאות דלק שגוי'
+            return 0, jsonify(__err)
+    elif level == "11":
+        if not value.isdigit():
+            __err["notice"] = "הוצאות עובדים לא תקין"
+            return 0, jsonify(__err)
     return 1, jsonify(__suc)
 
 
@@ -119,7 +130,7 @@ def check_equipment(data:dict[str]) -> tuple[bool, str]:
     price:str = data.get("price", "")
     exist:str = data.get("exist", "")
 
-    if not name or name.__len__() > 15:
+    if not name or name.__len__() > 15 or contain_html_entities(name):
         return False, "שם ארוך מידיי"
     if not price or not price.isdigit():
         return False, "מחיר לא תקין"

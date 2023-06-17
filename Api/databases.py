@@ -1,3 +1,5 @@
+import binascii
+import os
 import random
 
 from Api.api_function import get_format_last_write, get_name_date_by_str
@@ -16,23 +18,31 @@ class Users(DBase.Model):
         return f"<{self.__tablename__}> {self.index}"
 
 
-class Leads(DBase.Model):
-    __tablename__   = "leads"
+class Client(DBase.Model):
+    __tablename__ = 'client'
+    # for API
     index           = DBase.Column(DBase.Integer,       primary_key=True)
     write_by        = DBase.Column(DBase.String,        nullable=False)
-    last_write      = DBase.Column(DBase.Float,         nullable=False,default=time())
+    last_write      = DBase.Column(DBase.Float, nullable=False, default=time())
+    is_open         = DBase.Column(DBase.Boolean,       nullable=False, default=True)
+    is_garbage      = DBase.Column(DBase.Boolean,       nullable=False, default=False)
+    client_id       = DBase.Column(DBase.String,        nullable=False, default=lambda:"C"+binascii.b2a_hex(os.urandom(5)).decode())
+    # datas
     full_name       = DBase.Column(DBase.String(20),    nullable=False)
     phone           = DBase.Column(DBase.String(20),    nullable=False)
     ID              = DBase.Column(DBase.String(11),    nullable=False)
-    event_supply    = DBase.Column(DBase.String(500),   nullable=False)
+    # id of item in other DB
+    event_supply    = DBase.Column(DBase.String(100),   nullable=False)
     event_date      = DBase.Column(DBase.String,        nullable=False)
     event_place     = DBase.Column(DBase.String,        nullable=False)
-    determine_money = DBase.Column(DBase.Float,         nullable=False)
-    pay_sub         = DBase.Column(DBase.Boolean,       default=False, unique=False)
+    # expenditure
+    expen_employee  = DBase.Column(DBase.Float,         nullable=False, default=0)
+    expen_fuel      = DBase.Column(DBase.Float,         nullable=False, default=0)
+    # מקדמה
+    d_money         = DBase.Column(DBase.Float,         nullable=False, default=0)
     total_money     = DBase.Column(DBase.Float,         nullable=False)
-    order_equip     = DBase.Column(DBase.Boolean,       default=False, unique=False)
-    is_open         = DBase.Column(DBase.Boolean,       nullable=False, default=True)
-    clear_money     = DBase.Column(DBase.Float,         nullable=False)
+    # for API bool
+
 
 
 
@@ -46,15 +56,16 @@ class Supply(DBase.Model):
     exist           = DBase.Column(DBase.Integer,       nullable=False)
     count           = DBase.Column(DBase.Integer,       nullable=False)
 
+
 def signup(**kwargs):
     user = Users(**kwargs)
     DBase.session.add(user)
     DBase.session.commit()
 
 
-def db_new_lead(**kwargs):
-    n_lead = Leads(**kwargs)
-    DBase.session.add(n_lead)
+def db_new_client(**kwargs):
+    n_client = Client(**kwargs)
+    DBase.session.add(n_client)
     DBase.session.commit()
 
 
@@ -72,24 +83,12 @@ def get_all_supply():
     return _all
 
 
-def get_all_leads_open()-> dict[int, dict]:
-    _all = {}
-    leads:list[Leads] = Leads.query.filter_by(is_open=True).all()
-    for index, lead in enumerate(leads):
-        _all[index] = {"wb":lead.write_by,   "lw":get_format_last_write(lead.last_write),
-                       "fn":lead.full_name,  "phone":lead.phone,
-                       "id":lead.ID,         "es":lead.event_supply,
-                       "ed":get_name_date_by_str(lead.event_date), "ep":lead.event_place,
-                       "dm":lead.determine_money, "ps":lead.pay_sub,
-                       "tm":f"{lead.total_money:,}",  "oe":lead.order_equip,
-                       "cm":f"{lead.clear_money:,}"
-                       }
-    return _all
 def get_supply_by_id(_id) -> Supply:
     return Supply.query.filter_by(_id=_id).first()
 
 def generate_id_supply() ->str:
-    return "E"+str(len(Supply.query.all()))
+    return "E"+str(len(Supply.query.all()))+binascii.b2a_hex(os.urandom(5)).decode()
+
 
 def verify_supply(supp: dict) -> tuple[bool, dict]:
     _supply_lead = {}
@@ -101,8 +100,6 @@ def verify_supply(supp: dict) -> tuple[bool, dict]:
             #     return False, db_supply.name, {}
             if int(supply["count"]):
                 _supply_lead[key] = supply
-            db_supply.exist = db_supply.exist - int(supply["count"])
-            DBase.session.commit()
     except (KeyError,Exception) as error:
         return False, {}
 
@@ -117,7 +114,7 @@ def verify_supply(supp: dict) -> tuple[bool, dict]:
 #          event_place="31.783203, 34.625719", determine_money=4850, pay_sub=True, money_left=4850 / 2,
 #          is_open=True)
 
-from json import dumps
+from json import dumps, loads
 from time import ctime, time
 
 # new_lead(write_by="אברהם", full_name="משה רועי", phone="0585005617", ID="324104173",
@@ -128,12 +125,6 @@ from time import ctime, time
 
 """
 # signup(user='דבי', pwd='משי', ip='2.55.187.108')
-# add_supply(name="הגברה", price=800, desc="",    _id="s1", exist=0, count=0)
-# add_supply(name="מיקסר", price=299, desc="",    _id="s2", exist=0, count=0)
-# add_supply(name="צליה", price=700, desc="",     _id="s3", exist=0, count=0)
-# add_supply(name="גנרטור", price=500, desc="",    _id="s4", exist=0, count=0)
-# add_supply(name="ספסל ישיבה", price=40, desc="", _id="s5", exist=0, count=0)
-# add_supply(name="שולחן ישיבה", price=40, desc="",_id="s6", exist=0, count=0)
 
 
 # /* supply for events
@@ -151,3 +142,81 @@ SUPPLY = {"s1":
           "s6":
               {"name":"שולחן ישיבה", "price":"40", "desc":"", "id":"s6", "count":"0", "exist":"14"}
           }
+
+
+class DBClientApi:
+
+    def get_all_client_by_mode(self, mode:str = "open", **kwargs):
+        # which mode?
+        if mode == "open":
+            _client: list[Client] = Client.query.filter_by(is_open=True, **kwargs).all()
+        elif mode == "close":
+            _client: list[Client] = Client.query.filter_by(is_open=False, **kwargs).all()
+        elif mode == "garbage":
+            _client: list[Client] = Client.query.filter_by(is_garbage=True, **kwargs).all()
+        else:
+            # undefined
+            _client: list[Client] = Client.query.all()
+
+        # start indexing
+        return self.get_client_indexing(_client)
+
+    def is_pay_down_payment(self, value:int) -> bool:
+        return bool(value)
+
+    def is_order_equipment(self, value:str) -> bool:
+        equipments = loads(value)
+        return bool(len(equipments))
+
+    def is_low_expenses(self, c:Client):
+        return self.get_net(c) >= 1000
+    def get_gross(self, c:Client) -> float | int:
+        money_equipments = self.get_money_equipment(c)
+        return c.expen_fuel+c.expen_employee+money_equipments
+
+    def get_net(self, c:Client) -> float | int:
+        result = self.get_money_equipment(c)-c.expen_fuel-c.expen_employee
+
+        return result
+
+    def get_money_equipment(self, c:Client) -> float | int:
+        money_equipments = 0
+        if self.is_order_equipment(c.event_supply):
+            equipment = loads(c.event_supply)
+            for index, equip in equipment.items():
+                money_equipments+= int(equip["price"]*int(equip["count"]))
+
+        return money_equipments
+
+    def search_client(self, data:str, mode:str="open") -> dict:
+        if not data:
+            return {}
+
+        # /* by name of client */
+        _clients:dict = {}
+        if data.isalpha():
+            _clients = self.get_all_client_by_mode(mode, full_name=data)
+        elif data.isdigit():
+            _clients = self.get_all_client_by_mode(mode, phone=data)
+
+        return _clients
+
+    def get_client_indexing(self, _client:list[Client]):
+        client = {}
+        for index, c in enumerate(_client):
+            client[index] = {"wb": c.write_by,
+                             "lw": get_format_last_write(c.last_write),
+                             "fn": c.full_name,
+                             "phone": c.phone,
+                             "id": c.ID,
+                             "es": c.event_supply,
+                             "ed":get_name_date_by_str(c.event_date),
+                             "ep": c.event_place,
+                             "dm": c.d_money,
+                             "ps": self.is_pay_down_payment(c.d_money),
+                             "tm": f"{self.get_gross(c):,}",
+                             "oe": self.is_order_equipment(c.event_supply),
+                             "cm": f"{self.get_net(c):,}",
+                             'low_e': self.is_low_expenses(c)
+                           }
+        return client
