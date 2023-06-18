@@ -32,5 +32,6 @@ EQUIP_SUCCESS:dict      = {"success":True, "title":"הושלם!", "notice":"הל
 SEARCH_LEAD_ERR         = {"success":False,"title": "שגיאה בחיפוש", "notice":"לא נמצאו פרטים"}
 # /** empty lead
 EMPTY_LEAD_T            = "אין אירועים קרובים"
+EMPTY_HISTORY           = "ההיסטוריה ריקה"
 # /** templates
 T404                    = "/error_tmp/404.html"

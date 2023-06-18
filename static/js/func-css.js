@@ -400,6 +400,7 @@ function hideSearchLeads(_this){
     $(element).hide(300);
     button.onclick = ()=>{showSearchLeads(_this);};
     getTemplate($("#0")[0], 0, 1);
+    search_is_open = 0;
 }
 function showModalContent(_this){
     $(document.getElementById("modaldes")).fadeOut(300)

@@ -2,7 +2,7 @@ from json import loads, dumps
 from time import sleep
 from Api.api_function import check_level_new_lead, get_clear_money, check_equipment
 from Api.protocol import m_app, get_random_key, LOGIN_FAILED, LOGIN_SUCCESS, UN_ERROR, EMPTY_LEAD_T, T404, TMP_DENIED, \
-    LEAD_ERROR, EQUIP_ERROR, EQUIP_SUCCESS, SEARCH_LEAD_ERR
+    LEAD_ERROR, EQUIP_ERROR, EQUIP_SUCCESS, SEARCH_LEAD_ERR, EMPTY_HISTORY
 from flask import render_template, request, render_template_string, session, jsonify, redirect, url_for
 from Api.databases import Users, DBase, signup, db_new_client, add_supply, get_all_supply, verify_supply \
     , time, SUPPLY, get_supply_by_id, generate_id_supply, DBClientApi
@@ -80,8 +80,11 @@ def get_template_dashboard(tmp):
                         "template":render_template(res_tmp, equipment=get_all_supply()),
                         "name":"ציוד"})
     elif tmp == "2":
+        client_open = DBClientApi().get_all_client_by_mode("close")
         res_tmp = "/dash_tmp/history.html"
-        name = "היסטוריה"
+        return jsonify({"success":True,
+                        "template":render_template(res_tmp, leads=client_open,empty_history=EMPTY_HISTORY),
+                        "name":"היסטוריה"})
     elif tmp == "3":
         res_tmp = "/dash_tmp/money.html"
         name = "הוצאות/הכנסות"

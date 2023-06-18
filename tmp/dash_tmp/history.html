@@ -8,3 +8,80 @@
       </button>
     </div>
 </div>
+
+<div class="leads-list">
+    {% for k, lead_box in leads.items()%}
+        <div class="leads-box">
+            <div class="leads-box-tab">
+                <span class="n">{{ lead_box.fn.split(" ")[0][0:6]}}{{ ".." if lead_box.fn.split(" ")[0]|length > 6}}</span>
+                <div class="leads-head-info"><i class="fa-solid fa-user-plus fa-flip-horizontal"></i><span>{{lead_box.wb}}</span></div>
+                <div class="leads-head-info"><i class="fa-regular fa-clock fa-spin"></i> <span> {{lead_box.lw}}</span></div>
+                <div class="leads-head-info lhi-action">
+                    <i class="fa-solid fa-ellipsis fa-fade"></i>
+                        <span onclick="showMenuLeadAction(this)">פעולות</span>
+                        <ul class="leads-menu-action">
+                        <li onclick='leadAction("{{ lead_box.phone }}", 0)'>
+                            <a><i class="fa-solid fa-phone-flip fa-bounce"></i> חייג </a>
+                        </li>
+                        <li onclick='leadAction("https:\/\/waze.com/ul?q={{ lead_box.ep }}", 1)'>
+                            <a> <i class="fa-brands fa-waze fa-bounce"></i> waze</a>
+                        </li>
+                        <li>
+                            <a><i class="fa-solid fa-pen-to-square fa-fade"></i> עדכון פרטים</a>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+            <div class="lead-box-info">
+                <div class="lead-box-info-head"> <i class="fa-regular fa-calendar-days"></i> {{lead_box.ed}}</div>
+                <div class="lead-profile">
+                    <p>
+                        <span>
+                            {% if lead_box.ps %}
+                            <i class="fa-solid fa-circle-check v-valid"></i>
+                            {% else %}
+                            <i class="fa-solid fa-circle-xmark x-invalid"></i>
+                            {% endif %}
+                        </span> שולם מקדמה
+                    </p>
+                </div>
+                <div class="lead-profile">
+                    <p>
+                        <span>
+                            {% if lead_box.oe %}
+                            <i class="fa-solid fa-circle-check v-valid"></i>
+                            {% else %}
+                            <i class="fa-solid fa-circle-xmark x-invalid"></i>
+                            {% endif %}
+                        </span> הזמין ציוד
+                    </p>
+                </div>
+                <div class="lead-profile">
+                    <p>
+                        <span>
+                            {% if lead_box.low_e %}
+                                <i class="fa-solid fa-circle-check v-valid"></i>
+                            {% else %}
+                                <i class="fa-solid fa-circle-xmark x-invalid"></i>
+                            {% endif %}
+                    </span>  הוצאות נמוכות</p>
+                </div>
+            </div>
+            <div class="lead-box-footer">
+                <div class="lead-box-money">
+                    ₪ <span id="money-neto">{{ lead_box.cm }}</span>
+                    <span id="des">נטו מתוך</span>
+                    <span id="money-bruto">₪ {{ lead_box.tm }}</span>
+                </div>
+                    <button type="button" class="button-box-lead-more-action">פרטים <i class="fa-solid fa-arrow-left fa-fade"></i></button>
+            </div>
+
+        </div>
+    {% else %}
+        <div class="empty-lead">
+            <i class="fa-solid fa-list"></i>
+            <span>{{ empty_history }}</span>
+        </div>
+    {% endfor %}
+</div>
