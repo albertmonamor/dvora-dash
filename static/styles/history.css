@@ -1,0 +1,18 @@
+.histories{
+    display: flex;
+    border-bottom:1px solid #b2a9d135;
+    width: auto;
+    height: auto;
+    margin-left: 15%;
+    margin-right: 15%;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+
+@media screen and (max-width:1000px){
+    .histories{
+        margin-left: 2%;
+        margin-right: 2%;
+    }
+}

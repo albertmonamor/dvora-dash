@@ -32,7 +32,7 @@ class Client(DBase.Model):
     phone           = DBase.Column(DBase.String(20),    nullable=False)
     ID              = DBase.Column(DBase.String(11),    nullable=False)
     # id of item in other DB
-    event_supply    = DBase.Column(DBase.String(100),   nullable=False)
+    event_supply    = DBase.Column(DBase.String,   nullable=False)
     event_date      = DBase.Column(DBase.String,        nullable=False)
     event_place     = DBase.Column(DBase.String,        nullable=False)
     # expenditure
@@ -129,19 +129,6 @@ from time import ctime, time
 
 # /* supply for events
 # /* from static to database for dynamic actions
-SUPPLY = {"s1":
-              {"name":"הגברה", "price": "800", "desc":"", "id":"s1", "count":"0", "exist":"2"},
-          "s2":
-              {"name":"מיקסר", "price":"299", "desc":"", "id":"s2", "count":"0", "exist":"4"},
-          "s3":
-              {"name":"צליה", "price":"700", "desc":"", "id":"s3", "count":"0", "exist":"3"},
-          "s4":
-              {"name":"גנרטור", "price":"500", "desc":"", "id":"s4", "count":"0", "exist":"2"},
-          "s5":
-              {"name":"ספסל ישיבה", "price":"40", "desc":"", "id":"s5", "count":"0", "exist":"14"},
-          "s6":
-              {"name":"שולחן ישיבה", "price":"40", "desc":"", "id":"s6", "count":"0", "exist":"14"}
-          }
 
 
 class DBClientApi:
@@ -171,22 +158,24 @@ class DBClientApi:
     def is_low_expenses(self, c:Client):
         return self.get_net(c) >= 1000
     def get_gross(self, c:Client) -> float | int:
-        money_equipments = self.get_money_equipment(c)
+        money_equipments = self.get_info_equipment(c)["money"]
         return c.expen_fuel+c.expen_employee+money_equipments
 
     def get_net(self, c:Client) -> float | int:
-        result = self.get_money_equipment(c)-c.expen_fuel-c.expen_employee
+        result = self.get_info_equipment(c)["money"] - c.expen_fuel - c.expen_employee
 
         return result
 
-    def get_money_equipment(self, c:Client) -> float | int:
-        money_equipments = 0
+    def get_info_equipment(self, c:Client) -> dict:
+        equipments = {"money":0, "count":0}
         if self.is_order_equipment(c.event_supply):
             equipment = loads(c.event_supply)
             for index, equip in equipment.items():
-                money_equipments+= int(equip["price"]*int(equip["count"]))
+                equipments["money"]+= int(equip["price"] * int(equip["count"]))
+                equipments["count"]+= int(equip["count"])
 
-        return money_equipments
+
+        return equipments
 
     def search_client(self, data:str, mode:str="open") -> dict:
         if not data:
@@ -209,6 +198,7 @@ class DBClientApi:
                              "fn": c.full_name,
                              "phone": c.phone,
                              "id": c.ID,
+                             "ci":c.client_id,
                              "es": c.event_supply,
                              "ed":get_name_date_by_str(c.event_date),
                              "ep": c.event_place,
@@ -220,3 +210,49 @@ class DBClientApi:
                              'low_e': self.is_low_expenses(c)
                            }
         return client
+
+    def get_info_client(self,_id) -> dict:
+
+        if not _id:
+            return {}
+
+        client:Client = Client.query.filter_by(client_id=_id).first()
+        if not client:
+            return {}
+
+        dc = self.clientdb_to_dict(client)
+        info_equip = self.get_info_equipment(client)
+        dc["event_supply"] = loads(client.event_supply)
+        dc["net"] = self.get_net(client)
+        dc["gross"] = self.get_gross(client)
+        dc["pay_for_equipment"] = info_equip["money"]
+        dc["count_of_equipment"] = info_equip["count"]
+        dc["date_str"] = get_name_date_by_str(client.event_date)
+        client.total_money
+        client.is_open
+        client.event_date
+        client.event_place
+        client.d_money
+        client.expen_employee
+        client.expen_fuel
+        client.is_garbage
+        client.last_write
+        client.phone
+        client.write_by
+
+        return dc
+
+    def clientdb_to_dict(self, c:Client):
+
+        c.__dict__.pop("_sa_instance_state")
+        return dict(c.__dict__)
+
+    def get_total_client_payment(self, c:Client | dict):
+        # /* TODO:
+        if isinstance(c, Client):
+            dc = self.clientdb_to_dict(c)
+
+
+
+
+

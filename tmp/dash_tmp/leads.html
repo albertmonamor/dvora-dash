@@ -83,7 +83,17 @@
                     <span id="des">נטו מתוך</span>
                     <span id="money-bruto">₪ {{ lead_box.tm }}</span>
                 </div>
-                    <button type="button" class="button-box-lead-more-action">פרטים <i class="fa-solid fa-arrow-left fa-fade"></i></button>
+                <button onclick="openLeadInformationModal(this)" id="10" type="button" class="button-box-lead-more-action">פרטים 
+                    <i class="fa-solid fa-arrow-left fa-fade"></i>
+                </button>
+            </div>
+            <div class="lead-information-modal" id="{{ lead_box.ci }}"> 
+                <div class="modal-head">
+                    <i onclick="closeLeadInforamtionModal(this)" class="fa-solid fa-circle-xmark" style="margin-top:10px;"></i>
+                </div>
+                <div class="lead-content" id="leadcontent{{ lead_box.ci }}">
+
+                </div>
             </div>
 
         </div>

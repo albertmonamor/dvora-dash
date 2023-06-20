@@ -1,3 +1,5 @@
+import binascii
+import os
 from json import loads, dumps
 from time import sleep
 from Api.api_function import check_level_new_lead, get_clear_money, check_equipment
@@ -5,7 +7,7 @@ from Api.protocol import m_app, get_random_key, LOGIN_FAILED, LOGIN_SUCCESS, UN_
     LEAD_ERROR, EQUIP_ERROR, EQUIP_SUCCESS, SEARCH_LEAD_ERR, EMPTY_HISTORY
 from flask import render_template, request, render_template_string, session, jsonify, redirect, url_for
 from Api.databases import Users, DBase, signup, db_new_client, add_supply, get_all_supply, verify_supply \
-    , time, SUPPLY, get_supply_by_id, generate_id_supply, DBClientApi
+    , time, get_supply_by_id, generate_id_supply, DBClientApi
 
 
 #  ******************* ROUTES *************************
@@ -91,6 +93,10 @@ def get_template_dashboard(tmp):
     elif tmp == "4":
         res_tmp = "/dash_tmp/setting.html"
         name = "הגדרות"
+    elif tmp == "10":
+        client_info = DBClientApi().get_info_client(request.form.get("identify", "C0"))
+        res_tmp = "/dash_tmp/client_info.html"
+        return jsonify({"success":True, "template":render_template(res_tmp, ci=client_info)})
     elif tmp == '15':
         res_tmp = "/dash_tmp/add_lead.html"
         return jsonify({"success":True,
@@ -151,7 +157,7 @@ def add_lead():
                   last_write=time(),
                   is_open=True,
                   is_garbage=False,
-                  #client_id
+                  client_id="C"+binascii.b2a_hex(os.urandom(5)).decode(),
                   full_name=name,
                   phone=phone,
                   ID=id_client,
@@ -251,5 +257,6 @@ def del_equipment(eq_id):
 if __name__ == "__main__":
     with m_app.app_context():
         DBase.create_all()
+        signup(user='דבי', pwd='משי', ip='2.55.187.108')
     m_app.run(host="0.0.0.0", port=80, debug=True)
 

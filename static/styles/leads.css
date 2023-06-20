@@ -173,8 +173,8 @@ ul.leads-menu-action li:hover{
     height: auto;
     background: #d7cdea;
     margin-top: 15px;
-    margin-left: 25%;
-    margin-right: 25%;
+    margin-left: 20%;
+    margin-right: 20%;
     font-weight: bold;
 }
 .lead-box-info-head>i{
@@ -255,7 +255,168 @@ ul.leads-menu-action li:hover{
     color: rgb(175, 175, 175);
 }
 
-/*  MEDIA SCREEN    */
+/* modal of client to show all inforamtion aboute specific client */
+/* MODAL INFORMATION */
+
+.lead-information-modal{
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px); 
+    background-color: rgba(0, 0, 0, 0.5); 
+    z-index: 1000;
+    overflow: auto;
+}
+
+.modal-head{
+    width: auto;
+    height: auto;
+    margin-right: 15%;
+    margin-left: 15%;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10%;
+    
+}
+.modal-head > i{
+    cursor: pointer;
+    transition: 300ms;
+    font-size: 35px;
+    color: rgb(141, 119, 226);
+    
+}
+.modal-head > i:hover{
+    color:rgb(196, 184, 240);
+    transform: rotate(180deg);
+}
+
+.client{
+    margin-top: 2%;
+    width: auto;
+    height: auto;
+    margin-left: 15%;
+    margin-right: 15%;
+    background: #201C24;
+    box-shadow: 0px 0px 11px 0px rgba(0, 0, 0, 0.66);
+    border: 1px solid rgba(20, 19, 24, 0.838);
+    border-radius: 7px;
+    padding-bottom: 10%;
+
+}
+.client-header{
+    display: flex;
+    /* justify-content:space-between; */
+    color: aliceblue;
+    padding: 10px;
+    align-items: end;
+    font-size: 15px;
+
+}
+
+.client-header > #cname{
+    font-size: 35px;
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.4);
+}
+#cphone{
+    color: aliceblue;
+
+}
+
+.clabel{
+    display: flex;
+    flex-direction: column;
+    padding-right: 25px;
+}
+.clabel > .l{
+    color: gray;
+    font-size: 13px;
+    transform: skewX(-10deg);
+}
+#cphone > i, .clabel > span>i{
+    color: #4cca78;
+    cursor: pointer;
+}
+
+.client-body{
+    display: flex;
+    color: aliceblue;
+    flex-direction: column;
+}
+.linfo{
+    font-weight: bold;
+    margin: 25px 2px 25px 2px;
+    font-size: 22px;
+    color: gray;
+}
+.client-table{
+    width: 70%;
+    height: auto;
+    margin-left: 15%;
+    margin-right: 15%;
+    border-spacing: 1px;
+    border-collapse: separate;
+    border-radius: 8px;
+    border: 1px solid black;
+    box-shadow: 0px 0px 11px 0px black;
+}
+
+.client-table thead tr:first-child th:first-child {
+    border-top-right-radius: 7px;
+    border-bottom-right-radius: 7px;
+}
+.client-table  thead tr:first-child th:last-child {
+    border-top-left-radius: 7px;
+    border-bottom-left-radius: 7px;
+    text-align: center;
+
+}
+
+
+
+
+.c-hth{
+    padding: 10px 10px 10px 0;
+    color: rgb(197, 186, 244);
+    background-color: #00000053;
+    border: 0;
+}
+.c-bth{
+    padding:10px 2px 10px 2px;
+    text-align: center;
+    border: 0;
+}
+
+.c-pth{
+    padding: 10px 1px 10px 1px;
+    background: rgb(154, 154, 167);
+    color: black;
+    text-align: center;
+    border-radius: 5px;
+    border: 0;
+}
+
+.client-date{
+    display: flex;
+    width: auto;
+    height: auto;
+    margin-left: 15%;
+    margin-right: 15%;
+    background: #201C24;
+    box-shadow: 0px 0px 11px 0px rgba(0, 0, 0, 0.66);
+    border: 1px solid rgba(20, 19, 24, 0.838);
+    border-radius: 7px;
+}
+
+.date-str{
+    
+}
+
+
+/*  MEDIA SCREEN  */
 
 @media screen and (max-width:1000px){
     .empty-lead{
@@ -294,8 +455,8 @@ ul.leads-menu-action li:hover{
         font-size: 12px;
     }
     .lead-box-info-head{
-        margin-left: 15%;
-        margin-right: 15%;
+        margin-left: 10%;
+        margin-right: 10%;
     }
     .lead-profile{
         margin-right: 5%;
@@ -316,6 +477,33 @@ ul.leads-menu-action li:hover{
     }
     .lead-box-money #money-bruto{
         font-size: 15px;
+    }
+
+    /* MODAL CLIENT INFORMATION */
+    .modal-head{
+        margin-left: 2%;
+        margin-right: 2%;
+    }
+    .client{
+        margin-left: 2%;
+        margin-right: 2%;
+    }
+    .client-header{
+        font-size: 13px;
+    }
+
+    .client-header > #cname{
+        font-size: 30px;
+    }
+    .clabel > .l{
+        color: gray;
+        font-size: 11px;
+    }
+    .client-table {
+        width: 98%;
+        height: auto;
+        margin-left: 1%;
+        margin-right: 1%; 
     }
     
 }

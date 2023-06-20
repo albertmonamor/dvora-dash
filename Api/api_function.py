@@ -116,7 +116,7 @@ def get_name_date_by_str(_time:str):
     :return:
     """
     time_float = float(mktime(strptime(_time, "%Y-%m-%d")))+(3400*24)
-    day = DAYS_HEBREW[ctime(time_float).split(" ")[0]]
+    day = "יום "+DAYS_HEBREW[ctime(time_float).split(" ")[0]]
     date_l = gmtime(time_float)
     return f"{day} {date_l.tm_mday}.{date_l.tm_mon}.{date_l.tm_year}"
 
