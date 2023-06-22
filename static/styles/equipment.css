@@ -109,7 +109,7 @@
 .iedit > button{
     border-radius: 6px;
     border: 2px solid rgb(125, 101, 220);
-    background: rgba(63, 43, 145, 0.717);
+    background: rgb(63 43 145 / 20%);
     color: whitesmoke;
     transition: 300ms;
     width: 100%;

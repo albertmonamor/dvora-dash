@@ -461,6 +461,12 @@ function clientSummary(event, _this){
     updateTotalSummary($("#payment-safe"));
 
 }
+
+function setSafePayment(_this, number){
+    result = (total/number).toFixed(2);
+    element = document.getElementById("payment-safe");
+    element.value = result;
+}
 function addLead(_this){
     text = _this.innerText
     loading(_this);
@@ -470,7 +476,7 @@ function addLead(_this){
         data:{
             "name":     document.getElementById("name").value,
             "phone":    document.getElementById("phone").value,
-            "id_lead":  document.getElementById("id").value,
+            "id_lead":  document.getElementById("lead_id").value,
             "supply" :  JSON.stringify(supply_json),
             "date":     document.getElementById("event-date").value,
             "location": document.getElementById("event-location").value,

@@ -206,6 +206,27 @@
     margin-left: 15px;
     color: rgb(78, 70, 97);
 }
+.payment-option{
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+.payment-button{
+    box-shadow: 0px 0px 11px 0px rgba(0, 0, 0, 0.66);
+    border-radius: 7px;
+    background: transparent;
+    color: rgb(197, 186, 244);
+    font-weight: bold;
+    font-size: 18px;
+    margin-left: 30px;
+    transition: 300ms;
+}
+
+.payment-button:hover,
+.payment-button:active{
+    border: 1px solid rgb(197, 186, 244);
+}
+
+
 
 .payment-total-safe{
     flex-grow: 1;

@@ -2,7 +2,7 @@ import binascii
 import os
 import random
 
-from Api.api_function import get_format_last_write, get_name_date_by_str
+from Api.api_function import get_format_last_write, get_name_date_by_str, get_days_left_to_event
 from Api.protocol import DBase, m_app
 from time import time, ctime, gmtime, sleep
 
@@ -222,19 +222,25 @@ class DBClientApi:
 
         dc = self.clientdb_to_dict(client)
         info_equip = self.get_info_equipment(client)
+        date = get_name_date_by_str(client.event_date)
         dc["event_supply"] = loads(client.event_supply)
         dc["net"] = self.get_net(client)
         dc["gross"] = self.get_gross(client)
         dc["pay_for_equipment"] = info_equip["money"]
         dc["count_of_equipment"] = info_equip["count"]
-        dc["date_str"] = get_name_date_by_str(client.event_date)
+        dc["date_str"] = " ".join(date.split(" ")[2::])
+        dc["name_day"] = " ".join(date.split(" ")[0:2])
+        dc["days_left"] = get_days_left_to_event("".join(date.split(" ")[2::]))
+        dc["expen_fuel_i"] = str(float(client.expen_fuel)).split(".")[0]
+        dc["expen_fuel_d"] = str(float(client.expen_fuel)).split(".")[1]
+        dc["expen_employee_i"] = str(float(client.expen_employee)).split(".")[0]
+        dc["expen_employee_d"] = str(float(client.expen_employee)).split(".")[1]
         client.total_money
         client.is_open
         client.event_date
         client.event_place
         client.d_money
         client.expen_employee
-        client.expen_fuel
         client.is_garbage
         client.last_write
         client.phone
@@ -251,8 +257,4 @@ class DBClientApi:
         # /* TODO:
         if isinstance(c, Client):
             dc = self.clientdb_to_dict(c)
-
-
-
-
 

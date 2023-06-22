@@ -121,6 +121,19 @@ def get_name_date_by_str(_time:str):
     return f"{day} {date_l.tm_mday}.{date_l.tm_mon}.{date_l.tm_year}"
 
 
+def get_days_left_to_event(date:str):
+    day,month, year = date.split(".")
+    year = int(year)
+    month = int(month)
+    day = int(day)
+
+    # israel
+    time_now = gmtime(time()+3600*3)
+    if time_now.tm_year == year and time_now.tm_mon == month:
+        if time_now.tm_mday < day:
+            return day-time_now.tm_mday
+    return 0
+
 def get_clear_money(payment:int|str):
     return int(payment)-990.90
 
@@ -139,3 +152,5 @@ def check_equipment(data:dict[str]) -> tuple[bool, str]:
 
     # SUCCESS
     return True, ""
+
+

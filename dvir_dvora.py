@@ -129,7 +129,7 @@ def add_lead():
 
     name       = request.form.get("name")       or 0
     phone      = request.form.get("phone")      or 0
-    id_client    = request.form.get("id_lead") or -1
+    id_client  = request.form.get("id_lead") or 0
     equipment:str  = request.form.get("supply", "{}")
     date       = request.form.get("date")       or 0
     location   = request.form.get("location")   or 0

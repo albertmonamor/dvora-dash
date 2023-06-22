@@ -279,7 +279,7 @@ ul.leads-menu-action li:hover{
     margin-left: 15%;
     display: flex;
     justify-content: space-between;
-    margin-top: 10%;
+    margin-top: 40px;
     
 }
 .modal-head > i{
@@ -300,7 +300,7 @@ ul.leads-menu-action li:hover{
     height: auto;
     margin-left: 15%;
     margin-right: 15%;
-    background: #201C24;
+    background: rgb(40, 41, 50);
     box-shadow: 0px 0px 11px 0px rgba(0, 0, 0, 0.66);
     border: 1px solid rgba(20, 19, 24, 0.838);
     border-radius: 7px;
@@ -313,7 +313,7 @@ ul.leads-menu-action li:hover{
     color: aliceblue;
     padding: 10px;
     align-items: end;
-    font-size: 15px;
+    font-size: 20px;
 
 }
 
@@ -323,13 +323,17 @@ ul.leads-menu-action li:hover{
 }
 #cphone{
     color: aliceblue;
+    border-left: 1px solid rgba(240, 248, 255, 0.084);
+    border-right: 1px solid rgba(240, 248, 255, 0.084);
+    padding-left: 5px;
+    padding-right: 5px;
 
 }
 
 .clabel{
     display: flex;
     flex-direction: column;
-    padding-right: 25px;
+    padding-right: 20px;
 }
 .clabel > .l{
     color: gray;
@@ -348,7 +352,7 @@ ul.leads-menu-action li:hover{
 }
 .linfo{
     font-weight: bold;
-    margin: 25px 2px 25px 2px;
+    margin: 40px 15px 20px 2px;
     font-size: 22px;
     color: gray;
 }
@@ -357,7 +361,7 @@ ul.leads-menu-action li:hover{
     height: auto;
     margin-left: 15%;
     margin-right: 15%;
-    border-spacing: 1px;
+    border-spacing: 0px;
     border-collapse: separate;
     border-radius: 8px;
     border: 1px solid black;
@@ -392,14 +396,29 @@ ul.leads-menu-action li:hover{
 
 .c-pth{
     padding: 10px 1px 10px 1px;
-    background: rgb(154, 154, 167);
-    color: black;
+    background:rgb(40, 41, 50);;
+    color: #53ab73;
     text-align: center;
+    border-top: 1px solid rgba(20, 19, 24, 0.838) !important;
+    border-bottom: 1px solid rgba(20, 19, 24, 0.838) !important;
+    box-shadow: -5px -2px 11px 0px rgba(0, 0, 0, 0.66);
     border-radius: 5px;
     border: 0;
+    position: relative;
+    font-size: 20px;
 }
 
-.client-date{
+
+.c-pth > .total{
+    position: absolute;
+    right: 5px;
+    color: aliceblue;
+    font-size: 16px;
+    bottom: 30%;
+    font-weight: lighter;
+}
+
+.client-date, .client-location, .client-expense, .client-payment{
     display: flex;
     width: auto;
     height: auto;
@@ -409,10 +428,111 @@ ul.leads-menu-action li:hover{
     box-shadow: 0px 0px 11px 0px rgba(0, 0, 0, 0.66);
     border: 1px solid rgba(20, 19, 24, 0.838);
     border-radius: 7px;
+    align-items: end;
+    justify-content: space-between;
+    font-weight: lighter;
+    font-size: 24px;
+    padding: 10px;
+
 }
 
-.date-str{
+.client-date > *{
+    padding: 5px 10px 5px 10px;
+}
+
+.day-of-week {
+    color: #b2a9bf;
+}
+  
+.dmy{
+    color: aliceblue;
+    padding: 6px;
+
+}
+
+.countdown-num, .countdown-invalid{
+    color: #53ab73;
+    box-shadow: 0px 0px 11px 0px rgba(0, 0, 0, 0.66);
+    border-radius: 7px;
+    font-size: 24px;
     
+}
+.countdown-invalid{
+    font-size: 21px;
+    color: rgb(244, 151, 151);
+    transform: skewX(10deg);
+    text-shadow: 6px 5px 11px #000000;
+}
+
+
+.client-location{
+    justify-content: space-between;
+}
+.icolocation, #chowpay, #present{
+    box-shadow: 0px 0px 11px 0px rgba(0, 0, 0, 0.66);
+    border-radius: 7px;
+    padding: 2px 10px 2px 10px ;
+    color: #53ab73;
+}
+
+.client-expense{
+    justify-content: right;
+}
+.client-expense > *:not(:last-child){
+    margin-left: 10px;
+}
+.fuel, .employee{
+    display: flex;
+    flex-direction: column;
+    padding-right: 25px;
+    padding-left: 25px;
+    background: #2d2732;
+    border-radius: 6px;
+    box-shadow: 0px 0px 11px 0px rgba(0, 0, 0, 0.66);
+}
+.fuel > .l, .employee > .l, .payment-type > .l{
+    color: rgb(161, 161, 161);
+    font-size: 13px;
+    transform: skewX(-10deg);
+    padding-right: 0;
+}
+
+.fuel > #cfuel, .employee > #cemployee, .payment-type-ico{
+    color: #53ab73;
+    background: #2d2732;
+    font-size: 30px;
+}
+.fuel > #cfuel > span, .employee > #cemployee > span{
+    font-size: 15px;
+}
+
+.pay-red{
+    color: rgb(244, 151, 151) !important;
+}
+
+.client-payment{
+    flex-direction: column;
+    align-items:revert;
+
+}
+.e-payment{
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.payment-type{
+    display: flex;
+    flex-direction: column;
+    border-radius: 6px;
+    box-shadow: 0px 0px 11px 0px rgba(0, 0, 0, 0.66);
+    padding: 2px 15px 2px 15px;
+
+}
+.payment-type-ico{
+    background: transparent;
 }
 
 
@@ -504,6 +624,26 @@ ul.leads-menu-action li:hover{
         height: auto;
         margin-left: 1%;
         margin-right: 1%; 
+    }
+    .c-pth > .total{
+        display: none;
+    }
+    .client-date, .client-location, .client-expense, .client-payment{
+        width: auto;
+        height: auto;
+        margin-left: 1%;
+        margin-right: 1%;
+        font-size: 20px;
+        padding: 10px 2px 10px 2px;
+    }
+    .countdown-invalid{
+        font-size: 17px;
+    }
+    .countdown-num{
+        font-size: 17px;
+    }
+    .client-location > .loc{
+        margin-right: 10px;
     }
     
 }

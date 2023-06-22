@@ -9,10 +9,10 @@
     </label>
     <input type="tel" id="phone" name="client-phone" none>
 
-    <label for="id">מספר זהות
+    <label for="lead_id">מספר זהות
         <p>שלב 3</p>
     </label>
-    <input type="tel" id="id" name="customer-id">
+    <input type="tel" id="lead_id" name="customer-id">
 
     <label for="equipment">ציוד שהלקוח בחר<span>*</span>
          <p>שלב 4</p>
@@ -31,17 +31,6 @@
         <p>שלב 6</p>
     </label>
     <input type="text" id="event-location" name="event-location" none>
-
-    <!-- <label for=""> (בקרוב)<span>*</span>
-        <p>שלב 7</p>
-    </label>
-    <input type="tel" name="advance-payment" none>
-
-    <label for="total-payment">(בקרוב)<span>*</span>
-        <p>שלב 8</p>
-    </label>
-    <input type="tel" name="total-payment" none> -->
-
     <button id="submitaddlead" type="submit" class="button-addlead-summary">
         <span>לסיכום</span>
     </button>
@@ -82,21 +71,25 @@
         <label for="exp-fuel">הוצאות דלק</label>
         <div class="input-pay">
           <i class="fa-solid fa-shekel-sign"></i>
-          <input class="payment-total-safe" type="tel" id="exp-fuel" name="exp-fuel" oninput="updateTotalSummary(this)">
+          <input class="payment-total-safe" type="tel" id="exp-fuel" value="0" name="exp-fuel" oninput="updateTotalSummary(this)">
         </div>
     </div>
     <div class="manager-expense-item">
       <label for="exp-employee">הוצאות עובדים</label>
       <div class="input-pay">
         <i class="fa-solid fa-shekel-sign"></i>
-        <input type="tel" class="payment-total-safe" id="exp-employee" name="exp-employe" oninput="updateTotalSummary(this)">
+        <input type="tel" class="payment-total-safe" id="exp-employee" value="0" name="exp-employe" oninput="updateTotalSummary(this)">
       </div>
   </div>
     <div class="manager-expense-item">
         <label for="payment-safe">מקדמה</label>
+        <div class="payment-option">
+          <button class="payment-button" onclick="setSafePayment(this, 2)">½</button>
+          <button class="payment-button" onclick="setSafePayment(this, 3)">⅓</button>
+        </div>
         <div class="input-pay">
           <i class="fa-solid fa-shekel-sign"></i>
-          <input type="tel" class="payment-total-safe" id="payment-safe" name="payment-safe">
+          <input type="tel" class="payment-total-safe" id="payment-safe" name="payment-safe" value="0">
         </div>
     </div>
     <div class="manager-expense-item">
