@@ -56,8 +56,13 @@ function openLeadInformationModal(_this){
 
 }
 
-function closeLeadInforamtionModal(_this){
-    modal = _this.parentElement.parentElement;
+function closeLeadInforamtionModal(_this, _id=undefined){
+    if (!_id){
+        modal = _this.parentElement.parentElement;
+    }
+    else{
+        modal = document.getElementById(_id);
+    }
     document.getElementById("leadcontent"+modal.id).innerHTML="";
     $(modal).fadeOut(300);
 }

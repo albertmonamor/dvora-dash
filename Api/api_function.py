@@ -59,7 +59,12 @@ def check_level_new_lead(level:str, value:str) -> tuple[int, jsonify]:
             __err["notice"] = "המיקום שהוכנס לא ברור"
             return 0, jsonify(__err)
     elif level == "8":
-        if not value or not value.isdigit():
+        try:
+            value = float(value)
+        except ValueError:
+            # /* float error */
+            value = ""
+        if not isinstance(value, float):
             __err['notice'] = "מקדמה לא תקינה"
             return 0, jsonify(__err)
     elif level == "9":
@@ -73,6 +78,10 @@ def check_level_new_lead(level:str, value:str) -> tuple[int, jsonify]:
     elif level == "11":
         if not value.isdigit():
             __err["notice"] = "הוצאות עובדים לא תקין"
+            return 0, jsonify(__err)
+    elif level == "12":
+        if not value.isdigit() or int(value) > 3:
+            __err["notice"] = 'אמצעי תשלום לא תקין'
             return 0, jsonify(__err)
     return 1, jsonify(__suc)
 
@@ -152,5 +161,4 @@ def check_equipment(data:dict[str]) -> tuple[bool, str]:
 
     # SUCCESS
     return True, ""
-
 

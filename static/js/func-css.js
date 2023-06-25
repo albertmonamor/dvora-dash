@@ -7,10 +7,13 @@ function loading(_this){
     _this.appendChild(cntr);
 }
 
-
+function loading2(_this){
+    lhtml = _this.innerHTML;
+    _this.innerHTML = `<i class="fa-solid fa-atom fa-spin"></i>`
+}
 /**
  * 
- * @param {object} _this 
+ * @param {Element} _this 
  * @param {String} text 
  */
 function unloading(_this, text){
@@ -20,31 +23,17 @@ function unloading(_this, text){
     _this.appendChild(span);
 }
 
-
-function showAlert(title, des){
+// ALERT
+function _deleted__showAlert(title, des){
     // document.getElementById("modal-show").style.display = "block";
     // $("#alert-title").html(title);
     // $("#alert-des").html(des);
 }
-
-function showModal(_temp){
-    document.getElementById("mfull").style.display = "block";
-    document.getElementById("mfull-body").innerHTML = _temp;
-
-}
-function closeModal(action=null){
-    if (action == 1){
-        next_level = []
-        
-    }
-    document.getElementById("model-addlead").style.display = "none";
-}
-
-function setLevelText(nl){
+function _deleted__setLevelText(nl){
     document.getElementById("level").innerText = nl+'/10';
     ShowProgressStatus(parseInt(nl-2));
 }
-function showNextLevel(_this, nl, force=null, call_java=0){
+function _deleted__showNextLevel(_this, nl, force=null, call_java=0){
     if (force){
         if (_this != undefined){$(_this.parentElement.parentElement).hide("slow")}
         document.getElementById(nl).style.display = "block";
@@ -72,10 +61,64 @@ function showNextLevel(_this, nl, force=null, call_java=0){
     }
 
 }
-function showPrevLevel(_this, nl, force=null, call_java=0){
+function _deleted__showPrevLevel(_this, nl, force=null, call_java=0){
     _this.parentElement.parentElement.style.display = 'none';
     document.getElementById(nl).style.display = "block";
     setLevelText(nl);
+}
+function _deleted__getSubTemplpateDashboard(_this)
+{
+
+    $.ajax({
+        url:'/template/'+_this.id,
+        type:"POST",
+        success:(res)=>{
+            if (res.success){
+                showModal(res.template);
+                showNextLevel(undefined, "1", true);
+                if (res.supply!=undefined){
+                    supply_json = res.supply;
+                }
+
+            }
+
+            else{
+                showAlert(res.title, res.notice);
+            }
+        }
+    })    
+}
+function _deleted__startAddLead(_this){
+    $.ajax({
+        url:'/new_lead',
+        type: "POST",
+        data:{"level":1, 'value':"password:l<I>lP<e*2>P"},
+        success:(res)=>{
+            if (res.success){
+                showNextLevel(_this, "2", force=true);
+            }
+            else{
+                showAlert(res.title, res.notice);
+            }
+        }
+    })
+}
+function cleanHash () { 
+    history.pushState("", document.title, window.location.pathname + window.location.search);
+}
+
+// MODAL
+function showModal(_temp){
+    document.getElementById("mfull").style.display = "block";
+    document.getElementById("mfull-body").innerHTML = _temp;
+
+}
+function closeModal(action=null){
+    if (action == 1){
+        next_level = []
+        
+    }
+    document.getElementById("model-addlead").style.display = "none";
 }
 /**
  * 
@@ -206,39 +249,11 @@ function showSummery(_this, nl){
        parent.appendChild(box);
     }
 }
-function startAddLead(_this){
-    $.ajax({
-        url:'/new_lead',
-        type: "POST",
-        data:{"level":1, 'value':"password:l<I>lP<e*2>P"},
-        success:(res)=>{
-            if (res.success){
-                showNextLevel(_this, "2", force=true);
-            }
-            else{
-                showAlert(res.title, res.notice);
-            }
-        }
-    })
-}
-function cleanHash () { 
-    history.pushState("", document.title, window.location.pathname + window.location.search);
-}
 
-
-function pasteText(element){
-    // Copy the text inside the text field
-    element = navigator.clipboard.readText();
-}
-function pasteToInput(_this){
-    if (window.isSecureContext){
-        pasteText(_this.innerText);
-    }
-}
 /* dashboard */
 
 /**  UI 
- * 
+ * @param _this {Element}
 */
 function tabSelected(_this){
     div_exist = document.getElementsByClassName('tabs-button-selected')
@@ -309,10 +324,6 @@ function getTemplate(_this, _id, reget=0){
     
 }
 
-function regetTemplate(_id){
-
-}
-
 function createTableEquipmentSelected(parent){
     parent.innerHTML="";
     tmp_total_money_equip = 0
@@ -363,7 +374,7 @@ function closeModalAddLead(){
     }
 }
 function openModalAddLead(_this){
-    $(document.getElementById("model-addlead")).show(300);
+    $(document.getElementById("model-addlead")).fadeIn(300);
     if (document.getElementById("modalcontent").innerHTML!=""){return;}
     $.ajax({
         url:"/template/"+_this.id,
@@ -467,6 +478,23 @@ function setSafePayment(_this, number){
     element = document.getElementById("payment-safe");
     element.value = result;
 }
+
+function selectTypePay(_this, _type){
+    last_button = document.getElementsByClassName("tpayb-selected")[0];
+    if (!(last_button == undefined)){
+       
+        last_button.classList.remove("tpayb-selected");
+        last_button.classList.add("tpayb")
+    }
+
+    element = document.getElementById("type-pay");
+    element.value = _type;
+
+    _this.classList.add("tpayb-selected");
+    _this.classList.remove("tpayb");
+
+
+}
 function addLead(_this){
     text = _this.innerText
     loading(_this);
@@ -483,7 +511,8 @@ function addLead(_this){
             "sub_pay":  document.getElementById("payment-safe").value,
             "payment":  document.getElementById("payment-total").value,
             "exp_fuel": document.getElementById("exp-fuel").value,
-            "exp_employee": document.getElementById("exp-employee").value
+            "exp_employee": document.getElementById("exp-employee").value,
+            "type_pay": document.getElementById("type-pay").value
         },
         success:(res)=>{
             if (res.success){
@@ -569,28 +598,6 @@ function get_summery_exp(){
     idens.forEach(function(value) {values+=parseFloat(value)});
     return values;
 }
-function getSubTemplpateDashboard(_this)
-{
-
-    $.ajax({
-        url:'/template/'+_this.id,
-        type:"POST",
-        success:(res)=>{
-            if (res.success){
-                showModal(res.template);
-                showNextLevel(undefined, "1", true);
-                if (res.supply!=undefined){
-                    supply_json = res.supply;
-                }
-
-            }
-
-            else{
-                showAlert(res.title, res.notice);
-            }
-        }
-    })    
-}
 
 function leadAction(value, _ty){
     if (_ty == 0){
@@ -598,7 +605,10 @@ function leadAction(value, _ty){
     }
     else if (_ty == 1){
         location.href = encodeURI(value);
+    }else if (_ty == 2){
+        window.open(value, "_blank");
     }
+    
 }
 
 function showMenuLeadAction(_this){

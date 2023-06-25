@@ -38,6 +38,7 @@ class Client(DBase.Model):
     # expenditure
     expen_employee  = DBase.Column(DBase.Float,         nullable=False, default=0)
     expen_fuel      = DBase.Column(DBase.Float,         nullable=False, default=0)
+    type_pay       = DBase.Column(DBase.Integer,       nullable=False, default=0)
     # מקדמה
     d_money         = DBase.Column(DBase.Float,         nullable=False, default=0)
     total_money     = DBase.Column(DBase.Float,         nullable=False)
@@ -138,7 +139,7 @@ class DBClientApi:
         if mode == "open":
             _client: list[Client] = Client.query.filter_by(is_open=True, **kwargs).all()
         elif mode == "close":
-            _client: list[Client] = Client.query.filter_by(is_open=False, **kwargs).all()
+            _client: list[Client] = Client.query.filter_by(is_open=False, is_garbage=False, **kwargs).all()
         elif mode == "garbage":
             _client: list[Client] = Client.query.filter_by(is_garbage=True, **kwargs).all()
         else:
@@ -258,3 +259,30 @@ class DBClientApi:
         if isinstance(c, Client):
             dc = self.clientdb_to_dict(c)
 
+    def get_name_type_payment(self, c:Client):
+        if c.type_pay == 0:
+            return "מזומן"
+        elif c.type_pay == 1:
+            return "העברה בנקאית"
+        elif c.type_pay == 2:
+            return "צ'ק"
+
+        # /* something broken! */
+        return "לא צויין"
+
+    def set_event_status(self, status, client_id) -> bool:
+        client = Client.query.filter_by(client_id=client_id).first()
+        if not client:
+            return False
+        if status == 0:
+            client.is_garbage = True
+            client.is_open = False
+            DBase.session.commit()
+            return True
+        elif status == 1:
+            client.is_open = False
+            client.is_garbage = False
+            DBase.session.commit()
+            return True
+
+        return False

@@ -14,6 +14,7 @@ from Api.databases import Users, DBase, signup, db_new_client, add_supply, get_a
 
 @m_app.errorhandler(404)
 def _404(n_error):
+    sleep(2)
     return render_template("./error_tmp/404.html")
 
 
@@ -127,17 +128,19 @@ def add_lead():
     if not session.get("is_admin"):
         return jsonify(TMP_DENIED)
 
-    name       = request.form.get("name")       or 0
-    phone      = request.form.get("phone")      or 0
-    id_client  = request.form.get("id_lead") or 0
+    name       = request.form.get("name", 0)
+    phone      = request.form.get("phone", 0)
+    id_client  = request.form.get("id_lead", 0)
     equipment:str  = request.form.get("supply", "{}")
-    date       = request.form.get("date")       or 0
-    location   = request.form.get("location")   or 0
-    sub_pay    = request.form.get("sub_pay")    or 0
-    payment    = request.form.get("payment")    or 0
-    exp_fuel   = request.form.get("exp_fuel")    or 0
-    exp_employee = request.form.get("exp_employee") or 0
-    if not any(request.form.values()):
+    date       = request.form.get("date", 0)
+    location   = request.form.get("location", 0)
+    sub_pay    = request.form.get("sub_pay", 0)
+    payment    = request.form.get("payment", 0)
+    exp_fuel   = request.form.get("exp_fuel", 0)
+    exp_employee = request.form.get("exp_employee", 0)
+    type_pay    = request.form.get("type_pay", -1)
+    # /* Irrelevant
+    if not any(request.form.values()) :
         res["notice"] = "אחד מהנתונים חסר או לא ברור!"
         return jsonify(res)
 
@@ -167,7 +170,8 @@ def add_lead():
                   expen_employee=exp_employee,
                   expen_fuel=exp_fuel,
                   d_money=sub_pay,
-                  total_money=payment)
+                  total_money=payment,
+                  type_pay=type_pay)
     # SUCCESS
     return jsonify(EQUIP_SUCCESS)
 
@@ -254,9 +258,34 @@ def del_equipment(eq_id):
     return jsonify({"success":True})
 
 
+@m_app.route("/event_lead_action/<action>", methods=["POST"])
+def event_actions(action:str):
+    error = dict(LEAD_ERROR)
+
+    if not session.get("is_admin"):
+        return jsonify(TMP_DENIED)
+
+    client_id = request.form.get("client_id")
+    if not client_id:return jsonify(error)
+    if action == "0":
+        # delete event
+        if not DBClientApi().set_event_status(0, client_id):
+           return jsonify(error)
+
+    elif action == "1":
+        # move event to history
+        if not DBClientApi().set_event_status(1, client_id):
+            return jsonify(error)
+    elif action == "2":
+        # create invoice
+        pass
+
+    return jsonify({"success":True})
+
+
 if __name__ == "__main__":
     with m_app.app_context():
         DBase.create_all()
-        signup(user='דבי', pwd='משי', ip='2.55.187.108')
+        # signup(user='דבי', pwd='משי', ip='2.55.187.108')
     m_app.run(host="0.0.0.0", port=80, debug=True)
 

@@ -81,12 +81,22 @@
         <input type="tel" class="payment-total-safe" id="exp-employee" value="0" name="exp-employe" oninput="updateTotalSummary(this)">
       </div>
   </div>
+  <div class="manager-expense-item">
+    <label for="type-pay">אמצעי תשלום</label>
+    <div class="type-payment">
+      <button class="payment-button tpayb-selected" onclick="selectTypePay(this, 0)">מזומן</button>
+      <button class="payment-button tpayb" onclick="selectTypePay(this, 1)">העברה בנקאית</button>
+      <button class="payment-button tpayb" onclick="selectTypePay(this, 2)">צ'ק</button>
+      <input type="hidden" id="type-pay" value="0" name="type-pay">
+    </div>
+</div>
     <div class="manager-expense-item">
-        <label for="payment-safe">מקדמה</label>
-        <div class="payment-option">
-          <button class="payment-button" onclick="setSafePayment(this, 2)">½</button>
-          <button class="payment-button" onclick="setSafePayment(this, 3)">⅓</button>
-        </div>
+        <label for="payment-safe" style="display: flex;">מקדמה
+          <div class="payment-option">
+            <button class="payment-button" onclick="setSafePayment(this, 2)">½</button>
+            <button class="payment-button" onclick="setSafePayment(this, 3)">⅓</button>
+          </div>
+        </label>
         <div class="input-pay">
           <i class="fa-solid fa-shekel-sign"></i>
           <input type="tel" class="payment-total-safe" id="payment-safe" name="payment-safe" value="0">
