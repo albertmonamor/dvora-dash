@@ -1,7 +1,7 @@
 from flask import jsonify
 from time import gmtime, time, ctime, strptime, mktime
 from Api.protocol import UN_ERROR, LEAD_ERROR
-
+#from Api.analyze_pdf import *
 
 DAYS_HEBREW = {
     "Sun": "ראשון",

@@ -1,0 +1,239 @@
+<html>
+    <head>
+    <meta charset="UTF-8">
+
+    <style>
+        *{
+            direction:rtl;
+        }
+
+        .invoice-head{
+            font-size:45px;
+            margin-top:0px;
+        }
+        .invoice-head-title{
+            width:auto;
+            height:auto;
+            margin-right: 1%;
+            margin-left: 1%;
+            color: rgb(240, 248, 255);
+        }
+        .inv-info-employee{
+            display:flex;
+            justify-content:center;
+            font-size: 20px;
+            color:black;
+            margin-top:50px;
+        }
+        .inv-info-body>span{
+            display:block;
+            margin-top:10px;
+            font-weight:bold;
+        }
+        .sinfo{
+            font-weight:normal;
+        }
+        .inv-info-invoice{
+            position:relative;
+            margin-top:50px;
+        }
+        .inv-info-invoice >#num-invoice{
+            font-size:35px;
+            color:#317d4b;
+
+        }
+        .source{
+            position:absolute;
+            left: 2px;
+            bottom:2px;
+        }
+        .inv-info-honor{
+            display:block;
+            margin-top:10px;
+            position:relative;
+        }
+        .inv-info-honor > span{
+            font-weight:bold;
+            display:block;
+
+        }
+
+        .inv-info-honor > span.source{
+            font-weight:normal;
+        }
+        #ldoc{
+            margin-top:40px;
+            display:block;
+            margin-bottom:10px;
+        }
+        .title-table-invoice{
+            padding:10px;
+            background:#317d4b;
+            color:rgb(240, 248, 255);
+            font-weight:bold;
+        }
+        .client-table > table{
+            width:100%;
+        }
+        .client-table{
+            border-spacing: 0px;
+            border-collapse: separate;
+            border-radius: 3px;
+            border: 1px solid rgb(0,0,0, 0.230);
+            box-shadow: 0px 0px 11px 0px rgba(0,0,0,0.3);
+            width:100%;
+            border: 0;
+        }
+        .client-table  thead tr:first-child th:last-child {
+            /*border-top-left-radius: 3px;
+            border-bottom-left-radius: 3px;*/
+            text-align: center;
+        }
+
+
+        .c-hth{
+            padding: 10px 10px 10px 0px;
+            /*color: rgb(197, 186, 244);*/
+            color: #317d4b;
+            /*background-color: rgb(0,0,0);*/
+            border: 0;
+            text-align:right;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        .c-bth{
+            padding:10px 2px 10px 2px;
+            text-align: right;
+            border:0;
+            border-bottom:1px solid rgba(0,0,0,0.09) !important;
+        }
+
+        .c-pth{
+            padding: 10px 1px 10px 1px;
+            background:#317d4b;
+            color: white;
+            text-align: center;
+            border-top: 1px solid rgba(20, 19, 24, 0.138) !important;
+            border-bottom: 1px solid rgba(20, 19, 24, 0.138) !important;
+            box-shadow: -5px -2px 11px 0px rgba(0, 0, 0, 0.26);
+            border-radius: 5px;
+            border: 0;
+            position: relative;
+            font-size: 20px;
+        }
+
+
+        .c-pth > .total{
+            position: absolute;
+            right: 5px;
+            color: aliceblue;
+            font-size: 16px;
+            bottom: 30%;
+            font-weight: lighter;
+        }
+        .border-footer{
+            border-top:1px solid rgba(0,0,0,0.4)!important;
+        }
+        .footer-doc{
+            position:fixed;
+            z-index:10;
+            bottom:5px;
+            width:100%;
+        }
+        .footer-doc>span{
+            display:block;
+        }
+        .signature{
+            font-weight:bold;
+            font-size:24px;
+            padding-top:15px;
+        }
+        .info-sig{
+            font-size: 20px;
+        }
+    </style>
+    </head>
+    <body>
+        <div class="invoice-head">
+            <span>דביר הפקות</span>
+            <span style="font-size:25px;">©</span>
+        </div>
+        <div class="inv-info-employee">
+            <div class="inv-info-body">
+                <span >עוסק פטור: <span class="sinfo">{owner_id}</span></span>
+                <span>אימייל: <span class="sinfo">{email}</span></span>
+            </div>
+        </div>
+        <div class="inv-info-invoice">
+            <span id="num-invoice">קבלה {number_invoice}</span>
+            <span class="source">[מקור]</span>
+        </div>
+        <div class="inv-info-honor">
+            <span> לכבוד:
+                <span class="sinfo">{client_name}</span>
+            </span>
+            <span class="source">[{date}]</span>
+        </div>
+        <span id="ldoc">פרטי הקבלה </span>
+        <div class="title-table-invoice">
+            פירוט התשלום
+        </div>
+
+        <table class="client-table">
+            <thead>
+                <tr>
+                    <th class="c-hth">
+                        אופן התשלום
+                    </th>
+                    <th class="c-hth">
+                        פירוט
+                    </th>
+                    <th class="c-hth">
+                        תאריך
+                    </th>
+                    <th class="c-hth">
+                        סכום
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="body-table">
+                    <td class="c-bth">
+                        {type_pay}
+                    </td>
+                    <td class="c-bth">
+                        {info_pay}
+                    </td>
+                    <td class="c-bth">
+                        {date_pay}
+                    </td class="c-bth">
+                    <td>
+                        {total_money}
+                    </td>
+                </tr>
+                <tr class="summery-table">
+                    <td class="c-bth">
+                    </td>
+                    <td class="c-bth">
+                    </td>
+                    <td class="c-bth">
+                        סך הכול
+                    </td>
+                    <td class="c-pth">
+                        {total_money}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <footer class="footer-doc">
+            <div class="border-footer">
+
+            </div>
+            <span class="signature">חתימה דיגיטלית</span>
+            <span class="info-sig">
+            מסמך ממוחשב הופק ע"י
+            <span style="color:#317d4b;font-weight:bold;padding-top:6px;">א.ס & דביר הפקות</span>
+            </span>
+
+        </footer>
+    </body>
+</html>

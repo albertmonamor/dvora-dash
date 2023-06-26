@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 
 from flask import Flask
-import http, os, binascii
+import os, binascii
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -36,23 +36,3 @@ EMPTY_HISTORY           = "ההיסטוריה ריקה"
 # /** templates
 T404                    = "/error_tmp/404.html"
 
-
-
-import pdfkit
-
-# Specify the HTML content
-html_content = """
-<html>
-<body>
-    <h1>Hello, World!</h1>
-    <p>This is a sample HTML content.</p>
-</body>
-</html>
-"""
-
-# Specify the output file path
-output_path = "c:\\Users\\saban\\Desktop\\simple.pdf"
-
-# Convert HTML to PDF
-pdfkit.from_string(html_content, output_path)
-pdfkit.from_string(html_content, output_path, configuration=pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'))
