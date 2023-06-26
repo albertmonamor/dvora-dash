@@ -1,7 +1,8 @@
+import os.path
+
 from flask import jsonify
 from time import gmtime, time, ctime, strptime, mktime
 from Api.protocol import UN_ERROR, LEAD_ERROR
-#from Api.analyze_pdf import *
 
 DAYS_HEBREW = {
     "Sun": "ראשון",
@@ -161,4 +162,9 @@ def check_equipment(data:dict[str]) -> tuple[bool, str]:
 
     # SUCCESS
     return True, ""
+
+
+def generate_invoice_path(client_phone):
+    now = gmtime(time())
+    return f"{os.getcwd()}\\invoices\\{client_phone.replace(' ', '_')}_{now.tm_mon}-{now.tm_year}.pdf"
 

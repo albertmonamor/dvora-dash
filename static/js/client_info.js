@@ -32,3 +32,29 @@ function del_his_eventLead(_this){
         }
     })
 }
+
+/**
+ * 
+ * @param {Element} _this 
+ */
+function create_download_invoice_client(_this){
+
+    lhtml = _this.innerHTML;
+    cid = _this.id.slice(1, _this.id.length);
+    _this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+    $.ajax({
+        url:"/event_lead_action/"+_this.id.slice(0,1),
+        type:"post",
+        data:{"client_id":cid},
+        success:(res)=>{
+            if (res.success){
+                _this.id = "3"+cid;
+                _this.innerHTML = `<i class="fa-solid fa-file-arrow-down"></i><span>הורד חשבונית</span>`
+            }
+            else{
+                show_popup_error(res, _this);
+            }
+            _this.innerHTML = lhtml;
+        }
+    })
+}

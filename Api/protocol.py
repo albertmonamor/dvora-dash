@@ -36,3 +36,7 @@ EMPTY_HISTORY           = "ההיסטוריה ריקה"
 # /** templates
 T404                    = "/error_tmp/404.html"
 
+PDF_OPTIONS = {
+    'page-size': 'A4',
+}
+PATH_PDFKIT_EXE = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"

@@ -2,10 +2,11 @@ import binascii
 import os
 from json import loads, dumps
 from time import sleep
-from Api.api_function import check_level_new_lead, get_clear_money, check_equipment
+from Api.api_function import check_level_new_lead, check_equipment
 from Api.protocol import m_app, get_random_key, LOGIN_FAILED, LOGIN_SUCCESS, UN_ERROR, EMPTY_LEAD_T, T404, TMP_DENIED, \
     LEAD_ERROR, EQUIP_ERROR, EQUIP_SUCCESS, SEARCH_LEAD_ERR, EMPTY_HISTORY
-from flask import render_template, request, render_template_string, session, jsonify, redirect, url_for
+from flask import render_template, request, render_template_string, session, jsonify, redirect, url_for, \
+    send_from_directory
 from Api.databases import Users, DBase, signup, db_new_client, add_supply, get_all_supply, verify_supply \
     , time, get_supply_by_id, generate_id_supply, DBClientApi
 
@@ -278,14 +279,20 @@ def event_actions(action:str):
             return jsonify(error)
     elif action == "2":
         # create invoice
-        pass
+        sleep(2)
+        if not DBClientApi().create_invoice_event(client_id):
+            return jsonify(error)
+    elif action == "3":
+        pathfile = DBClientApi().get_invoice_client(client_id)
+        return send_from_directory("/invoices", pathfile, as_attachment=True)
 
     return jsonify({"success":True})
 
 
-if __name__ == "__main__":
+if __name__ == "__mcain__":
     with m_app.app_context():
         DBase.create_all()
         # signup(user='דבי', pwd='משי', ip='2.55.187.108')
     m_app.run(host="0.0.0.0", port=80, debug=True)
+
 

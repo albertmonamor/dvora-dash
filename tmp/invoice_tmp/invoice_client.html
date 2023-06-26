@@ -8,8 +8,11 @@
         }
 
         .invoice-head{
-            font-size:45px;
+            font-size:50px;
             margin-top:0px;
+            font-weight: bold;
+            text-align: center;
+
         }
         .invoice-head-title{
             width:auto;
@@ -101,7 +104,7 @@
             border-bottom: 1px solid rgba(0,0,0,0.1);
         }
         .c-bth{
-            padding:10px 2px 10px 2px;
+            padding:10px 10px 10px 2px;
             text-align: right;
             border:0;
             border-bottom:1px solid rgba(0,0,0,0.09) !important;
@@ -205,9 +208,9 @@
                     </td>
                     <td class="c-bth">
                         {date_pay}
-                    </td class="c-bth">
-                    <td>
-                        {total_money}
+                    </td>
+                    <td  class="c-bth">
+                        {total_money} ש"ח
                     </td>
                 </tr>
                 <tr class="summery-table">
@@ -219,7 +222,7 @@
                         סך הכול
                     </td>
                     <td class="c-pth">
-                        {total_money}
+                        {total_money2} ש"ח
                     </td>
                 </tr>
             </tbody>
