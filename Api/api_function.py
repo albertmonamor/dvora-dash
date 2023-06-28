@@ -2,7 +2,7 @@ import os.path
 
 from flask import jsonify
 from time import gmtime, time, ctime, strptime, mktime
-from Api.protocol import UN_ERROR, LEAD_ERROR
+from Api.protocol import UN_ERROR, LEAD_ERROR, BASEDIR
 
 DAYS_HEBREW = {
     "Sun": "ראשון",
@@ -31,7 +31,7 @@ def check_level_new_lead(level:str, value:str) -> tuple[int, jsonify]:
     if level == "1":
         return 1, jsonify(__suc)
     elif level == "2":
-        if not (2 <= value.__len__() < 20) :
+        if not (2 <= value.__len__() < 20) and not contain_html_entities(value):
             __err['notice'] = "השם קצר/ארוך מידיי"
             return 0, jsonify(__err)
 
@@ -56,7 +56,7 @@ def check_level_new_lead(level:str, value:str) -> tuple[int, jsonify]:
         except (ValueError, Exception):
             return 0, jsonify(__err)
     elif level == "7":
-        if not (2 < value.__len__() < 100):
+        if not (2 < value.__len__() < 100) and not contain_html_entities(value):
             __err["notice"] = "המיקום שהוכנס לא ברור"
             return 0, jsonify(__err)
     elif level == "8":
@@ -166,5 +166,4 @@ def check_equipment(data:dict[str]) -> tuple[bool, str]:
 
 def generate_invoice_path(client_phone):
     now = gmtime(time())
-    return f"{os.getcwd()}\\invoices\\{client_phone.replace(' ', '_')}_{now.tm_mon}-{now.tm_year}.pdf"
-
+    return f"{BASEDIR}\\invoices\\{client_phone.replace(' ', '_')}_{now.tm_mon}-{now.tm_year}.pdf"

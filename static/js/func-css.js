@@ -360,8 +360,8 @@ function createTableEquipmentSelected(parent){
     // DONE!!
     parent.appendChild(table);
 }
-function closeModalAddLead(){
-    if (confirm("לבטל הוספת לקוח?")){
+function closeModalAddLead(no_ask=0){
+    if (no_ask || confirm("לבטל הוספת לקוח?")){
         $(document.getElementById("model-addlead")).fadeOut(100);
         $(document.getElementById("modaldes")).fadeIn(300);
         $(document.getElementById("modalstart")).fadeIn(300);
@@ -516,7 +516,8 @@ function addLead(_this){
         },
         success:(res)=>{
             if (res.success){
-                location.href='';
+                closeModalAddLead(no_ask=1);
+                getTemplate($("#0")[0], "0", 1);
 
             }else{
                 alert(res.title + "   "+ res.notice) ;

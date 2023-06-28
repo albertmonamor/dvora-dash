@@ -4,7 +4,7 @@ from json import loads, dumps
 from time import sleep
 from Api.api_function import check_level_new_lead, check_equipment
 from Api.protocol import m_app, get_random_key, LOGIN_FAILED, LOGIN_SUCCESS, UN_ERROR, EMPTY_LEAD_T, T404, TMP_DENIED, \
-    LEAD_ERROR, EQUIP_ERROR, EQUIP_SUCCESS, SEARCH_LEAD_ERR, EMPTY_HISTORY
+    LEAD_ERROR, EQUIP_ERROR, EQUIP_SUCCESS, SEARCH_LEAD_ERR, EMPTY_HISTORY, INVOICE_ACTION_ERR
 from flask import render_template, request, render_template_string, session, jsonify, redirect, url_for, \
     send_from_directory
 from Api.databases import Users, DBase, signup, db_new_client, add_supply, get_all_supply, verify_supply \
@@ -259,15 +259,18 @@ def del_equipment(eq_id):
     return jsonify({"success":True})
 
 
-@m_app.route("/event_lead_action/<action>", methods=["POST"])
+@m_app.route("/event_lead_action/<action>", methods=["POST", "GET"])
 def event_actions(action:str):
     error = dict(LEAD_ERROR)
-
     if not session.get("is_admin"):
+        if request.method == "GET":
+            return redirect(url_for("index"),302)
+
         return jsonify(TMP_DENIED)
 
     client_id = request.form.get("client_id")
-    if not client_id:return jsonify(error)
+    owner     = request.form.get("owner")
+    if not client_id and request.method == "POST":return jsonify(error)
     if action == "0":
         # delete event
         if not DBClientApi().set_event_status(0, client_id):
@@ -280,16 +283,22 @@ def event_actions(action:str):
     elif action == "2":
         # create invoice
         sleep(2)
-        if not DBClientApi().create_invoice_event(client_id):
-            return jsonify(error)
+        if not DBClientApi().create_invoice_event(client_id, owner):
+            return jsonify(INVOICE_ACTION_ERR)
+
     elif action == "3":
+        client_id = request.args.get('client_id')
         pathfile = DBClientApi().get_invoice_client(client_id)
-        return send_from_directory("/invoices", pathfile, as_attachment=True)
+        if not pathfile or not os.path.exists(pathfile):
+            DBClientApi().reinvoice_client(client_id)
+            return redirect(url_for("dashboard"), 302)
+
+        return send_from_directory("invoices", os.path.basename(pathfile), as_attachment=True)
 
     return jsonify({"success":True})
 
 
-if __name__ == "__mcain__":
+if __name__ == "__main__":
     with m_app.app_context():
         DBase.create_all()
         # signup(user='דבי', pwd='משי', ip='2.55.187.108')

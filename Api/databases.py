@@ -6,7 +6,7 @@ import sys
 from time import time, ctime, gmtime, sleep
 
 from Api.api_function import get_format_last_write, get_name_date_by_str, get_days_left_to_event,generate_invoice_path
-from Api.protocol import DBase, m_app, PDF_OPTIONS, PATH_PDFKIT_EXE
+from Api.protocol import DBase, m_app, PDF_OPTIONS, PATH_PDFKIT_EXE, BASEDIR
 
 
 class Users(DBase.Model):
@@ -49,8 +49,6 @@ class Client(DBase.Model):
     # for API bool
 
 
-
-
 class Supply(DBase.Model):
     __tablname__    = "supply"
     index           = DBase.Column(DBase.Integer,       primary_key=True)
@@ -66,7 +64,20 @@ class Invoice(DBase.Model):
     __tablename__ = 'invoice'
 
     index           = DBase.Column(DBase.Integer,       primary_key=True)
-    invoice_id      = DBase.Column(DBase.String,        nullable=False, default="")
+    invoice_id      = DBase.Column(DBase.Integer,       nullable=False)
+
+
+class OwnerInformation(DBase.Model):
+
+    __tablename__ = "owner"
+
+    index       = DBase.Column(DBase.Integer, primary_key=True)
+    full_name  = DBase.Column(DBase.String,  nullable=False)
+    email       = DBase.Column(DBase.String,  nullable=False)
+    identify    = DBase.Column(DBase.Integer,  nullable=False)
+    phone       = DBase.Column(DBase.Integer,  nullable=False)
+
+
 
 def signup(**kwargs):
     user = Users(**kwargs)
@@ -297,25 +308,34 @@ class DBClientApi:
 
         return False
 
-    def create_invoice_event(self, cid, path_out="test.pdf"):
+    def create_invoice_event(self, cid, name_owner):
         res = False
         client = self.get_info_client(cid)
-        if not client:
-            return False
+        if not client:return False
+        invoice = Invoice.query.first()
+        if not invoice:
+            num_invoice = Invoice(invoice_id=1000)
+            DBase.session.add(num_invoice)
+            DBase.session.commit()
+            invoice = Invoice.query.first()
+            invoice.invoice_id = invoice.invoice_id+1
+        else:
+            invoice.invoice_id =  invoice.invoice_id+1
 
         dbc = Client.query.filter_by(client_id=cid).first()
-        dbc.invoice_id = generate_invoice_path(client["full_name"])
-        file_data = open("./tmp/invoice_tmp/invoice_client.html", "r", encoding="utf-8").read()
+        dbc.invoice_id = generate_invoice_path(client["phone"])
+
+        file_data = open(BASEDIR+"/tmp/invoice_tmp/invoice_client.html", "r", encoding="utf-8").read()
         style, body = file_data.split("<body>")
 
         tmp_format = body.format(owner_id="325576854",
                                      email="dvir@gmail.com",
-                                     number_invoice="1001",
+                                     number_invoice=invoice.invoice_id,
                                      client_name=client["full_name"],
                                      date=ctime(),
                                      type_pay=self.get_name_type_payment(client),
-                                     info_pay='מזומן בעת האירוע',
-                                     date_pay=client["event_date"],
+                                     info_pay="לא צויין",
+                                     date_pay=client["event_date"].replace("-","/"),
                                      total_money=client["net"],
                                      total_money2=client["net"])
 
@@ -325,7 +345,7 @@ class DBClientApi:
                                      options=PDF_OPTIONS)
         elif sys.platform == "linux":
             res = pdfkit.from_string(style + tmp_format,
-                               path_out,
+                               dbc.invoice_id,
                                options=PDF_OPTIONS)
 
         if res:
@@ -339,4 +359,14 @@ class DBClientApi:
             return False
 
         return client.invoice_id
+
+
+    def reinvoice_client(self, cid:str) -> bool:
+        dbc = Client.query.filter_by(client_id=cid).first()
+        if not dbc:
+            return False
+
+        dbc.invoice_id = ""
+        DBase.session.commit()
+        return True
 

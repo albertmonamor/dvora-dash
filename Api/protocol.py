@@ -1,5 +1,3 @@
-from contextlib import contextmanager
-
 from flask import Flask
 import os, binascii
 from flask_sqlalchemy import SQLAlchemy
@@ -30,6 +28,7 @@ LEAD_ERROR: dict        = {"success":False, "title":"שם לב!", "notice":None}
 EQUIP_ERROR:dict        = {"success":False, "title":"שגיאת ציוד", "notice":"שגיאה בעת הוספת הציוד"}
 EQUIP_SUCCESS:dict      = {"success":True, "title":"הושלם!", "notice":"הלקוח נוסף לרשימה"}
 SEARCH_LEAD_ERR         = {"success":False,"title": "שגיאה בחיפוש", "notice":"לא נמצאו פרטים"}
+INVOICE_ACTION_ERR      = {"success":False,"title":"שגיאה בתהליך", "notice":"פרטי עוסק פטור שגויים או שהלקוח שגוי"}
 # /** empty lead
 EMPTY_LEAD_T            = "אין אירועים קרובים"
 EMPTY_HISTORY           = "ההיסטוריה ריקה"
@@ -40,3 +39,4 @@ PDF_OPTIONS = {
     'page-size': 'A4',
 }
 PATH_PDFKIT_EXE = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
+BASEDIR         = "\\".join(os.getcwd().split("\\")[0:-1]) if os.getcwd().split("\\")[-1] !="dvora-dash" else os.getcwd()
