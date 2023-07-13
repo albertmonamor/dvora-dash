@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from flask import Flask
 import os, binascii
 from flask_sqlalchemy import SQLAlchemy
@@ -10,6 +12,7 @@ FILE_NAME_DB = "dvir"
 m_app = Flask("dvir_dvora", template_folder="tmp")
 m_app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{FILE_NAME_DB}"
 m_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # // default
+m_app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
 m_app.secret_key = binascii.hexlify(os.urandom(25)).decode()
 DBase: SQLAlchemy = SQLAlchemy(m_app)
 
@@ -29,6 +32,11 @@ EQUIP_ERROR:dict        = {"success":False, "title":"שגיאת ציוד", "noti
 EQUIP_SUCCESS:dict      = {"success":True, "title":"הושלם!", "notice":"הלקוח נוסף לרשימה"}
 SEARCH_LEAD_ERR         = {"success":False,"title": "שגיאה בחיפוש", "notice":"לא נמצאו פרטים"}
 INVOICE_ACTION_ERR      = {"success":False,"title":"שגיאה בתהליך", "notice":"פרטי עוסק פטור שגויים או שהלקוח שגוי"}
+UPDATE_LEAD_ERROR       = {"success":False,"title": "שגיאה בעדכון", "notice":""}
+IMPORT_TXT_ERROR        = {"success":False,"title":"שגיאה בייבוא","notice":""}
+MAX_IMPORT_TXT          = 1000*100
+FILENAME_IMPORT_TXT     = "equipment.txt"
+FILENAME_EXPORT_TXT     = "equipment.txt"
 # /** empty lead
 EMPTY_LEAD_T            = "אין אירועים קרובים"
 EMPTY_HISTORY           = "ההיסטוריה ריקה"
@@ -40,3 +48,4 @@ PDF_OPTIONS = {
 }
 PATH_PDFKIT_EXE = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
 BASEDIR         = "\\".join(os.getcwd().split("\\")[0:-1]) if os.getcwd().split("\\")[-1] !="dvora-dash" else os.getcwd()
+

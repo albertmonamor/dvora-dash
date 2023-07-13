@@ -146,3 +146,52 @@ function closeModalAddEquipment(ask=0){
 
     }
 }
+
+
+
+
+
+function uploadEquipmentTxt(e){
+    console.log(e)
+    // notice for stupid hackers:: just side client :(, the server verify this too
+    MAX_SIZE = 1000*100;
+    const fileI = e.target;
+    const file = fileI.files[0];
+    if (file.type != "text/plain"){
+        return;
+    }
+    else if (file.size > MAX_SIZE || file.size == 0){
+        return;
+    }
+    en = document.getElementById("importnonce")
+    form_data_up = new FormData();
+    form_data_up.append("txt", file);
+    form_data_up.append("nonce", en.value);
+    $.ajax({
+        url:"/import_txt",
+        type:"post",
+        data:form_data_up,
+        processData: false,
+        contentType: false,
+        success:(res)=>{
+            if (res.success){
+                getTemplate($("#1")[0], "1", 1);
+                en.value = JSON.parse(JSON.stringify(res).replace(/(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '"$2": '))[en.value];
+            }
+            else{
+                show_popup_error(res, null)
+            }
+            fileI.value = null;
+        }
+    })
+    
+    
+}
+
+
+function downloadEquipmentTxt(_this){
+    lhtml = _this.innerHTML;
+    _this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+    location.href = "/export_txt";
+    _this.innerHTML = lhtml;
+}

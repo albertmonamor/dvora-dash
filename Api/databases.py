@@ -1,12 +1,12 @@
 import binascii
 import os
-import random
 import pdfkit
 import sys
-from time import time, ctime, gmtime, sleep
-
-from Api.api_function import get_format_last_write, get_name_date_by_str, get_days_left_to_event,generate_invoice_path
-from Api.protocol import DBase, m_app, PDF_OPTIONS, PATH_PDFKIT_EXE, BASEDIR
+from json import dumps, loads
+from time import ctime, time
+from Api.api_function import FormatTime, generate_invoice_path, \
+    check_level_new_lead, XOR
+from Api.protocol import DBase, m_app, PDF_OPTIONS, PATH_PDFKIT_EXE, BASEDIR, UPDATE_LEAD_ERROR
 
 
 class Users(DBase.Model):
@@ -78,6 +78,14 @@ class OwnerInformation(DBase.Model):
     phone       = DBase.Column(DBase.Integer,  nullable=False)
 
 
+class ClientAgreement(DBase.Model):
+    __tablename__ = "agreement"
+    index         = DBase.Column(DBase.Integer, primary_key=True)
+    path          = DBase.Column(DBase.String, nullable=False)
+    client_id     = DBase.Column(DBase.String, nullable=False)
+    is_accepted   = DBase.Column(DBase.Boolean, nullable=False, default=False)
+    agree_id      = DBase.Column(DBase.String, nullable=False)
+
 
 def signup(**kwargs):
     user = Users(**kwargs)
@@ -127,31 +135,50 @@ def verify_supply(supp: dict) -> tuple[bool, dict]:
 
     return True, _supply_lead
 
-
-# from json import dumps
-# from time import ctime, time
-#
-# new_lead(write_by="אברהם", full_name="משה רועי", phone="0585005617", ID="324104173",
-#          event_supply=dumps(['0', '12', '56', '2']), event_date=time() + 10000,
-#          event_place="31.783203, 34.625719", determine_money=4850, pay_sub=True, money_left=4850 / 2,
-#          is_open=True)
-
-from json import dumps, loads
-from time import ctime, time
-
-# new_lead(write_by="אברהם", full_name="משה רועי", phone="0585005617", ID="324104173",
-#          event_supply=dumps(['0', '12', '56', '2']), event_date=time() + 10000,
-#          event_place="31.783203, 34.625719", determine_money=4850, pay_sub=True, money_left=4850 / 2,
-#          is_open=True)
-"""
-
-"""
 # signup(user='דבי', pwd='משי', ip='2.55.187.108')
 
 
 # /* supply for events
 # /* from static to database for dynamic actions
 
+
+def import_txt_equipment(d:bytes, pwd=None) -> bool:
+    try:
+        new_supply = loads(XOR(d.decode(encoding="utf8"), pwd).decode())
+    except (Exception, UnicodeDecodeError):
+        return False
+    if not new_supply:
+        return False
+
+    for nsupply in new_supply:
+        supply = Supply()
+        supply.name = nsupply["name"]
+        supply.price = int(nsupply["price"])
+        supply.desc = nsupply["desc"]
+        supply._id = nsupply["_id"]
+        supply.exist = int(nsupply["exist"])
+        supply.count = int(nsupply["count"])
+        DBase.session.add(supply)
+        DBase.session.commit()
+    return True
+
+
+
+def export_txt_equipment(fp, pwd=None) -> bool:
+    new_supply:list[Supply] = Supply.query.all()
+    result:list[dict] = []
+    if not new_supply:
+        return False
+
+    for equip in new_supply:
+        equip.__dict__.pop('_sa_instance_state')
+        result.append(equip.__dict__)
+
+    buffer = dumps(result)
+    with open(fp, "wb") as fexport:
+        fexport.write(XOR(buffer, pwd))
+
+    return True
 
 class DBClientApi:
 
@@ -163,6 +190,8 @@ class DBClientApi:
             _client: list[Client] = Client.query.filter_by(is_open=False, is_garbage=False, **kwargs).all()
         elif mode == "garbage":
             _client: list[Client] = Client.query.filter_by(is_garbage=True, **kwargs).all()
+        elif mode == "both":
+            _client: list[Client] = Client.query.filter_by(is_open=False, **kwargs).all()
         else:
             # undefined
             _client: list[Client] = Client.query.all()
@@ -216,20 +245,22 @@ class DBClientApi:
         client = {}
         for index, c in enumerate(_client):
             client[index] = {"wb": c.write_by,
-                             "lw": get_format_last_write(c.last_write),
+                             "lw": FormatTime(c.last_write).get_format_before_time(),
                              "fn": c.full_name,
                              "phone": c.phone,
                              "id": c.ID,
                              "ci":c.client_id,
                              "es": c.event_supply,
-                             "ed":get_name_date_by_str(c.event_date),
+                             "ed":FormatTime.get_name_day_and_date(c.event_date),
                              "ep": c.event_place,
                              "dm": c.d_money,
                              "ps": self.is_pay_down_payment(c.d_money),
                              "tm": f"{self.get_gross(c):,}",
                              "oe": self.is_order_equipment(c.event_supply),
                              "cm": f"{self.get_net(c):,}",
-                             'low_e': self.is_low_expenses(c)
+                             'low_e': self.is_low_expenses(c),
+                             'ea':c.is_open,
+                             "eg":c.is_garbage,
                            }
         return client
 
@@ -244,15 +275,18 @@ class DBClientApi:
 
         dc = self.clientdb_to_dict(client)
         info_equip = self.get_info_equipment(client)
-        date = get_name_date_by_str(client.event_date)
+        date = FormatTime.get_name_day_and_date(client.event_date)
+        date_full = date.split(" ")[2::][0].split(".")
+        date_full.reverse()
+
         dc["event_supply"] = loads(client.event_supply)
         dc["net"] = self.get_net(client)
         dc["gross"] = self.get_gross(client)
         dc["pay_for_equipment"] = info_equip["money"]
         dc["count_of_equipment"] = info_equip["count"]
-        dc["date_str"] = " ".join(date.split(" ")[2::])
+        dc["date_str"] = ".".join(date_full)
         dc["name_day"] = " ".join(date.split(" ")[0:2])
-        dc["days_left"] = get_days_left_to_event("".join(date.split(" ")[2::]))
+        dc["days_left"] = FormatTime.get_days_left("".join(date.split(" ")[2::]))
         dc["expen_fuel_i"] = str(float(client.expen_fuel)).split(".")[0]
         dc["expen_fuel_d"] = str(float(client.expen_fuel)).split(".")[1]
         dc["expen_employee_i"] = str(float(client.expen_employee)).split(".")[0]
@@ -366,7 +400,68 @@ class DBClientApi:
         if not dbc:
             return False
 
+        if os.path.exists(dbc.invoice_id):
+            os.remove(dbc.invoice_id)
         dbc.invoice_id = ""
         DBase.session.commit()
         return True
+
+    def update_lead_information(self, kind:str, data:..., client_id):
+        error = dict(UPDATE_LEAD_ERROR)
+        client = Client.query.filter_by(client_id=client_id).first()
+        # /* valid: id or is closed/garbage */
+        if not client:
+            error["notice"] = "מזהה לא ידוע"
+            return error
+        elif not client.is_open or client.is_garbage:
+            error["notice"] = "לא ניתן לעדכן אירוע סגור"
+            return error
+
+        if kind == "0":
+            new_equip = loads(data)
+            last_equip = loads(client.event_supply)
+            for neq in new_equip:
+                if not neq["count"].replace(" ", "").isdigit():
+                    error["notice"] = f"{last_equip[neq['equip_id']]['name']} עם כמות שגויה "
+                    return error
+                last_equip[neq['equip_id']]["count"] = int(neq["count"])
+
+            client.event_supply = dumps(last_equip)
+            DBase.session.commit()
+
+        elif kind == "1":
+            status, _ = check_level_new_lead('6', data)
+            if not status:
+                error["notice"] = "תאריך לא תקין"
+                return error
+            client.event_date = data
+            DBase.session.commit()
+
+        elif kind == "2":
+            status, _ = check_level_new_lead('7', data)
+            if not status:
+                error["notice"] = "המיקום לא תקין"
+                return error
+            client.event_place = data
+            DBase.session.commit()
+
+        elif kind == "3":
+            new_expense = loads(data)
+            error['notice'] = "הוצאה לא תקינה"
+            for index, exp in enumerate(new_expense):
+                try:
+                    new_expense[index] = int(float(exp.replace("₪", "")))
+                except (TypeError,ValueError):
+                    return error
+
+            client.expen_fuel = int(new_expense[0])
+            client.expen_employee = int(new_expense[1])
+            DBase.session.commit()
+
+
+        self.reinvoice_client(client_id)
+
+        return {"success":True}
+
+
 

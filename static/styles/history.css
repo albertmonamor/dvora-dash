@@ -10,9 +10,27 @@
 }
 
 
+.event-date-closed{
+    color: rgb(63, 43, 145);
+}
+.event-closed, .event-canceled{
+    padding: 6px 6px 7px 6px;
+    border-radius: 7px;
+    
+    font-weight: bold;
+}
+.event-closed{
+    color: #4cca78;
+    font-size: 20px;
+}
+.event-canceled{
+    color: rgb(232, 111, 111);
+    transform: skewX(-20deg);
+}
 @media screen and (max-width:1000px){
     .histories{
         margin-left: 2%;
         margin-right: 2%;
+        
     }
 }

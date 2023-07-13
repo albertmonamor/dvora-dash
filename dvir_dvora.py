@@ -2,13 +2,17 @@ import binascii
 import os
 from json import loads, dumps
 from time import sleep
+
+from werkzeug.datastructures import FileStorage
+
 from Api.api_function import check_level_new_lead, check_equipment
 from Api.protocol import m_app, get_random_key, LOGIN_FAILED, LOGIN_SUCCESS, UN_ERROR, EMPTY_LEAD_T, T404, TMP_DENIED, \
-    LEAD_ERROR, EQUIP_ERROR, EQUIP_SUCCESS, SEARCH_LEAD_ERR, EMPTY_HISTORY, INVOICE_ACTION_ERR
-from flask import render_template, request, render_template_string, session, jsonify, redirect, url_for, \
+    LEAD_ERROR, EQUIP_ERROR, EQUIP_SUCCESS, SEARCH_LEAD_ERR, EMPTY_HISTORY, INVOICE_ACTION_ERR, IMPORT_TXT_ERROR, \
+    MAX_IMPORT_TXT, FILENAME_IMPORT_TXT, BASEDIR, FILENAME_EXPORT_TXT
+from flask import render_template, request, session, jsonify, redirect, url_for, \
     send_from_directory
 from Api.databases import Users, DBase, signup, db_new_client, add_supply, get_all_supply, verify_supply \
-    , time, get_supply_by_id, generate_id_supply, DBClientApi
+    , time, get_supply_by_id, generate_id_supply, DBClientApi, export_txt_equipment, import_txt_equipment
 
 
 #  ******************* ROUTES *************************
@@ -80,11 +84,13 @@ def get_template_dashboard(tmp):
                         "name":"לקוחות"})
     elif tmp == "1":
         res_tmp = "/dash_tmp/equipment.html"
+        session["nonce_import"] = get_random_key()
         return jsonify({"success":True,
-                        "template":render_template(res_tmp, equipment=get_all_supply()),
+                        "template":render_template(res_tmp, equipment=get_all_supply(),
+                                                   nonce_import=session["nonce_import"]),
                         "name":"ציוד"})
     elif tmp == "2":
-        client_open = DBClientApi().get_all_client_by_mode("close")
+        client_open = DBClientApi().get_all_client_by_mode("both")
         res_tmp = "/dash_tmp/history.html"
         return jsonify({"success":True,
                         "template":render_template(res_tmp, leads=client_open,empty_history=EMPTY_HISTORY),
@@ -97,6 +103,7 @@ def get_template_dashboard(tmp):
         name = "הגדרות"
     elif tmp == "10":
         client_info = DBClientApi().get_info_client(request.form.get("identify", "C0"))
+
         res_tmp = "/dash_tmp/client_info.html"
         return jsonify({"success":True, "template":render_template(res_tmp, ci=client_info)})
     elif tmp == '15':
@@ -154,6 +161,7 @@ def add_lead():
 
     # // SUCCESS
     equipment_is_ok, s_lead = verify_supply(loads(equipment))
+
     if not equipment_is_ok:
         return jsonify(EQUIP_ERROR)
     # // SUCCESS
@@ -296,6 +304,62 @@ def event_actions(action:str):
         return send_from_directory("invoices", os.path.basename(pathfile), as_attachment=True)
 
     return jsonify({"success":True})
+
+@m_app.route("/update_lead/<kind>", methods=["POST"])
+def update_lead(kind):
+    if not session.get("is_admin"):
+        return jsonify(TMP_DENIED)
+
+    data = request.form.get("data")
+    client_id = request.form.get("client_id")
+    status = DBClientApi().update_lead_information(kind, data, client_id)
+    return jsonify(status)
+
+@m_app.route("/import_txt", methods=["POST"])
+def upload_equipment_txt():
+    error = dict(IMPORT_TXT_ERROR)
+    if not session.get("is_admin"):
+        return jsonify(TMP_DENIED)
+
+    file_s:FileStorage = request.files.get("txt")
+    nonce = request.form.get("nonce")
+
+    if session.get("nonce_import") != nonce:
+        return jsonify(UN_ERROR)
+
+    if not file_s:
+        error["notice"] = "detected: burpsuite/proxy"
+        return jsonify(error)
+
+    file_s.filename = FILENAME_IMPORT_TXT
+
+    binary = file_s.stream.read()
+    key_xor = Users.query.filter_by(user=session['user']).first().pwd
+    if binary.__len__() > MAX_IMPORT_TXT:
+        error["notice"] = "קובץ גדול מידיי"
+        return jsonify(error)
+
+    if not import_txt_equipment(binary, key_xor):
+        error["notice"] = "ייבוא הקובץ נכשל"
+        return jsonify(error)
+
+    # /* delete nonce */
+    session["nonce_import"] = get_random_key()
+    return jsonify({"success":True, nonce:session["nonce_import"]})
+
+@m_app.route("/export_txt", methods=["GET"])
+def download_equipment_txt():
+
+    if not session.get("is_admin"):
+        return redirect(url_for("dashboard"), 302)
+
+    fp = BASEDIR+"\\exports\\"+FILENAME_EXPORT_TXT
+    key_xor = Users.query.filter_by(user=session["user"]).first().pwd
+    if not key_xor or not export_txt_equipment(fp, key_xor):
+        return redirect(url_for("dashboard"), 302)
+
+    return send_from_directory("exports", os.path.basename(FILENAME_EXPORT_TXT), as_attachment=True)
+
 
 
 if __name__ == "__main__":

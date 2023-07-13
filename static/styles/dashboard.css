@@ -11,6 +11,9 @@ body::-webkit-scrollbar-track{
 input{
     border: 0;
 }
+::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
 
 
 
@@ -198,7 +201,7 @@ footer{
     color: aliceblue;
     background: rgba(211, 70, 70, 0.692);
     border-radius: 9px;
-    position: absolute;
+    position: fixed;
     transition: 300ms;
     padding: 0;
 }

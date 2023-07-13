@@ -62,6 +62,8 @@
 }
 
 .leads-box{
+    display: flex;
+    flex-direction: column;
     position: relative;
     background:#b2a9bf;
     border-radius: 6px;
@@ -172,10 +174,10 @@ ul.leads-menu-action li:hover{
     width: auto;
     height: auto;
     background: #d7cdea;
-    margin-top: 15px;
     margin-left: 20%;
     margin-right: 20%;
     font-weight: bold;
+    margin-top: 15px;
 }
 .lead-box-info-head>i{
     position: absolute;
@@ -184,12 +186,17 @@ ul.leads-menu-action li:hover{
     color: rgb(63, 43, 145);
 }
 
+.lead-profile-parent{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin: 15px 1px 15px 1px;
+    
+}
+
 .lead-profile{
     display: flex;
-    width: auto;
-    height: auto;
-    margin-right: 10%;
-    margin-left: 10%;
+    flex-direction: column;
     margin-top: 12px;
     font-weight: bold;
 
@@ -213,6 +220,27 @@ ul.leads-menu-action li:hover{
     font-size: 25px;
     box-shadow: -3px 1px 5px 4px rgba(40, 40, 40, 0.187);
     border-radius: 50%;
+}
+.live-shadow{
+    color: rgb(63, 43, 145);
+    font-weight: bold;
+    font-size: 25px;
+    box-shadow: 0px 0px 0px 11px rgba(40, 40, 40, 0.187);
+    border-radius: 50%;
+    animation: liveshadow 2s ease-in 1s infinite normal backwards;
+    
+}
+
+@keyframes liveshadow {
+    0%{
+        box-shadow: 0px 0px 0px 0px rgba(40, 40, 40, 0.187);
+    }
+    50%{
+        box-shadow: 0px 0px 0px 11px rgba(40, 40, 40, 0.187);
+    }
+    100%{
+        box-shadow: 0px 0px 40px 2px rgba(40, 40, 40, 0.187);
+    }
 }
 
 .lead-box-footer{
@@ -369,6 +397,39 @@ ul.leads-menu-action li:hover{
     box-shadow: 0px 0px 11px 0px black;
 }
 
+.edit{
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 24px;
+    border-radius: 50%;
+    background: #191919cf;
+    padding: 10px 13px 10px 13px;
+    cursor: pointer;
+    transition: 300ms;
+    color: rgb(197, 186, 244);
+    left: -15px;
+    top: -30px;
+    transition: 600ms;
+
+}
+
+.edit-open{
+    border-radius: 7px;
+    padding: 7px;
+}
+.edit-open > *:first-child{
+    margin-left: 8px;
+    padding-left: 8px;
+    border-left: 1px solid gray;
+}
+.edit-open > *{
+    transition: 400ms;
+}
+.edit:hover,
+.edit:active{
+    box-shadow: 0 0 11px 0 #000000;
+}
 .client-table thead tr:first-child th:first-child {
     border-top-right-radius: 7px;
     border-bottom-right-radius: 7px;
@@ -380,6 +441,17 @@ ul.leads-menu-action li:hover{
 
 }
 
+.client-table  thead th:last-child {
+    border-top-left-radius: 7px;
+    border-bottom-left-radius: 7px;
+    text-align: center;
+    position: relative;
+
+}
+.client-table  thead th:last-child > .edit{
+    left: -15px;
+    top: -30px;
+}
 
 .c-hth{
     padding: 10px 10px 10px 0;
@@ -391,6 +463,13 @@ ul.leads-menu-action li:hover{
     padding:10px 2px 10px 2px;
     text-align: center;
     border: 0;
+    position: relative;
+}
+.c-bth > .edit-table-input{
+    position: absolute;
+    text-align: center;
+    top: 10px;
+    right: 0px;
 }
 
 .c-pth{
@@ -432,12 +511,25 @@ ul.leads-menu-action li:hover{
     font-weight: lighter;
     font-size: 24px;
     padding: 10px;
+    position: relative;
 
 }
 
 .client-date > *{
     padding: 5px 10px 5px 10px;
 }
+
+#edit-date > .edit-table-input{
+    width: 130%;
+    font-weight: lighter;
+    border: none;
+    font-size: 20px;
+    padding: 10px;
+}
+
+#edit-location > .loc > .edit-table-input{
+    width: 100%!important;
+} 
 
 .day-of-week {
     color: #b2a9bf;
@@ -600,8 +692,11 @@ ul.leads-menu-action li:hover{
 
     .leads-list{
         flex-direction: column;
-        margin-left: 2%;
-        margin-right: 5%;
+        margin-left: 0%;
+        margin-right: 3%;
+    }
+    .leads-box{
+        justify-content: space-between;
     }
     .leads-menu-action{
         font-size: 13px;
@@ -631,6 +726,10 @@ ul.leads-menu-action li:hover{
         margin-right: 5%;
         margin-left:5%;
         margin-bottom: -10px;
+        font-size: 14px;
+    }
+    .lead-profile > p >span{
+        margin-left: 10px;
     }
     .lead-box-money{
         width: 80%;
@@ -674,6 +773,12 @@ ul.leads-menu-action li:hover{
         margin-left: 1%;
         margin-right: 1%; 
     }
+    .edit, .client-table  thead th:last-child > .edit{
+        left: -5px;
+        top:-40px;
+        font-size: 20px;
+        margin-left: 1px !important;
+    }
     .c-pth > .total{
         display: none;
     }
@@ -684,6 +789,13 @@ ul.leads-menu-action li:hover{
         margin-right: 1%;
         font-size: 20px;
         padding: 10px 2px 10px 2px;
+    }
+    .employee > #cemployee, .fuel > #cfuel{
+        font-size: 24px;
+    }
+    #edit-date > .edit-table-input{
+        width: 130%;
+        font-size: 17px;
     }
     .countdown-invalid{
         font-size: 17px;

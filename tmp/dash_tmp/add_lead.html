@@ -71,14 +71,14 @@
         <label for="exp-fuel">הוצאות דלק</label>
         <div class="input-pay">
           <i class="fa-solid fa-shekel-sign"></i>
-          <input class="payment-total-safe" type="tel" id="exp-fuel" value="0" name="exp-fuel" oninput="updateTotalSummary(this)">
+          <input class="payment-total-safe" type="tel" id="exp-fuel" value="0" name="exp-fuel" oninput="updateTotalSummary(this)" ondblclick="this.value='';">
         </div>
     </div>
     <div class="manager-expense-item">
       <label for="exp-employee">הוצאות עובדים</label>
       <div class="input-pay">
         <i class="fa-solid fa-shekel-sign"></i>
-        <input type="tel" class="payment-total-safe" id="exp-employee" value="0" name="exp-employe" oninput="updateTotalSummary(this)">
+        <input type="tel" class="payment-total-safe" id="exp-employee" value="0" name="exp-employe" oninput="updateTotalSummary(this)" ondblclick="this.value='';">
       </div>
   </div>
   <div class="manager-expense-item">
@@ -99,14 +99,14 @@
         </label>
         <div class="input-pay">
           <i class="fa-solid fa-shekel-sign"></i>
-          <input type="tel" class="payment-total-safe" id="payment-safe" name="payment-safe" value="0">
+          <input type="tel" class="payment-total-safe" id="payment-safe" name="payment-safe" value="0" ondblclick="this.value='';">
         </div>
     </div>
     <div class="manager-expense-item">
         <label for="payment-total"> ברוטו</label>
         <div class="input-pay">
           <i class="fa-solid fa-shekel-sign"></i>
-          <input type="tel" class="payment-total-safe" id="payment-total" value="0" name="payment-total">
+          <input type="tel" class="payment-total-safe" id="payment-total" value="0" name="payment-total" ondblclick="this.value='';">
         </div>
     </div>
   </div>

@@ -7,8 +7,8 @@
        <button  id="opensearch" class="button-tab-leads" onclick="showSearchLeads(this)">
            <span> חיפוש <i class="fa-brands fa-searchengin"></i></span>
        </button>
-       <button class="button-tab-leads">
-           <span>סנן <i class="fa-solid fa-filter"></i></span>
+       <button class="button-tab-leads" onclick="getTemplate($('#0')[0],'0', 1);">
+        <span><i class="fa-solid fa-rotate-right"></i></span>
        </button>
    </div>
 </div>
@@ -44,37 +44,65 @@
             </div>
             <div class="lead-box-info">
                 <div class="lead-box-info-head"> <i class="fa-regular fa-calendar-days"></i> {{lead_box.ed}}</div>
-                <div class="lead-profile">
-                    <p>
-                        <span>
-                            {% if lead_box.ps %}
-                            <i class="fa-solid fa-circle-check v-valid"></i>
-                            {% else %}
-                            <i class="fa-solid fa-circle-xmark x-invalid"></i>
-                            {% endif %}
-                        </span> שולם מקדמה
-                    </p>
-                </div>
-                <div class="lead-profile">
-                    <p>
-                        <span>
-                            {% if lead_box.oe %}
-                            <i class="fa-solid fa-circle-check v-valid"></i>
-                            {% else %}
-                            <i class="fa-solid fa-circle-xmark x-invalid"></i>
-                            {% endif %}
-                        </span> הזמין ציוד
-                    </p>
-                </div>
-                <div class="lead-profile">
-                    <p>
-                        <span>
-                            {% if lead_box.low_e %}
+                <div class="lead-profile-parent">
+                    <div class="lead-profile">
+                        <p>
+                            <span>
+                                {% if lead_box.ps %}
                                 <i class="fa-solid fa-circle-check v-valid"></i>
-                            {% else %}
+                                {% else %}
                                 <i class="fa-solid fa-circle-xmark x-invalid"></i>
-                            {% endif %}
-                    </span>  הוצאות נמוכות</p>
+                                {% endif %}
+                            </span> שולם מקדמה
+                        </p>
+                        <p>
+                            <span>
+                                {% if lead_box.oe %}
+                                <i class="fa-solid fa-circle-check v-valid"></i>
+                                {% else %}
+                                <i class="fa-solid fa-circle-xmark x-invalid"></i>
+                                {% endif %}
+                            </span> הזמין ציוד
+                        </p>
+                        <p>
+                            <span>
+                                {% if lead_box.low_e %}
+                                    <i class="fa-solid fa-circle-check v-valid"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-circle-xmark x-invalid"></i>
+                                {% endif %}
+                        </span>  הוצאות נמוכות
+                        </p>
+                    </div>
+                    <div class="lead-profile">
+                        <p>
+                            <span>
+                                {% if lead_box.ea %}
+                                <i class="fa-solid fa-circle-dot live-shadow"></i>
+                                {% else %}
+                                <i class="fa-solid fa-circle-xmark x-invalid"></i>
+                                {% endif %}
+                            </span> אירוע פעיל
+                        </p>
+                        <p>
+                            <span>
+                                {% if lead_box.oe %}
+                                <i class="fa-solid fa-circle-check v-valid"></i>
+                                {% else %}
+                                <i class="fa-solid fa-circle-xmark x-invalid"></i>
+                                {% endif %}
+                            </span> חוזה השכרה
+                        </p>
+                        <p>
+                            <span>
+                                {% if lead_box.low_e %}
+                                    <i class="fa-solid fa-circle-check v-valid"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-circle-xmark x-invalid"></i>
+                                {% endif %}
+                        </span>  הוצאות נמוכות
+                        </p>
+                    </div>
                 </div>
             </div>
             <div class="lead-box-footer">
@@ -83,7 +111,7 @@
                     <span id="des">נטו מתוך</span>
                     <span id="money-bruto">₪{{ lead_box.tm }}</span>
                 </div>
-                <button onclick="openLeadInformationModal(this)" id="10" type="button" class="button-box-lead-more-action">פרטים 
+                <button onclick="openLeadInformationModal(this)" id="10|{{ lead_box.ci }}" type="button" class="button-box-lead-more-action">פרטים 
                     <i class="fa-solid fa-arrow-left fa-fade"></i>
                 </button>
             </div>

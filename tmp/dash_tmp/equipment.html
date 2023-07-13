@@ -6,6 +6,16 @@
             <button class="item" onclick="getTemplate($('#1')[0], '1', 1)">
                 <span><i class="fa-solid fa-rotate-right"></i></span>
             </button>
+            <button class="item">
+                <input type="file" id="uploadEquipmentTxt" style="display: none;" onchange="uploadEquipmentTxt(event)">
+                <input type="hidden" value="{{ nonce_import }}" id="importnonce">
+                <label for="uploadEquipmentTxt">
+                    <span>ייבוא ציוד <i class="fa-solid fa-file-arrow-up"></i></span>
+                </label>
+            </button>
+            <button class="item" type="file" onclick="downloadEquipmentTxt(this)">
+                <span>ייצוא ציוד <i class="fa-solid fa-file-arrow-down"></i></span>
+            </button>
         </div>
     </div>
     <div class="table-title">

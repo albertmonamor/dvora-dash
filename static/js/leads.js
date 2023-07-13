@@ -38,17 +38,19 @@ function openLeadInformationModal(_this){
     parent = _this.parentElement.parentElement;
     modal = parent.children[parent.childElementCount-1];
     $(modal).fadeIn(300);
+    n = _this.id.split("|")[0]
+    _id = _this.id.split("|")[1]
     $.ajax({
-        url:"/template/"+_this.id,
+        url:"/template/"+n,
         type:"post",
-        data:{"identify":modal.id},
+        data:{"identify":_id},
         success:(res)=>{
             if (res.success){
-                document.getElementById("leadcontent"+modal.id).innerHTML = res.template;
+                document.getElementById("leadcontent"+_id).innerHTML = res.template;
 
             }
             else{
-                show_popup_error(res, _this);
+                show_popup_error(res, null);
             }
         }
 

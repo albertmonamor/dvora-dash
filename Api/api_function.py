@@ -100,49 +100,95 @@ def verify_date(value):
     return True
 
 
-def get_format_last_write(date:float):
-    __now       = gmtime(time())
-    date        = gmtime(date)
-    is_year     = date.tm_year == __now.tm_year
-    is_month    = date.tm_mon == __now.tm_mon
-    week        = is_year and is_month
-    today       = is_year and is_month and date.tm_mday == __now.tm_mday
-    half_hour   = today and date.tm_hour == __now.tm_hour and ((60-__now.tm_min)+date.tm_min) > 30
+class FormatTime:
+    def __init__(self, _time:float):
+        self.original = _time
+        self.date = gmtime(_time)
+        self.now = gmtime(time())
+        self.text = "{type} {BOL} {ft}"
 
-    if half_hour:
-        return "ממש עכשיו"
-    elif today:
-        return f"לפני {__now.tm_hour-date.tm_hour} שעות"
-    elif week:
-        return f"לפני {(__now.tm_mday-date.tm_mday)} ימים"
-    elif is_year:
-        return f"לפני {__now.tm_mon-date.tm_mon} חודשים"
+    def is_year(self):
+        nm = self.now.tm_mon
+        dm = self.date.tm_mon
+        return self.date.tm_year == self.now.tm_year or (self.date.tm_year+1 == self.now.tm_year and nm < dm)
 
+    def is_month(self):
+        nm = self.now.tm_mon
+        dm = self.date.tm_mon
+        nd = self.now.tm_mday
+        dd = self.date.tm_mday
+        return self.is_year() and dm == nm or (dm+1 == nm and nd<dd)
 
-def get_name_date_by_str(_time:str):
-    """
+    def is_today(self):
+        nd = self.now.tm_mday
+        dd = self.date.tm_mday
+        nh = self.now.tm_hour
+        dh = self.date.tm_hour
+        return self.is_month() and nd==dd or (dd+1 == nd and nh <dh)
 
-    :param _time: from time()
-    :return:
-    """
-    time_float = float(mktime(strptime(_time, "%Y-%m-%d")))+(3400*24)
-    day = "יום "+DAYS_HEBREW[ctime(time_float).split(" ")[0]]
-    date_l = gmtime(time_float)
-    return f"{day} {date_l.tm_mday}.{date_l.tm_mon}.{date_l.tm_year}"
+    def is_hour(self):
+        nh = self.now.tm_hour
+        dh = self.date.tm_hour
+        nm = self.now.tm_min
+        dm = self.date.tm_min
+        return self.is_today() and nh == dh or (dh+1 == nh and nm<dm)
 
+    def get_minute(self) -> int:
+        return (self.now.tm_min - self.date.tm_min)%60
 
-def get_days_left_to_event(date:str):
-    day,month, year = date.split(".")
-    year = int(year)
-    month = int(month)
-    day = int(day)
+    def get_hour(self):
+        return (self.now.tm_hour - self.date.tm_hour)%24
 
-    # israel
-    time_now = gmtime(time()+3600*3)
-    if time_now.tm_year == year and time_now.tm_mon == month:
-        if time_now.tm_mday < day:
-            return day-time_now.tm_mday
-    return 0
+    def get_day(self):
+        return (self.now.tm_mday - self.date.tm_mday)%30
+
+    def get_month(self):
+        return (self.now.tm_mon - self.date.tm_mon)%12
+
+    def get_year(self):
+        if not self.is_year():
+            return self.now.tm_year - self.date.tm_year
+
+    def get_format_before_time(self, t="לפני"):
+        
+        if self.is_hour():
+            return self.text.format(type=t, BOL=self.get_minute(), ft="דקות")
+        elif self.is_today():
+            return self.text.format(type=t, BOL=self.get_hour(), ft="שעות")
+        elif self.is_month():
+            return self.text.format(type=t, BOL=self.get_day(), ft="ימים")
+        elif self.is_year():
+            return self.text.format(type=t, BOL=self.get_month(), ft="חודשים")
+        elif not self.is_year():
+            return self.text.format(type=t, BOL=self.get_year(), ft="שנים")
+
+    @staticmethod
+    def get_name_day_and_date(_time):
+        """
+
+        :param _time: format YYYY.MM.DD
+        :return:
+        """
+        time_float = float(mktime(strptime(_time, "%Y-%m-%d"))) + (3400 * 24)
+        day = "יום " + DAYS_HEBREW[ctime(time_float).split(" ")[0]]
+        date_l = gmtime(time_float)
+        return f"{day} {date_l.tm_mday}.{date_l.tm_mon}.{date_l.tm_year}"
+
+    @staticmethod
+    def get_days_left(date):
+        day, month, year = date.split(".")
+        year = int(year)
+        month = int(month)
+        day = int(day)
+
+        # israel
+        tn = gmtime(time())
+        if tn.tm_year == year and tn.tm_mon  == month:
+            if tn.tm_mday <= day:
+                return day - tn.tm_mday
+        elif tn.tm_year == year or tn.tm_mon <month:
+            return 30
+        return -1
 
 def get_clear_money(payment:int|str):
     return int(payment)-990.90
@@ -167,3 +213,25 @@ def check_equipment(data:dict[str]) -> tuple[bool, str]:
 def generate_invoice_path(client_phone):
     now = gmtime(time())
     return f"{BASEDIR}\\invoices\\{client_phone.replace(' ', '_')}_{now.tm_mon}-{now.tm_year}.pdf"
+
+
+def XOR(value , key:str) -> bytes:
+    key = key + (key[0] * (value.__len__() - key.__len__()))
+    if isinstance(value, str):
+        return xor_from_str(value, key)
+    elif isinstance(value, bytes):
+        return xor_from_bytes(value, key)
+
+    return bytes()
+
+def xor_from_bytes(value:bytes, key:str):
+    re = b""
+    for v, k in zip(value, key):
+        re += (v ^ ord(k)).to_bytes(1, "big")
+    return re
+
+def xor_from_str(value:str, key:str):
+    re = b""
+    for v, k in zip(value, key):
+        re += chr(ord(v) ^ ord(k)).encode()
+    return re
