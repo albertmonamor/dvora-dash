@@ -1,0 +1,154 @@
+
+<div class="client">
+    <div class="client-header">
+       <span id="cname">{{ ci.full_name }} </span>
+       <div class="clabel">
+        <span class="l">פאלפון לקוח</span>
+        <span id="cphone">{{ci.phone}} <i class="fa-solid fa-phone fa-shake"></i></span>
+       </div>
+       <div class="clabel">
+        <span class="l">מספר זהות</span>
+        {% if ci.ID == 0 %}
+            <span id="cid">{{ ci.ID }} <i class="fa-solid fa-id-card"></i></span>
+        {% else %}
+            <span id="cid">לא צויין <i class="fa-solid fa-id-card"></i></span>
+        {% endif %}
+       </div>
+
+
+    </div>
+    <div class="client-body">
+        <span class="linfo">ציוד שהוזמן ({{ci.count_of_equipment}})</span>
+        <div class="client-equipment">
+            <table class="client-table">
+                <thead>
+                    <tr>
+                        <th class="c-hth">סוג</th>
+                        <th class="c-hth">כמות</th>
+                        <th class="c-hth">מחיר
+                            <div class="edit">
+                                <i onclick="editLeadInforamtion(this, 0)" class="fa-solid fa-user-pen"></i>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="body-table-information" role="{{ ci.client_id }}">
+                    {% for k, item in ci.event_supply.items() %}
+                        <tr id="{{ k }}">
+                            <th class="c-bth">{{ item.name }}</th>
+                            <th class="c-bth">{{ item.count }}<span style="font-size: 12px;">x{{item.price}}</span></th>
+                            <th class="c-bth">{{ item.price*item.count }} ש"ח</th>
+                        </tr>
+                    {% endfor %}
+                        <tr>
+                            <th class="c-bth"></th>
+                            <th class="c-bth"></th>
+                            <th class="c-pth"><span class="total">סה"כ</span> {{ ci.pay_for_equipment|float }} <span style="font-size: 13px;">ש"ח</span></th>
+                        </tr>
+                </tbody>
+            </table>
+        </div>
+        <span class="linfo">הוזמן לתאריך</span>
+        <div class="client-date">
+            <div class="edit">
+                <i onclick="editLeadInforamtion(this, 1)" class="fa-solid fa-user-pen"></i>
+            </div>
+            <div id="edit-date" role="{{ ci.client_id }}">
+                <span class="day-of-week">{{ci.name_day}}</span>
+                <span class="dmy">{{ ci.date_str }}</span>
+            </div>
+            {% if ci.days_left > 0 %}
+                <span class="countdown-num">עוד {{ ci.days_left }} ימים האירוע</span>
+            {% elif  ci.days_left < 0  %} 
+                <span class="countdown-invalid"> התאריך עבר</span>
+            {% elif ci.days_left == 0 %}
+                <span class="countdown-num">האירוע היום</span>
+            {% endif %}
+        </div>
+        <span class="linfo">הוזמן לכתובת</span>
+        <div class="client-location" id="edit-location" role="{{ ci.client_id }}">
+            <div class="edit">
+                <i onclick="editLeadInforamtion(this, 2)" class="fa-solid fa-user-pen"></i>
+            </div>
+            <span class="loc">{{ ci.event_place }}</span>
+            <span class="icolocation">
+                <i class="fa-brands fa-waze"></i>
+            </span>
+            
+
+        </div>
+        <span class="linfo">הוצאות שלך באירוע</span>
+        <div class="client-expense" id="edit-expense" role="{{ ci.client_id }}">
+            <div class="edit">
+                <i onclick="editLeadInforamtion(this, 3)" class="fa-solid fa-user-pen"></i>
+            </div>
+            <div class="fuel">
+                <span class="l">דלק</span>
+                <span id="cfuel" class="{{ 'pay-red' if ci.expen_fuel > 0 else ''}}">{{ ci.expen_fuel_i }}.<span>{{ci.expen_fuel_d}}</span> ₪</span>
+            </div>
+            <div class="employee">
+                <span class="l">עובדים</span>
+                <span id="cemployee" class="{{ 'pay-red' if ci.expen_employee > 0 else ''}}">{{ ci.expen_employee_i }}.<span>{{ ci.expen_employee_d }}</span> ₪</span>
+            </div>
+        </div>
+        <span class="linfo">תשלום</span>
+        <div class="client-payment">
+            <div class="e-payment">
+                <span>מקדמה</span>
+                {% if ci.d_money == 0 %}
+                    <div>
+                        <span id="present" class="pay-red">{{ ci.d_money}}%</span>
+                        <span id="chowpay" class="pay-red">לא שולמה</span>
+                    </div>
+                {% else %}
+                    <div>
+                        <span id="present">{{ (ci.d_money*100)// ci.net}}%</span>
+                        <span id="chowpay"> {{ ci.d_money }} ₪</span>
+                    </div>
+                {% endif %}
+            </div>
+
+        
+            <div class="e-payment">
+                <span>אמצעי תשלום</span>
+                <div class="payment-type">
+                    {% if ci.type_pay == 0 %}
+                        <span class="l">מזומן</span>
+                        <span class="payment-type-ico"><i class="fa-solid fa-hand-holding-dollar"></i></span>
+                    {% elif ci.type_pay == 1 %}
+                        <span class="l">העברה בנקאית</span>
+                        <span class="payment-type-ico"><i class="fa-solid fa-money-bill-transfer"></i></span>
+                    {% elif ci.type_pay == 2 %}
+                        <span class="l">ציק להפקדה</span>
+                        <span class="payment-type-ico"><i class="fa-solid fa-money-check-dollar"></i></span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <span class="linfo">פעולות</span>
+        <div class="client-actions">
+            {% if ci.is_open %}
+                <button type="button" class="client-baction remove" id="0{{ ci.client_id }}" onclick="del_his_eventLead(this)">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>מחק</span>
+                </button>
+            {% elif not ci.is_open and ci.is_garbage %}
+                <button type="button" class="client-baction history" id="1{{ ci.client_id }}" onclick="del_his_eventLead(this)">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>שחזר אירוע</span>
+                </button>
+            {% endif %} 
+            {% if ci.invoice_id %}
+                <button type="button" class="client-baction invoice" id="3{{ ci.client_id }}" onclick="download_invoice_client(this)">
+                    <i class="fa-solid fa-file-arrow-down">
+                    </i><span>הורד חשבונית</span>
+                </button>
+            {% else %}
+                <button type="button" class="client-baction invoice" id="2{{ ci.client_id }}" onclick="create_invoice_client(this)">
+                    <i class="fa-solid fa-receipt"></i>
+                    </i><span>הפק חשבונית</span>
+                </button>
+            {% endif %}
+        </div>
+    </div>
+</div>

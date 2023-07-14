@@ -464,4 +464,15 @@ class DBClientApi:
         return {"success":True}
 
 
+def create_agreement_client():
+    file_data = open(BASEDIR + "/tmp/invoice_tmp/agreement.html", "r", encoding="utf-8").read()
+    style, body = file_data.split("<body>")
+
+    tmp_format = body
+
+    res = pdfkit.from_string(style + tmp_format,
+                             r"C:\Users\saban\Desktop\web-pro\dvora-dash\agreements\test.pdf",
+                             configuration=pdfkit.configuration(wkhtmltopdf=PATH_PDFKIT_EXE),
+                             options=PDF_OPTIONS)
+
 

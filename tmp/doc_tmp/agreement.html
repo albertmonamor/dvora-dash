@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>חוזה השכרה - חתימת לקוח</title>
+    <link rel="stylesheet" href="/static/styles/agreement.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;1,100;1,200;1,300;1,400;1,500;1,600&family=Noto+Serif+Hebrew:wght@100;200;300;400;500;600;700;800;900&family=Permanent+Marker&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="base-title">
+        חוזה השכרת ציוד לאירוע
+    </div>
+    <div class="agree">
+        <div class="agree-tab mrgn-20">
+            <div class="box-tab">
+                <span class="l">שם העסק</span>
+                <span class="c">דרור הפקות</span>
+            </div>
+            <div class="box-tab">
+                <span class="l"> מספר עוסק</span>
+                <span class="c">314816919</span>
+            </div>
+            <div class="box-tab last">
+                <span class="l"> אימייל </span>
+                <a class="c" href='mailto:dvora.sabbann@gmail.com'>dvora.sabbann@gmail.com</a>
+            </div>
+        </div>
+        <div class="agree-form mrgn-15 ">
+            <div class="bbody">
+                <span>בין</span>
+                <div>
+                    <span class="name-side-A">דרור הפקות</span>
+                    <span>להלן <b>-  צד א'</b> </span>
+                </div>
+            </div>
+            <div class="between">
+                <div class="bbody"> 
+                    <span>ובן מר/גב'</span>
+                    <input type="text" class="input-side-B" placeholder="שם מלא" id="fname">
+                </div>
+                <div class="bbody"> 
+                    <span>בכתובת</span>
+                    <input type="text" class="input-side-B" placeholder="כתובת" id="location">
+                </div>
+                <div class="bbody"> 
+                    <span>ת.ז</span>
+                    <input type="tel" class="input-side-B" placeholder="ת.ז" id="identify">
+                </div>
+                <div class="bbody"> 
+                    <span>פלאפון</span>
+                    <input type="tel" class="input-side-B" placeholder="פלאפון נייד" id="phone">
+                </div>
+            </div>
+        </div>
+        <div class="middle-title mrgn-15">
+            הואיל
+            <b>וצד ב'</b>
+            מעוניין לשכור ציוד  <b> מצד א'</b>: להלן פירוט הציוד וזמני ההשכרה 
+        </div>
+        <div class="equipments mrgn-15">
+            <div class="info-equip mrgn-10">5 סוגי ציוד</div>
+            <div class="equip-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="c-hth">שם הציוד</th>
+                            <th class="c-hth">כמות הציוד שהושכר</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="c-bth">הגברה ליין ארי</td>
+                            <td class="c-bth">2</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="event-date mrgn-20">
+                <div>
+                    <span>בתאריך</span>
+                    <input type="date" class="input-side-B" value="yyyy-MM-dd" id="fdate">
+                </div>
+                <div> 
+                    <span>עד </span>
+                    <input type="date" class="input-side-B" placeholder="שם מלא" id="udate">
+
+                </div>
+            </div>
+        </div>
+        <div class="middle-title">
+            הואיל <b>וצד ב'</b> מעוניין בביצוע העיסקה, הוסכם בין הצדדים כדלקמן: 
+        </div> 
+        <div class="agree-policy mrgn-15">
+            <ol>
+                {% for line in equipment_p %}
+                    <li>{{ line }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+        <div class="middle-title">
+            להלן התשלום שנקבע וחתימת באי הצדדים
+        </div>
+        <div class="payment-signature mrgn-15">
+            <span class="payment-title">
+                סה"כ הסכום לתשלום 
+            </span>
+            <div class="payment">
+                <div class="money">
+                    <span class="int">
+                        1340.<span>23</span>
+                     </span>
+                     <span>₪ כולל מעמ</span>
+
+                </div>
+                <div class="invoice mrgn-10">
+                    <span>מספר קבלה</span>
+                    <span class="innumber">00067</span>
+                </div>
+            </div>
+        </div>
+        <div class="middle-title"></div>
+        <div class="sig-agreement mrgn-15">
+            <div class="sig-owner">
+                <span>דביר הפקות - צד א'
+                    <i class="fa-solid fa-trash-can" onclick="clearSignature('sig-owner')"></i>
+                </span>
+                <canvas id="sig-owner"></canvas>
+            </div>
+            <div class="sig-client">
+                <span>הלקוח - צד ב'
+                    <i class="fa-solid fa-trash-can" onclick="clearSignature('sig-client')"></i>
+                </span>
+                <canvas id="sig-client"></canvas>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script src="/static/js/agreement.js"></script>
+<script src="https://kit.fontawesome.com/11e3bcf364.js" crossorigin="anonymous"></script>
+</html>

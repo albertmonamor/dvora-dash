@@ -44,6 +44,11 @@ EMPTY_HISTORY           = "ההיסטוריה ריקה"
 T404                    = "/error_tmp/404.html"
 
 PDF_OPTIONS = {
+    'encoding': 'UTF-8',
+    'margin-left': '0mm',
+    'margin-right': '0mm',
+    'margin-bottom': '0mm',
+    'margin-top': '0mm',
     'page-size': 'A4',
 }
 PATH_PDFKIT_EXE = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"

@@ -361,6 +361,11 @@ def download_equipment_txt():
     return send_from_directory("exports", os.path.basename(FILENAME_EXPORT_TXT), as_attachment=True)
 
 
+@m_app.route("/agreement", methods=["POST", "GET"])
+def test():
+    equip_policy:list[str] = open(BASEDIR+"/tmp/dash_tmp/equipment_policy.txt", 'r', encoding="utf8").read().split("\n")
+
+    return render_template("/doc_tmp/agreement.html", equipment_p=equip_policy)
 
 if __name__ == "__main__":
     with m_app.app_context():
