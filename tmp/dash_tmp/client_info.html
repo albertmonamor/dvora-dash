@@ -140,14 +140,25 @@
             {% endif %} 
             {% if ci.invoice_id %}
                 <button type="button" class="client-baction invoice" id="3{{ ci.client_id }}" onclick="download_invoice_client(this)">
-                    <i class="fa-solid fa-file-arrow-down">
-                    </i><span>הורד חשבונית</span>
+                    <i class="fa-solid fa-file-arrow-down"></i>
+                    <span>הורד חשבונית</span>
                 </button>
             {% else %}
                 <button type="button" class="client-baction invoice" id="2{{ ci.client_id }}" onclick="create_invoice_client(this)">
                     <i class="fa-solid fa-receipt"></i>
-                    </i><span>הפק חשבונית</span>
+                    <span>הפק חשבונית</span>
                 </button>
+            {% endif %}
+            {% if ci.is_open and not ci.is_signature %}
+                <button type="button" class="client-baction signature" id="4{{ ci.client_id }}" onclick="open_modal_link(this)">
+                    <i class="fa-solid fa-file-signature"></i>
+                    <span>להחתים לקוח</span>
+                </button> 
+            {% elif ci.is_open and ci.is_signature %}
+                <button type="button" class="client-baction signature" id="4{{ ci.client_id }}" onclick="alert('coming soon')">
+                    <i class="fa-solid fa-file-contract"></i>
+                    <span>הצג חוזה</span>
+                </button> 
             {% endif %}
         </div>
     </div>

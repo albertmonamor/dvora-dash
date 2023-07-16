@@ -34,6 +34,8 @@ SEARCH_LEAD_ERR         = {"success":False,"title": "שגיאה בחיפוש", "
 INVOICE_ACTION_ERR      = {"success":False,"title":"שגיאה בתהליך", "notice":"פרטי עוסק פטור שגויים או שהלקוח שגוי"}
 UPDATE_LEAD_ERROR       = {"success":False,"title": "שגיאה בעדכון", "notice":""}
 IMPORT_TXT_ERROR        = {"success":False,"title":"שגיאה בייבוא","notice":""}
+AGREE_ERROR             = {"success":False,"title": " משהו השתבש", "notice":"צור קשר עם המערכת"}
+SUCCESS_AGREE           = {"success":True, "title":"חוזה השכרה", "notice":"החוזה השכרה נקלט בהצלחה!"}
 MAX_IMPORT_TXT          = 1000*100
 FILENAME_IMPORT_TXT     = "equipment.txt"
 FILENAME_EXPORT_TXT     = "equipment.txt"
@@ -53,4 +55,4 @@ PDF_OPTIONS = {
 }
 PATH_PDFKIT_EXE = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
 BASEDIR         = "\\".join(os.getcwd().split("\\")[0:-1]) if os.getcwd().split("\\")[-1] !="dvora-dash" else os.getcwd()
-
+DOMAIN_NAME     = "dror.pythonanywhere.com"

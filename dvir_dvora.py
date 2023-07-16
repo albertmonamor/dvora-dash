@@ -8,11 +8,12 @@ from werkzeug.datastructures import FileStorage
 from Api.api_function import check_level_new_lead, check_equipment
 from Api.protocol import m_app, get_random_key, LOGIN_FAILED, LOGIN_SUCCESS, UN_ERROR, EMPTY_LEAD_T, T404, TMP_DENIED, \
     LEAD_ERROR, EQUIP_ERROR, EQUIP_SUCCESS, SEARCH_LEAD_ERR, EMPTY_HISTORY, INVOICE_ACTION_ERR, IMPORT_TXT_ERROR, \
-    MAX_IMPORT_TXT, FILENAME_IMPORT_TXT, BASEDIR, FILENAME_EXPORT_TXT
+    MAX_IMPORT_TXT, FILENAME_IMPORT_TXT, BASEDIR, FILENAME_EXPORT_TXT, AGREE_ERROR, SUCCESS_AGREE
 from flask import render_template, request, session, jsonify, redirect, url_for, \
     send_from_directory
 from Api.databases import Users, DBase, signup, db_new_client, add_supply, get_all_supply, verify_supply \
-    , time, get_supply_by_id, generate_id_supply, DBClientApi, export_txt_equipment, import_txt_equipment
+    , time, get_supply_by_id, generate_id_supply, DBClientApi, export_txt_equipment, import_txt_equipment,\
+    DBAgreementApi
 
 
 #  ******************* ROUTES *************************
@@ -169,6 +170,7 @@ def add_lead():
                   last_write=time(),
                   is_open=True,
                   is_garbage=False,
+                  is_signature=False,
                   client_id="C"+binascii.b2a_hex(os.urandom(5)).decode(),
                   full_name=name,
                   phone=phone,
@@ -180,6 +182,7 @@ def add_lead():
                   expen_fuel=exp_fuel,
                   d_money=sub_pay,
                   total_money=payment,
+                  client_payment=int(payment)-(int(exp_fuel)+int(exp_employee)),
                   type_pay=type_pay)
     # SUCCESS
     return jsonify(EQUIP_SUCCESS)
@@ -277,21 +280,20 @@ def event_actions(action:str):
         return jsonify(TMP_DENIED)
 
     client_id = request.form.get("client_id")
-    owner     = request.form.get("owner")
     if not client_id and request.method == "POST":return jsonify(error)
     if action == "0":
         # delete event
-        if not DBClientApi().set_event_status(0, client_id):
+        if not DBClientApi.set_event_status(0, client_id):
            return jsonify(error)
 
     elif action == "1":
         # move event to history
-        if not DBClientApi().set_event_status(1, client_id):
+        if not DBClientApi.set_event_status(1, client_id):
             return jsonify(error)
     elif action == "2":
         # create invoice
         sleep(2)
-        if not DBClientApi().create_invoice_event(client_id, owner):
+        if not DBClientApi().create_invoice_event(client_id, None):
             return jsonify(INVOICE_ACTION_ERR)
 
     elif action == "3":
@@ -302,6 +304,16 @@ def event_actions(action:str):
             return redirect(url_for("dashboard"), 302)
 
         return send_from_directory("invoices", os.path.basename(pathfile), as_attachment=True)
+
+    elif action == "4":
+        override = request.form.get("override", "0")
+        params, status = DBClientApi().create_agreement(client_id, override)
+        if not status:
+            error["notice"] = params
+            return jsonify(error)
+
+        return jsonify({"success":True, "url_params":params})
+
 
     return jsonify({"success":True})
 
@@ -360,12 +372,98 @@ def download_equipment_txt():
 
     return send_from_directory("exports", os.path.basename(FILENAME_EXPORT_TXT), as_attachment=True)
 
-
+# /* access: *
 @m_app.route("/agreement", methods=["POST", "GET"])
-def test():
-    equip_policy:list[str] = open(BASEDIR+"/tmp/dash_tmp/equipment_policy.txt", 'r', encoding="utf8").read().split("\n")
+@m_app.route("/agreement/", methods=["POST", "GET"])
+def agreement():
+    error = dict(AGREE_ERROR)
+    page_error = "/error_tmp/agreement_error.html"
 
-    return render_template("/doc_tmp/agreement.html", equipment_p=equip_policy)
+    client_id = request.args.get("cid")
+    agree_id  = request.args.get("aid")
+
+    if not any(request.args):
+        error["notice"] = "הקישור לא תקין"
+        return render_template(page_error, msg=error)
+
+    aid = DBAgreementApi.get_agreement_by_id(agree_id)
+    if not aid:
+        error["notice"] = "מזהה חוזה לא תקין"
+        return render_template(page_error, msg=error)
+    if DBAgreementApi().is_expired(aid):
+        error["notice"] = "פג תוקף הקישור"
+        return render_template(page_error, msg=error)
+    elif aid.is_accepted:
+        error["notice"] = "מסמך זה נחתם ורשום במערכת"
+        return render_template(page_error, msg=error)
+
+    # /* extract client by cid */
+    cid = DBClientApi().get_client_by_id(client_id)
+    if not cid:
+        error["notice"] = "הקישור לא תקין"
+        return render_template(page_error, msg=error)
+
+    # /* analyze equipment on this client */
+    equipment = DBClientApi.get_client_equipment(cid)
+    invoice_num = DBClientApi.get_invoice_number(cid) or "000000"
+    cid.invc_n = invoice_num
+    equip_policy:list[str] = open(BASEDIR+"/tmp/dash_tmp/equipment_policy.txt", 'r', encoding="utf8").read().split("\n")
+    return render_template("/doc_tmp/agreement.html", equipment_p=equip_policy,
+                           cid=cid, equipment=equipment)
+
+# /* access: *
+@m_app.route("/add_agreement", methods=["POST"])
+@m_app.route("/add_agreement/", methods=["POST"])
+def add_agreement():
+    error = dict(AGREE_ERROR)
+    error["notice"] = "קישור לא תקין"
+    page_error = "/error_tmp/agreement_error.html"
+
+    if not any(request.args) or not any(request.form):
+        return jsonify(error)
+
+    client_id = request.args.get("cid")
+    agree_id = request.args.get("aid")
+
+    cid = DBClientApi.get_client_by_id(client_id)
+    aid = DBAgreementApi.get_agreement_by_id(agree_id)
+    if not cid or not aid:
+        return jsonify(error)
+    if DBAgreementApi.is_expired(aid):
+        error["notice"] = "הקישור פג תוקף"
+        return jsonify(error)
+
+
+
+    fname = request.form.get("fname") or cid.full_name
+    location = request.form.get("_location")
+    identify = request.form.get("identify") or cid.ID
+    phone = request.form.get("phone") or cid.phone
+    udate = request.form.get("udate") or cid.event_date
+    signature = request.form.get("signature")
+    for i, v in zip([2, 7, 4, 3, 6], [fname,location, identify, phone, udate]):
+        b, r = check_level_new_lead(str(i), v)
+        if not b:
+            return r
+
+    if not signature or signature.__len__() < 4000:
+        error["notice"] = "החתימה קצרה מידיי"
+        return jsonify(error)
+
+    aid.sig_client = signature
+    aid.sig_date = time()
+    aid.from_date = cid.event_date
+    aid.to_date = cid.event_date
+    aid.location_client = location
+    aid.is_accepted = True
+    # /* success
+    cid.is_signature = True
+    DBase.session.commit()
+
+
+    return jsonify({"success":True, "template": render_template(page_error, msg=SUCCESS_AGREE)})
+
+
 
 if __name__ == "__main__":
     with m_app.app_context():

@@ -2,7 +2,7 @@ import os.path
 
 from flask import jsonify
 from time import gmtime, time, ctime, strptime, mktime
-from Api.protocol import UN_ERROR, LEAD_ERROR, BASEDIR
+from Api.protocol import UN_ERROR, LEAD_ERROR, BASEDIR, DOMAIN_NAME
 
 DAYS_HEBREW = {
     "Sun": "ראשון",
@@ -42,7 +42,7 @@ def check_level_new_lead(level:str, value:str) -> tuple[int, jsonify]:
             return 0, jsonify(__err)
     elif level == "4":
         # /* id : pass now
-        if value.__len__() > 10:
+        if value.__len__() > 10 or not idValid(value):
             __err["notice"] = "תז לא תקינה"
             return 0, jsonify(__err)
     elif level == "5":
@@ -57,7 +57,7 @@ def check_level_new_lead(level:str, value:str) -> tuple[int, jsonify]:
             return 0, jsonify(__err)
     elif level == "7":
         if not (2 < value.__len__() < 100) and not contain_html_entities(value):
-            __err["notice"] = "המיקום שהוכנס לא ברור"
+            __err["notice"] = "הכתובת שצויינה לא ברורה"
             return 0, jsonify(__err)
     elif level == "8":
         try:
@@ -85,7 +85,6 @@ def check_level_new_lead(level:str, value:str) -> tuple[int, jsonify]:
             __err["notice"] = 'אמצעי תשלום לא תקין'
             return 0, jsonify(__err)
     return 1, jsonify(__suc)
-
 
 def verify_date(value):
     _time = gmtime()
@@ -215,6 +214,10 @@ def generate_invoice_path(client_phone):
     return f"{BASEDIR}\\invoices\\{client_phone.replace(' ', '_')}_{now.tm_mon}-{now.tm_year}.pdf"
 
 
+def generate_link_path(cid:str, ai:str) -> str:
+    return f"/agreement/?cid={cid}&aid={ai}"
+
+
 def XOR(value , key:str) -> bytes:
     key = key + (key[0] * (value.__len__() - key.__len__()))
     if isinstance(value, str):
@@ -235,3 +238,19 @@ def xor_from_str(value:str, key:str):
     for v, k in zip(value, key):
         re += chr(ord(v) ^ ord(k)).encode()
     return re
+
+
+def idValid(_id: str):
+
+    if _id.__len__() > 9 or not _id.isdigit():
+        return 0
+
+    size_of_id = 0
+    for index, number in enumerate(_id):
+        num_id = int(number)
+        result = str(num_id * ((index % 2)+1))
+        if result.__len__() % 2 == 0:
+            result = str(int(result[0])+int(result[1]))
+        size_of_id += int(result)
+
+    return size_of_id % 10 == 0

@@ -5,7 +5,7 @@ import sys
 from json import dumps, loads
 from time import ctime, time
 from Api.api_function import FormatTime, generate_invoice_path, \
-    check_level_new_lead, XOR
+    check_level_new_lead, XOR, generate_link_path
 from Api.protocol import DBase, m_app, PDF_OPTIONS, PATH_PDFKIT_EXE, BASEDIR, UPDATE_LEAD_ERROR
 
 
@@ -29,8 +29,10 @@ class Client(DBase.Model):
     last_write      = DBase.Column(DBase.Float, nullable=False, default=time())
     is_open         = DBase.Column(DBase.Boolean,       nullable=False, default=True)
     is_garbage      = DBase.Column(DBase.Boolean,       nullable=False, default=False)
+    is_signature   = DBase.Column(DBase.Boolean,        nullable=False, default=False)
     invoice_id      = DBase.Column(DBase.String,        nullable=False, default="")
-    client_id       = DBase.Column(DBase.String,        nullable=False, default=lambda:"C"+binascii.b2a_hex(os.urandom(5)).decode())
+    client_id       = DBase.Column(DBase.String,        nullable=False, default="")
+
     # datas
     full_name       = DBase.Column(DBase.String(20),    nullable=False)
     phone           = DBase.Column(DBase.String(20),    nullable=False)
@@ -46,6 +48,7 @@ class Client(DBase.Model):
     # מקדמה
     d_money         = DBase.Column(DBase.Float,         nullable=False, default=0)
     total_money     = DBase.Column(DBase.Float,         nullable=False)
+    client_payment  = DBase.Column(DBase.Float,         nullable=False)
     # for API bool
 
 
@@ -65,6 +68,8 @@ class Invoice(DBase.Model):
 
     index           = DBase.Column(DBase.Integer,       primary_key=True)
     invoice_id      = DBase.Column(DBase.Integer,       nullable=False)
+    client_id       = DBase.Column(DBase.Integer,       nullable=False)
+
 
 
 class OwnerInformation(DBase.Model):
@@ -81,10 +86,17 @@ class OwnerInformation(DBase.Model):
 class ClientAgreement(DBase.Model):
     __tablename__ = "agreement"
     index         = DBase.Column(DBase.Integer, primary_key=True)
-    path          = DBase.Column(DBase.String, nullable=False)
+    path          = DBase.Column(DBase.String, nullable=True)
     client_id     = DBase.Column(DBase.String, nullable=False)
     is_accepted   = DBase.Column(DBase.Boolean, nullable=False, default=False)
     agree_id      = DBase.Column(DBase.String, nullable=False)
+    sig_owner     = DBase.Column(DBase.String, nullable=True)
+    sig_client    = DBase.Column(DBase.String, nullable=True)
+    sig_date      = DBase.Column(DBase.Float, nullable=False)
+    from_date     = DBase.Column(DBase.String, nullable=False, default="01.01.1970")
+    to_date       = DBase.Column(DBase.String, nullable=False, default="01.01.1970")
+    location_client = DBase.Column(DBase.String, nullable=True)
+    agree_sesslife = DBase.Column(DBase.Float, nullable=False)
 
 
 def signup(**kwargs):
@@ -116,9 +128,13 @@ def get_all_supply():
 def get_supply_by_id(_id) -> Supply:
     return Supply.query.filter_by(_id=_id).first()
 
+def generate_ascii(length:int = 5) -> str:
+    return binascii.b2a_hex(os.urandom(length)).decode()
 def generate_id_supply() ->str:
-    return "E"+str(len(Supply.query.all()))+binascii.b2a_hex(os.urandom(5)).decode()
+    return "E"+generate_ascii()
 
+def generate_id_agree() ->str:
+    return "A"+generate_ascii()
 
 def verify_supply(supp: dict) -> tuple[bool, dict]:
     _supply_lead = {}
@@ -180,8 +196,23 @@ def export_txt_equipment(fp, pwd=None) -> bool:
 
     return True
 
+class DBAgreementApi:
+
+    @staticmethod
+    def is_expired(a:ClientAgreement):
+        return not (time() - a.agree_sesslife) < 960
+    @staticmethod
+    def get_agreement_by_id(aid:str) -> ClientAgreement | bool:
+        agree: ClientAgreement = ClientAgreement.query.filter_by(agree_id=aid).first()
+        if not agree:
+            return False
+        return agree
+
 class DBClientApi:
 
+    @staticmethod
+    def get_client_by_id(cid:str) -> None | Client:
+        return Client.query.filter_by(client_id=cid).first()
     def get_all_client_by_mode(self, mode:str = "open", **kwargs):
         # which mode?
         if mode == "open":
@@ -199,15 +230,18 @@ class DBClientApi:
         # start indexing
         return self.get_client_indexing(_client)
 
-    def is_pay_down_payment(self, value:int) -> bool:
+    @staticmethod
+    def is_pay_down_payment(value:int) -> bool:
         return bool(value)
 
-    def is_order_equipment(self, value:str) -> bool:
+    @staticmethod
+    def is_order_equipment(value:str) -> bool:
         equipments = loads(value)
         return bool(len(equipments))
 
     def is_low_expenses(self, c:Client):
         return self.get_net(c) >= 1000
+
     def get_gross(self, c:Client) -> float | int:
         money_equipments = self.get_info_equipment(c)["money"]
         return c.expen_fuel+c.expen_employee+money_equipments
@@ -216,6 +250,12 @@ class DBClientApi:
         result = self.get_info_equipment(c)["money"] - c.expen_fuel - c.expen_employee
 
         return result
+
+    @staticmethod
+    def get_client_equipment(c:Client):
+        equip = loads(c.event_supply)
+        return equip
+
 
     def get_info_equipment(self, c:Client) -> dict:
         equipments = {"money":0, "count":0}
@@ -261,6 +301,7 @@ class DBClientApi:
                              'low_e': self.is_low_expenses(c),
                              'ea':c.is_open,
                              "eg":c.is_garbage,
+                             "cs":c.is_signature
                            }
         return client
 
@@ -291,16 +332,16 @@ class DBClientApi:
         dc["expen_fuel_d"] = str(float(client.expen_fuel)).split(".")[1]
         dc["expen_employee_i"] = str(float(client.expen_employee)).split(".")[0]
         dc["expen_employee_d"] = str(float(client.expen_employee)).split(".")[1]
-        client.total_money
-        client.is_open
-        client.event_date
-        client.event_place
-        client.d_money
-        client.expen_employee
-        client.is_garbage
-        client.last_write
-        client.phone
-        client.write_by
+        # client.total_money
+        # client.is_open
+        # client.event_date
+        # client.event_place
+        # client.d_money
+        # client.expen_employee
+        # client.is_garbage
+        # client.last_write
+        # client.phone
+        # client.write_by
 
         return dc
 
@@ -314,7 +355,8 @@ class DBClientApi:
         if isinstance(c, Client):
             dc = self.clientdb_to_dict(c)
 
-    def get_name_type_payment(self, c:dict):
+    @staticmethod
+    def get_name_type_payment(c:dict):
         if c["type_pay"] == 0:
             return "מזומן"
         elif c["type_pay"] == 1:
@@ -325,7 +367,8 @@ class DBClientApi:
         # /* something broken! */
         return "לא צויין"
 
-    def set_event_status(self, status, client_id) -> bool:
+    @staticmethod
+    def set_event_status(status, client_id) -> bool:
         client = Client.query.filter_by(client_id=client_id).first()
         if not client:
             return False
@@ -348,10 +391,10 @@ class DBClientApi:
         if not client:return False
         invoice = Invoice.query.first()
         if not invoice:
-            num_invoice = Invoice(invoice_id=1000)
+            num_invoice = Invoice(invoice_id=1000, client_id=cid)
             DBase.session.add(num_invoice)
             DBase.session.commit()
-            invoice = Invoice.query.first()
+            invoice = Invoice.query.filter_by(client_id=cid).first()
             invoice.invoice_id = invoice.invoice_id+1
         else:
             invoice.invoice_id =  invoice.invoice_id+1
@@ -362,15 +405,15 @@ class DBClientApi:
         file_data = open(BASEDIR+"/tmp/invoice_tmp/invoice_client.html", "r", encoding="utf-8").read()
         style, body = file_data.split("<body>")
 
-        tmp_format = body.format(owner_id="325576854",
-                                     email="dvir@gmail.com",
+        tmp_format = body.format(owner_id="314816919",
+                                     email="dvora.sabbann@gmail.com",
                                      number_invoice=invoice.invoice_id,
                                      client_name=client["full_name"],
                                      date=ctime(),
                                      type_pay=self.get_name_type_payment(client),
                                      info_pay="לא צויין",
                                      date_pay=client["event_date"].replace("-","/"),
-                                     total_money=client["net"],
+                                     total_money=client["client_payment"],
                                      total_money2=client["net"])
 
         if sys.platform == "win32":
@@ -394,7 +437,6 @@ class DBClientApi:
 
         return client.invoice_id
 
-
     def reinvoice_client(self, cid:str) -> bool:
         dbc = Client.query.filter_by(client_id=cid).first()
         if not dbc:
@@ -405,6 +447,15 @@ class DBClientApi:
         dbc.invoice_id = ""
         DBase.session.commit()
         return True
+
+    @staticmethod
+    def get_invoice_number(c:Client) -> int:
+        invoice = Invoice.query.filter_by(client_id=c.client_id).first()
+        if not  invoice:
+            return 0
+
+        return invoice.invoice_id
+
 
     def update_lead_information(self, kind:str, data:..., client_id):
         error = dict(UPDATE_LEAD_ERROR)
@@ -462,6 +513,38 @@ class DBClientApi:
         self.reinvoice_client(client_id)
 
         return {"success":True}
+
+    def create_agreement(self, cid, override) -> tuple:
+        client = Client.query.filter_by(client_id=cid).first()
+        new_sig:ClientAgreement = ClientAgreement.query.filter_by(client_id=cid).first()
+        agree_id = generate_id_agree()
+        if not client:
+            return "לקוח לא קיים",0
+        if new_sig and new_sig.is_accepted:
+            return "הלקוח חתם על החוזה", 0
+        elif not self.is_order_equipment(client.event_supply):
+            return "אין ציוד בהזמנה", 0
+        elif new_sig and not new_sig.is_accepted:
+            # /* update signature time and key */
+            if override == "1":
+                new_sig.sig_date = time()
+                new_sig.agree_sesslife = time()
+                new_sig.agree_id = agree_id
+            else:
+                agree_id = new_sig.agree_id
+        elif not new_sig:
+            # /* new signature */
+            new_sig = ClientAgreement(
+                client_id=client.client_id,
+                agree_id=agree_id,
+                sig_date=time(),
+                agree_sesslife=time()
+            )
+            DBase.session.add(new_sig)
+
+        DBase.session.commit()
+        return generate_link_path(cid, agree_id), True
+
 
 
 def create_agreement_client():

@@ -38,21 +38,33 @@
                 </div>
             </div>
             <div class="between">
-                <div class="bbody"> 
+                <div class="bbody">
                     <span>ובן מר/גב'</span>
-                    <input type="text" class="input-side-B" placeholder="שם מלא" id="fname">
+                    {% if not cid.full_name %}
+                        <input type="text" class="input-side-B" placeholder="שם מלא" id="fname">
+                    {% else %}
+                        <span value="0" class="auto-complete" id="fname">{{ cid.full_name }}</span>
+                    {% endif %}
                 </div>
                 <div class="bbody"> 
                     <span>בכתובת</span>
-                    <input type="text" class="input-side-B" placeholder="כתובת" id="location">
+                    <input type="text" class="input-side-B" placeholder="כתובת בית" id="_location">
                 </div>
                 <div class="bbody"> 
                     <span>ת.ז</span>
-                    <input type="tel" class="input-side-B" placeholder="ת.ז" id="identify">
+                    {% if not cid.ID %}
+                        <input type="tel" class="input-side-B input-ltr" placeholder="000-000-000" id="identify">
+                    {% else %}
+                        <span value="0" class="auto-complete" id="identify">{{ cid.ID}}</span>
+                    {% endif %}
                 </div>
                 <div class="bbody"> 
                     <span>פלאפון</span>
-                    <input type="tel" class="input-side-B" placeholder="פלאפון נייד" id="phone">
+                    {% if not cid.phone %}
+                        <input type="tel" class="input-side-B input-ltr" placeholder="+972" id="phone">
+                    {% else %}
+                        <span value="0" class="auto-complete" id="phone">{{ cid.phone }}</span>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -72,21 +84,23 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="c-bth">הגברה ליין ארי</td>
-                            <td class="c-bth">2</td>
-                        </tr>
+                        {% for k, equip in equipment.items() %}
+                            <tr>
+                                <td class="c-bth">{{ equip.name }}</td>
+                                <td class="c-bth">{{ equip.count }}</td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
             <div class="event-date mrgn-20">
                 <div>
                     <span>בתאריך</span>
-                    <input type="date" class="input-side-B" value="yyyy-MM-dd" id="fdate">
+                    <input type="date" class="input-side-B" value="{{ cid.event_date }}" id="fdate" disabled="true">
                 </div>
                 <div> 
                     <span>עד </span>
-                    <input type="date" class="input-side-B" placeholder="שם מלא" id="udate">
+                    <input type="date" class="input-side-B" placeholder="שם מלא" id="udate" value="{{ cid.event_date }}">
 
                 </div>
             </div>
@@ -111,14 +125,14 @@
             <div class="payment">
                 <div class="money">
                     <span class="int">
-                        1340.<span>23</span>
+                        {{ (cid.client_payment|string).split(".")[0] }}.<span>{{ (cid.client_payment|string).split(".")[1]}} </span>
                      </span>
                      <span>₪ כולל מעמ</span>
 
                 </div>
                 <div class="invoice mrgn-10">
-                    <span>מספר קבלה</span>
-                    <span class="innumber">00067</span>
+                    <span>קבלה</span>
+                    <span class="innumber">{{ cid.invc_n }}</span>
                 </div>
             </div>
         </div>
@@ -137,9 +151,23 @@
                 <canvas id="sig-client"></canvas>
             </div>
         </div>
+        <div class="middle-title"></div>
+        <div class="submit-agreement">
+            <button class="button-submit-agreement" onclick="sent_agreement_client(this)">
+                <span>שליחה</span>
+            </button>
+            <span class="submit-notice"><i class="fa-solid fa-check fa-xl"></i>
+                בשליחת החוזה, אני מאשר את הסכמתי</span>
+        </div>
+    </div>
+    <div id="popup" class="popup">
+        <i class="fa-solid fa-triangle-exclamation fa-bounce"></i>
+        <span id="popup-title"></span>
+        <span id="popup-notice"></span>
     </div>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 <script src="/static/js/agreement.js"></script>
 <script src="https://kit.fontawesome.com/11e3bcf364.js" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </html>
