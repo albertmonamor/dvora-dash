@@ -1,0 +1,219 @@
+.bar::after {
+    content: attr(title);
+    display: block;
+    text-align: center;
+    font-size: 12px;
+    color: aliceblue;
+}
+
+
+.margin-10{
+    margin: 2.5rem 10%;
+}
+.info-statistics-cards{
+    display: flex;
+    margin: 2.5rem 10%;
+    padding: 5px;
+    justify-content: space-evenly;
+    overflow:scroll !important;
+    scroll-snap-type: x mandatory;
+
+}
+.info-statistics-cards::-webkit-scrollbar,
+.info-statistics-cards::-webkit-scrollbar-thumb,
+.info-statistics-cards::-webkit-scrollbar-track {
+    display: none;
+}
+/* cards color */
+.cc{
+    background: rgb(72, 117, 156);
+}
+/* .cc:hover{
+    background: rgb(52, 83, 110);
+} */
+.cs{
+    background: rgb(132, 99, 184) ;
+}
+/* .cs:hover{
+    background: rgb(100, 74, 141) ;
+} */
+.ci{
+    background: rgb(74, 161, 108);
+}
+/* .ci:hover{
+    background: rgb(54, 114, 77);
+    
+} */
+.card-statistic{
+    padding: 1.2rem 0.75rem;
+    color: aliceblue;
+    border-radius: 10px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width:300px;
+    margin-right: 10px;
+    margin-left: 10px;
+    transition: 300ms;
+    position: relative;
+    overflow: hidden;
+    z-index: 0;
+    cursor: pointer;
+    scroll-snap-align: center;
+
+}
+.card-statistic > *{
+    z-index: 2;
+}
+.card-statistic::before{
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to left, rgba(0,0,0,0.4), rgba(23, 23, 23, 0.068));
+    background: -webkit-linear-gradient(to left, rgba(0,0,0,0.4),  rgba(23, 23, 23, 0.068));
+    transition: 300ms ease;
+    z-index: 1;
+
+}
+
+.card-statistic:hover::before{
+    width: 100%;
+}
+
+.card-statistic:hover{
+    text-shadow: 0 0 11px rgba(0,0,0, 0.7);
+}
+
+.card-title{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    align-items: center;
+    margin-bottom: 3rem !important;
+}
+.card-title > span{
+    font-size: 22px;
+    font-weight: bold;
+}
+.card-body{
+    padding: 4px !important;
+}
+.card-body > .value{
+    font-size: 26px;
+    font-weight: bold;
+    transform: skewX(20deg);
+}
+.card-body > .desc{
+    font-weight: lighter;
+    font-size: 16px;
+    overflow:hidden;
+    text-overflow: hidden;
+}
+
+
+
+/* charst MONEY */
+
+
+.charts-money{
+    margin-top: 3.5rem;
+    margin-bottom: 3.5rem;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+
+}
+
+.graph-money{
+    min-height: 350px;
+    width: auto;
+}
+
+.graph-money > .title{
+    color: aliceblue;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.b-g-money{
+    margin-top: 1.5rem;
+    padding: 10px;
+    display: flex;
+    justify-content: right;
+    min-height: 350px;
+    width: auto;
+    align-items: end;
+    border: 1px solid black;
+    border-radius: 7px;
+    background: #262732;
+    box-shadow: 0 0 20px 4px #171720;
+}
+.money-item{
+    margin-left: 20px;
+    height: 100%;
+    display: flex;
+    align-items: end;
+}
+.money-item > .e{
+    display: block;
+    height: 60px;
+    width: 20px;
+    background: rgb(225, 105, 72);
+
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    cursor: pointer;
+}
+.money-item > .e:hover{
+    border: 2px solid rgb(81, 45, 35);
+}
+.money-item > .i{
+    display: block;
+    height: 80px;
+    width: 20px;
+    background: rgb(143, 245, 199);
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+    cursor: pointer;
+}
+.money-item > .i:hover{
+    border: 2px solid rgb(72, 103, 92);;
+
+}
+
+.footer-labels{
+    padding: 10px;
+    display: flex;
+
+}
+.footer-labels > span{
+    margin-left: 10px;
+    color: aliceblue;
+    font-weight: lighter;
+    font-size: 14px;
+    padding: 5px;
+    border-radius: 6px;
+    cursor:pointer;
+}
+
+.footer-labels > span:hover{
+    background-color: #262732;
+}
+
+/*  MEDIA SCREEN  */
+
+@media screen and (max-width:1000px){
+    
+    .margin-10{
+        margin: 2.5rem .3rem;
+    }
+    .info-statistics-cards{
+        justify-content: right;
+    }
+}
+
+/* animation */
