@@ -1,4 +1,3 @@
-
 <div class="client">
     <div class="client-header">
        <span id="cname">{{ ci.full_name }} </span>
@@ -92,16 +91,19 @@
             </div>
         </div>
         <span class="linfo">תשלום</span>
-        <div class="client-payment">
+        <div class="client-payment" id="edit-payment" role="{{ ci.client_id }}">
+            <div class="edit">
+                <i onclick="editLeadInforamtion(this, 4)" class="fa-solid fa-user-pen"></i>
+            </div>
             <div class="e-payment">
                 <span>מקדמה</span>
                 {% if ci.d_money == 0 %}
-                    <div>
+                    <div id="prepayment">
                         <span id="present" class="pay-red">{{ ci.d_money}}%</span>
                         <span id="chowpay" class="pay-red">לא שולמה</span>
                     </div>
                 {% else %}
-                    <div>
+                    <div id="prepayment">
                         <span id="present">{{ (ci.d_money*100)// ci.net}}%</span>
                         <span id="chowpay"> {{ ci.d_money }} ₪</span>
                     </div>
@@ -110,16 +112,17 @@
 
         
             <div class="e-payment">
+                
                 <span>אמצעי תשלום</span>
-                <div class="payment-type">
+                <div class="payment-type" id="typepayment">
                     {% if ci.type_pay == 0 %}
-                        <span class="l">מזומן</span>
+                        <span class="l" role="{{ ci.type_pay }}">מזומן</span>
                         <span class="payment-type-ico"><i class="fa-solid fa-hand-holding-dollar"></i></span>
                     {% elif ci.type_pay == 1 %}
-                        <span class="l">העברה בנקאית</span>
+                        <span class="l" role="{{ ci.type_pay }}">העברה בנקאית</span>
                         <span class="payment-type-ico"><i class="fa-solid fa-money-bill-transfer"></i></span>
                     {% elif ci.type_pay == 2 %}
-                        <span class="l">ציק להפקדה</span>
+                        <span class="l" role="{{ ci.type_pay }}">ציק להפקדה</span>
                         <span class="payment-type-ico"><i class="fa-solid fa-money-check-dollar"></i></span>
                     {% endif %}
                 </div>
@@ -133,7 +136,7 @@
                     <span>מחק</span>
                 </button>
             {% elif not ci.is_open and ci.is_garbage %}
-                <button type="button" class="client-baction history" id="1{{ ci.client_id }}" onclick="del_his_eventLead(this)">
+                <button type="button" class="client-baction history" id="5{{ ci.client_id }}" onclick="reCancel_eventLead(this)">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                     <span>שחזר אירוע</span>
                 </button>

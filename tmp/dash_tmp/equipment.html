@@ -18,6 +18,7 @@
             </button>
         </div>
     </div>
+
     <div class="table-title">
         <span>ציוד במערכת</span>
     </div>
@@ -35,7 +36,7 @@
             <tbody>
                 {% for k,v in equipment.items() %}
                 <tr class="table-items" id={{k}}>
-                    <td class="table-item iname">{{v.name}}</td>
+                    <td class="table-item iname item-green">{{v.name}}</td>
                     <td class="table-item iprice">{{v.price}} ₪</td>
                     <td class="table-item iexist">{{v.exist}}</td>
                     <td class="table-item iedit">

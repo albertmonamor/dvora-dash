@@ -87,7 +87,7 @@ input{
 }
 
 /*MODAL DASHBOARD */
-.modal-main{
+.modal-main, .load-screen{
     display: none;
     position: fixed;
     z-index: 10;
@@ -96,6 +96,19 @@ input{
     width: 100%;
     height: 100%;
     overflow: auto;
+}
+.load-screen{
+    background-color: rgba(0, 0, 0, 0.158);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 50px;
+    z-index: 1500;
+}
+.load-screen > i{
+    padding: 10%;
+    color: rgb(79, 57, 167);
 }
 .modal-dashboard{
     display: block;

@@ -39,6 +39,7 @@ SUCCESS_AGREE           = {"success":True, "title":"חוזה השכרה", "notic
 MAX_IMPORT_TXT          = 1000*100
 FILENAME_IMPORT_TXT     = "equipment.txt"
 FILENAME_EXPORT_TXT     = "equipment.txt"
+AGREE_SESS_LIFE         = 960
 # /** empty lead
 EMPTY_LEAD_T            = "אין אירועים קרובים"
 EMPTY_HISTORY           = "ההיסטוריה ריקה"

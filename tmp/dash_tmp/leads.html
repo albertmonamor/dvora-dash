@@ -14,7 +14,7 @@
 </div>
 <div class="search-leads" id="searchleads">
     <input type="text" class="input-search-leads" id="searchinput" placeholder="פאלפון, שם לקוח">
-    <button type="button" class="button-tab-leads" onclick="searchLeads(this)">
+    <button type="button" class="button-tab-leads" onclick="searchLeads(this, 'open')">
         <span><i class="fa-solid fa-magnifying-glass fa-fade"></i></span>
     </button>
 </div>
@@ -43,7 +43,12 @@
                 </div>
             </div>
             <div class="lead-box-info">
-                <div class="lead-box-info-head"> <i class="fa-regular fa-calendar-days"></i> {{lead_box.ed}}</div>
+                <div class="lead-box-info-head {{ 'alert-calander-worng' if lead_box.iee else ''}}"> 
+                    <i class="fa-regular fa-calendar-days icalander"></i> {{lead_box.ed}}
+                    {% if lead_box.iee %}
+                    <i class="fa-solid fa-triangle-exclamation fa-fade worng-date"></i>
+                    {% endif %}
+                </div>
                 <div class="lead-profile-parent">
                     <div class="lead-profile">
                         <p>
@@ -95,12 +100,12 @@
                         </p>
                         <p>
                             <span>
-                                {% if lead_box.low_e %}
+                                {% if not lead_box.iee %}
                                     <i class="fa-solid fa-circle-check v-valid"></i>
                                 {% else %}
                                     <i class="fa-solid fa-circle-xmark x-invalid"></i>
                                 {% endif %}
-                        </span>  הוצאות נמוכות
+                        </span> זמני האירוע
                         </p>
                     </div>
                 </div>

@@ -73,7 +73,6 @@ def dashboard():
 def get_template_dashboard(tmp):
     if not session.get('is_admin'):
         return jsonify(TMP_DENIED)
-
     res_tmp:str = T404
     name = "404"
     # /* <    *---MAIN TAB TEMPLATE---*    >
@@ -191,15 +190,15 @@ def add_lead():
 @m_app.route("/search_lead/<data>", methods=["POST"])
 def search_lead(data):
     error = dict(SEARCH_LEAD_ERR)
-
     if not session.get("is_admin"):
         return jsonify(TMP_DENIED)
 
-    if not data:
+    type_search = request.form.get("type_search")
+    if not data or not type_search:
         return jsonify({error})
 
     res_tmp = "/dash_tmp/leads.html"
-    client_found = DBClientApi().search_client(data)
+    client_found = DBClientApi().search_client(data, type_search)
     if not client_found:
         return jsonify(error)
     return jsonify({"success": True,
@@ -292,7 +291,7 @@ def event_actions(action:str):
             return jsonify(error)
     elif action == "2":
         # create invoice
-        sleep(2)
+        sleep(1)
         if not DBClientApi().create_invoice_event(client_id, None):
             return jsonify(INVOICE_ACTION_ERR)
 
@@ -308,11 +307,17 @@ def event_actions(action:str):
     elif action == "4":
         override = request.form.get("override", "0")
         params, status = DBClientApi().create_agreement(client_id, override)
+
         if not status:
             error["notice"] = params
             return jsonify(error)
 
-        return jsonify({"success":True, "url_params":params})
+        return jsonify({"success":True, "url_params":params, "ctime":DBAgreementApi.get_ctime_agree_sess_by_cid(client_id)})
+
+    elif action == "5":
+        if not DBClientApi().set_event_status(2, client_id):
+            error["notice"] = "שיחזור האירוע נכשל"
+            return jsonify(error)
 
 
     return jsonify({"success":True})
@@ -386,7 +391,7 @@ def agreement():
         error["notice"] = "הקישור לא תקין"
         return render_template(page_error, msg=error)
 
-    aid = DBAgreementApi.get_agreement_by_id(agree_id)
+    aid = DBAgreementApi.get_agreement_by_aid(agree_id)
     if not aid:
         error["notice"] = "מזהה חוזה לא תקין"
         return render_template(page_error, msg=error)
@@ -426,7 +431,7 @@ def add_agreement():
     agree_id = request.args.get("aid")
 
     cid = DBClientApi.get_client_by_id(client_id)
-    aid = DBAgreementApi.get_agreement_by_id(agree_id)
+    aid = DBAgreementApi.get_agreement_by_aid(agree_id)
     if not cid or not aid:
         return jsonify(error)
     if DBAgreementApi.is_expired(aid):

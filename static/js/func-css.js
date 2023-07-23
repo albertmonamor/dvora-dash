@@ -275,7 +275,7 @@ const templates         = {}
 var supply_json         = {}
 var total               = 0
 const identify_total    = {}
-var search_is_open      = 0
+var search_is_open      = {"client":0, "history":0}
 /**
  * 
  * @param {object} _this 
@@ -291,39 +291,78 @@ function show_popup_error(res, _this){
     popup.style.display = "block";
     setTimeout(()=>{popup.style.display = "none";title.innerText="";notice.innerText="";$(_this).show(300);},2000);
 }
-function getTemplate(_this, _id, reget=0){
 
+function show_loading_screen(){
+    load = document.createElement("div")
+    load.classList.add("load-screen")
+    load.id = "load-screen"
+    load.innerHTML = `<i class="fa-solid fa-tower-broadcast fa-bounce"></i>`
+    document.body.appendChild(load)
+
+}
+function close_loading_screen(){
+    document.getElementById("load-screen").remove();
+}
+
+function getTemplate(_this, _id, reget=0){
     tmp_num = _id;    
     _parent = document.getElementsByClassName("dashboard-template")[0];
     tabSelected(_this);
+    setLastTemplate(_id)
     if (templates[tmp_num] != undefined && !reget){
         _parent.innerHTML = templates[tmp_num].tmp;
         document.getElementById("tab-name").innerText = templates[tmp_num].name;
-        if (search_is_open && tmp_num==0){
+        if (search_is_open.client && _id == 0){
             showSearchLeads(document.getElementById('opensearch'))
+        }
+        if (search_is_open.history && _id == 2){
+            showSearchHistory(document.getElementById("opensearchhistory"))
+            
         }
         return 0;
     }
-    
+    show_loading_screen()
     $.ajax({
-        url:"/template/"+_this.id,
-        type:"POST",
-        success:
-            (res) => {
-                if (res.success){
-                    _parent.innerHTML = res.template;
-                    document.getElementById("tab-name").innerText = res.name;
-                    templates[tmp_num] = {"tmp":res.template, "name":res.name};
-
-                    
-                }else{
-                    show_popup_error(res, _this);
-                }
-            }
-    })
+        url: "/template/" + _this.id,
+        type: "POST",
+        success: (res) => {
+          if (res.success) {
+            _parent.innerHTML = res.template;
+            document.getElementById("tab-name").innerText = res.name;
+            templates[tmp_num] = { "tmp": res.template, "name": res.name };
+          } else {
+            show_popup_error(res, _this);
+          }
+          close_loading_screen();
+        },
+        error: (xhr, status, error) => {
+          close_loading_screen();
+          show_popup_error({ "title": "שגיאת רשת", "notice": "וודא שאתה מחובר" });
+        }
+      });
     
 }
 
+/**
+ * 
+ * @param {String} _id 
+ * @returns {Boolean}
+ */
+function setLastTemplate(_id){
+    localStorage.setItem("l_template", _id)
+    return true;
+}
+/**
+ * 
+ * @returns {String}
+ */
+function getLastTemplate(){
+    t = localStorage.getItem("l_template")
+    if (t == undefined){
+        return '0' 
+    }
+    return t
+}
 function createTableEquipmentSelected(parent){
     parent.innerHTML="";
     tmp_total_money_equip = 0
@@ -402,7 +441,7 @@ function showSearchLeads(_this){
     $(element).css("display", "flex");
     // replace call
     button.onclick = ()=>{hideSearchLeads(_this);};
-    search_is_open =1;
+    search_is_open.client =1;
 }
 
 function hideSearchLeads(_this){
@@ -411,14 +450,14 @@ function hideSearchLeads(_this){
     $(element).hide(300);
     button.onclick = ()=>{showSearchLeads(_this);};
     getTemplate($("#0")[0], 0, 1);
-    search_is_open = 0;
+    search_is_open.client = 0;
 }
 function showModalContent(_this){
     $(document.getElementById("modaldes")).fadeOut(300)
     $(document.getElementById("modalstart")).fadeOut(300)
     $(document.getElementById("modalcontent")).fadeIn(300);
 }
-function searchLeads(_this){
+function searchLeads(_this, _type){
     element = document.getElementById("searchinput");
     value = element.value;
     if (!value){return;}
@@ -427,6 +466,7 @@ function searchLeads(_this){
     $.ajax({
         url:"/search_lead/"+value,
         type:"post",
+        data:{"type_search":_type},
         success:(res)=>{
             if (res.success){
                 templates[0].tmp = res.template;
@@ -628,6 +668,53 @@ function closeMenuLeadAction(_this){
         showMenuLeadAction(_this)
     }
 }
+
+/**
+ * @type setInterval
+ */
+var TIMER = null;
+/**
+ * 
+ * @param {String} ctime 
+ * @returns {dick}
+ */
+function countdown(ctime){
+    if (TIMER){
+        clearInterval(TIMER);
+        TIMER = null;
+        countdown(ctime);
+        return;
+    }
+    /* interval to countdown */
+    var _countdown = new Date(ctime).getTime();
+    TIMER = setInterval(function(){
+        var ctime_now = new Date().getTime();
+        var distance = _countdown - ctime_now;
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        if (distance < 0 || isNaN(distance)) {
+            clearInterval(TIMER);
+            days = "00";
+            hours = "00";
+            minutes = "00";
+            seconds = "00";
+
+        };
+        // end of story
+        // document.getElementById("lnkd").innerText = days;
+        // document.getElementById("lnkh").innerText = hours;
+        document.getElementById("lnkm").innerText = minutes;
+        document.getElementById("lnks").innerText = seconds;
+
+    }, 999)
+
+}
+
+
+
 /***
  * show alert 
  */
@@ -645,3 +732,6 @@ window.onclick = function(event) {
 
     }
 }
+
+
+

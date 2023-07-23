@@ -96,6 +96,7 @@
     
 }
 
+
 .table-item{
     text-align: right;
     padding-bottom: 10px;
@@ -105,7 +106,9 @@
     white-space: nowrap; 
     text-overflow: ellipsis; 
 }
-
+.item-green{
+    color: #b7c4ff;
+}
 .iname{
     font-weight: bold;
     font-size: 17px;

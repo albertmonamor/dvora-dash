@@ -46,6 +46,30 @@ function del_his_eventLead(_this){
     })
 }
 
+
+function reCancel_eventLead(_this){
+    if (!confirm("לשחזר אירוע?")){
+        return;
+    }
+    lhtml = _this.innerHTML;
+    _this.innerHTML = `<i class="fa-solid fa-clock-rotate-left fa-spin fa-spin-reverse"></i>`;
+    cid = _this.id.slice(1, _this.id.length);
+    $.ajax({
+        url:"/event_lead_action/"+_this.id.slice(0,1),
+        data:{"client_id":cid},
+        type:"post",
+        success:(res)=>{
+            if (res.success){
+                closeLeadInforamtionModal(null, cid);
+                setTimeout(()=>{getTemplate($("#2")[0],"2", 1);cleanHash();}, 500);
+            }else{
+                show_popup_error(res, null);
+            }
+        }
+    })
+}
+
+
 /**
  * 
  * @param {Element} _this 
@@ -134,6 +158,41 @@ function editLeadInforamtion(_this, _type){
                 }
                 index++;
             }
+    }
+    else if (_type == 4){
+        parent = document.getElementById("edit-payment");
+        parent1 = document.getElementById("prepayment");
+        parent2 = document.getElementById("typepayment")
+        // p1
+        $(parent1.children[0]).hide();
+        ch = parent1.children[1];
+        ch.innerHTML = `<input type="tel" style="width:100%" placeholder="${ch.textContent}" class="edit-table-input">`
+
+        // p2
+        $(parent2.children[0]).hide()
+        $(parent2.children[1]).hide()
+        a = parent2.children[0].role;
+        parent2.innerHTML += `
+        <div class="edit-type-payment">
+            <button class="payment-button" onclick="selectTypePay(this, 0)">מזומן</button>
+            <button class="payment-button tpayb" onclick="selectTypePay(this, 1)">העברה בנקאית</button>
+            <button class="payment-button tpayb" onclick="selectTypePay(this, 2)">צ'ק</button>
+            <input type="hidden" id="type-pay" value="${parent2.children[0].role}" name="type-pay">
+        </div>
+        `
+
+        if (a == 0){
+            selectTypePay(parent2.children[2].children[0], a)
+        }
+        else if (a == 1){
+            selectTypePay(parent2.children[2].children[1], a)
+        }
+        else if (a == 2){
+            selectTypePay(parent2.children[2].children[2], a)
+        }
+
+
+
     }
     parentAc = _this.parentElement
     parentAc.innerHTML = `<i onclick="reEditInformation(this, ${_type}, 1);" class="fa-solid fa-check"></i><i onclick="reEditInformation(this, ${_type});" class="fa-solid fa-xmark"></i>`
@@ -258,6 +317,43 @@ function reEditInformation(_this, _type, toUpdate=0){
             })
         }
     }
+    else if (_type == 4){
+        parent = document.getElementById("edit-payment");
+        parent1 = document.getElementById("prepayment");
+        parent2 = document.getElementById("typepayment")
+        // p1
+        $(parent1.children[0]).show();
+        ch = parent1.children[1];
+        _input = ch.children[0];
+        dmoney = _input.value ? _input.value : _input.placeholder ;
+        ch.innerHTML = _input.placeholder;
+
+
+        // p2 
+        type_payemnt = document.getElementById("type-pay").value;
+        $(parent2.children[0]).show()
+        $(parent2.children[1]).show()
+        parent2.children[2].remove()
+        
+        
+        if (toUpdate){
+            $.ajax({
+                url:"/update_lead/"+_type,
+                type:"post",
+                data:{"data":JSON.stringify({"dmoney":dmoney, "type_pay":type_payemnt}), "client_id":parent.role, },
+                success:(res)=>{
+                    if (res.success){
+                        parent = document.getElementById("edit-payment");
+                        openLeadInformationModal(document.getElementById("10|"+parent.role));
+                    }
+                    else{
+                        show_popup_error(res, null);
+                    }
+                }
+            })
+        }
+
+    }
 
 
     parent = _this.parentElement;
@@ -282,7 +378,14 @@ function open_modal_link(_this){
     var title = document.createElement('span');
     title.classList.add("modal-link-title")
     title.textContent = "שלח את הלינק ללקוח לחתימה"
-    title.innerHTML += `<span class="subtitle"> <b>שם לב:</b> לכל קישור ניתן לחתום עד 15 דקות מיצירת הקישור</span>`
+    title.innerHTML += `<span class="subtitle"> <b>שם לב:</b>
+    נותרו
+    <div class="lnk-countdown">
+        <span id="lnks">--</span>
+        <span id="lnkm">--</span>
+    </div>
+    דקות לחתום על החוזה 
+    </span>`
     title.innerHTML += `<i onclick='close_modal_link("${cid}")' class="fa-solid fa-circle-xmark"></i>`
     MB.appendChild(title)
 
@@ -290,14 +393,11 @@ function open_modal_link(_this){
     DB.classList.add('modal-buttons-actions-link');
     MB.appendChild(DB);
     DB.innerHTML += `<button id="getlink" class="modal-button-create-link" type="button" onclick="show_link_client(this, '${_this.id}')">הצג לינק</button>`
-
-
-
-
 }
 
 function close_modal_link(_id){
     document.getElementById("modallink"+_id).remove()
+    clearInterval(TIMER);
 }
 
 
@@ -344,6 +444,19 @@ function show_link_client(_t, acid, override){
                     _body.children[2].value = window.location.origin + res.url_params
                     
                 }
+                nd = new Date().getTime()
+                cd = new Date(res.ctime).getTime()
+                if (cd-nd < 0){
+                    document.getElementById("lnks").classList.add('lnkexpired')
+                    document.getElementById("lnkm").classList.add('lnkexpired')
+                }
+                else{
+                    document.getElementById("lnks").classList.remove('lnkexpired')
+                    document.getElementById("lnkm").classList.remove('lnkexpired')
+                }
+                countdown(res.ctime)
+                
+                
             }
             else{
                 show_popup_error(res, null);

@@ -1,14 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <center>
-        <h1>ddfdfdfdf</h1>
-    </center>
-</body>
-</html>
+<section class="histories">
+    <div class="histories-tab">
+        <button  class="button-tab-leads" onclick="filter_date(this)">
+            <span> סינון <i class="fa-solid fa-filter"></i></span>
+        </button>
+        <button class="button-tab-leads" onclick="getTemplate($('#3')[0],'3', 1);">
+            <span><i class="fa-solid fa-rotate-right"></i></span>
+        </button>
+    </div>
+</section>
+
+<div class="search-leads" id="searchleads">
+    <input type="text" class="input-search-leads" id="searchinput" placeholder="פאלפון, שם לקוח">
+    <button type="button" class="button-tab-leads" onclick="searchLeads(this, 'both')">
+        <span><i class="fa-solid fa-magnifying-glass fa-fade"></i></span>
+    </button>
+</div>
+
+<section class="info-statistics-cards margin-10">
+
+    <div class="card-statistic cc">
+        <div class="card-title">
+            <span>לקוחות</span>
+            <i class="fa-solid fa-person-circle-plus fa-lg"></i>
+        </div>
+        <div class="card-body">
+            <span class="value">5</span>
+            <span class="desc">לקוחות שסגרו אירוע ושהסתיים</span>
+        </div>
+    </div>
+    <div class="card-statistic cs">
+        <div class="card-title">
+            <span>ציוד</span>
+            <i class="fa-solid fa-boxes-stacked fa-lg"></i>
+        </div>
+        <div class="card-body">
+            <span class="value">13</span>
+            <span class="desc">סוגי ציוד </span>
+        </div>
+    </div>
+    <div class="card-statistic ci">
+        <div class="card-title">
+            <span>הכנסות</span>
+            <i class="fa-solid fa-shekel-sign fa-lg"></i>
+        </div>
+        <div class="card-body">
+            <span class="value">₪3200</span>
+            <span class="desc">ההכנסות שלך עד לתאריך הנוכחי</span>
+        </div>
+    </div>
+</section>
+
+
+<section class="charts-money margin-10">
+    <div class="graph-money" id="pgraph-money">
+        <span class="title">הוצאות / הכנסות</span>
+        <div class="b-g-money" id="graph-money">
+            <div class="money-item">
+                <span class="e" title="הכנסות"></span>
+                <span class="i" title="הוצאות"></span>
+            </div>
+            <div class="money-item">
+                <span class="e" title="הכנסות"></span>
+                <span class="i" title="הוצאות"></span>
+            </div>
+        </div>
+        <div class="footer-labels" id="footer-labels">
+            <span>אפריל</span>
+            <span>אוגוסט</span>
+        </div>
+    </div>
+
+</section>

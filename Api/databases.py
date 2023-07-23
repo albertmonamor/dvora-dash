@@ -6,7 +6,7 @@ from json import dumps, loads
 from time import ctime, time
 from Api.api_function import FormatTime, generate_invoice_path, \
     check_level_new_lead, XOR, generate_link_path
-from Api.protocol import DBase, m_app, PDF_OPTIONS, PATH_PDFKIT_EXE, BASEDIR, UPDATE_LEAD_ERROR
+from Api.protocol import DBase, m_app, PDF_OPTIONS, PATH_PDFKIT_EXE, BASEDIR, UPDATE_LEAD_ERROR, AGREE_SESS_LIFE
 
 
 class Users(DBase.Model):
@@ -202,11 +202,25 @@ class DBAgreementApi:
     def is_expired(a:ClientAgreement):
         return not (time() - a.agree_sesslife) < 960
     @staticmethod
-    def get_agreement_by_id(aid:str) -> ClientAgreement | bool:
+    def get_agreement_by_aid(aid:str) -> ClientAgreement | bool:
         agree: ClientAgreement = ClientAgreement.query.filter_by(agree_id=aid).first()
         if not agree:
             return False
         return agree
+
+    @staticmethod
+    def get_agreement_by_cid(cid:str):
+        agree: ClientAgreement = ClientAgreement.query.filter_by(client_id=cid).first()
+        if not agree:
+            return False
+        return agree
+    @staticmethod
+    def get_ctime_agree_sess_by_cid(cid:str) -> str:
+        a:ClientAgreement = DBAgreementApi.get_agreement_by_cid(cid)
+        if not a:
+            return "0"
+        return ctime(a.agree_sesslife+AGREE_SESS_LIFE)
+
 
 class DBClientApi:
 
@@ -240,13 +254,17 @@ class DBClientApi:
         return bool(len(equipments))
 
     def is_low_expenses(self, c:Client):
-        return self.get_net(c) >= 1000
+        return self.get_net_all(c) >= 1000
 
-    def get_gross(self, c:Client) -> float | int:
+    def get_gross_all(self, c:Client) -> float | int:
         money_equipments = self.get_info_equipment(c)["money"]
         return c.expen_fuel+c.expen_employee+money_equipments
 
-    def get_net(self, c:Client) -> float | int:
+    def get_gross_client(self, c:Client) -> float | int:
+        money_equipments = self.get_info_equipment(c)["money"]
+        return money_equipments
+
+    def get_net_all(self, c:Client) -> float | int:
         result = self.get_info_equipment(c)["money"] - c.expen_fuel - c.expen_employee
 
         return result
@@ -295,13 +313,14 @@ class DBClientApi:
                              "ep": c.event_place,
                              "dm": c.d_money,
                              "ps": self.is_pay_down_payment(c.d_money),
-                             "tm": f"{self.get_gross(c):,}",
+                             "tm": f"{self.get_gross_client(c) :,}",
                              "oe": self.is_order_equipment(c.event_supply),
-                             "cm": f"{self.get_net(c):,}",
+                             "cm": f"{self.get_net_all(c) :,}",
                              'low_e': self.is_low_expenses(c),
                              'ea':c.is_open,
                              "eg":c.is_garbage,
-                             "cs":c.is_signature
+                             "cs":c.is_signature,
+                             "iee":self.is_event_expired_date(c)
                            }
         return client
 
@@ -321,8 +340,8 @@ class DBClientApi:
         date_full.reverse()
 
         dc["event_supply"] = loads(client.event_supply)
-        dc["net"] = self.get_net(client)
-        dc["gross"] = self.get_gross(client)
+        dc["net"] = self.get_net_all(client)
+        dc["gross"] = self.get_gross_all(client)
         dc["pay_for_equipment"] = info_equip["money"]
         dc["count_of_equipment"] = info_equip["count"]
         dc["date_str"] = ".".join(date_full)
@@ -357,11 +376,12 @@ class DBClientApi:
 
     @staticmethod
     def get_name_type_payment(c:dict):
+        c["type_pay"] = int(c["type_pay"])
         if c["type_pay"] == 0:
             return "מזומן"
         elif c["type_pay"] == 1:
             return "העברה בנקאית"
-        elif ["c.type_pay"] == 2:
+        elif c["type_pay"] == 2:
             return "צ'ק"
 
         # /* something broken! */
@@ -379,6 +399,11 @@ class DBClientApi:
             return True
         elif status == 1:
             client.is_open = False
+            client.is_garbage = False
+            DBase.session.commit()
+            return True
+        elif status == 2:
+            client.is_open = True
             client.is_garbage = False
             DBase.session.commit()
             return True
@@ -414,7 +439,7 @@ class DBClientApi:
                                      info_pay="לא צויין",
                                      date_pay=client["event_date"].replace("-","/"),
                                      total_money=client["client_payment"],
-                                     total_money2=client["net"])
+                                     total_money2=client["client_payment"])
 
         if sys.platform == "win32":
             res = pdfkit.from_string(style + tmp_format,
@@ -459,7 +484,7 @@ class DBClientApi:
 
     def update_lead_information(self, kind:str, data:..., client_id):
         error = dict(UPDATE_LEAD_ERROR)
-        client = Client.query.filter_by(client_id=client_id).first()
+        client = self.get_client_by_id(client_id)
         # /* valid: id or is closed/garbage */
         if not client:
             error["notice"] = "מזהה לא ידוע"
@@ -509,7 +534,22 @@ class DBClientApi:
             client.expen_employee = int(new_expense[1])
             DBase.session.commit()
 
+        elif kind == "4":
+            data = loads(data)
+            dmoney = data["dmoney"].replace(" ", "").replace("₪", "")
+            status, _ = check_level_new_lead('8', dmoney)
+            if not status:
+                error['notice'] = "מקדמה לא תקינה"
+                return error
+            if not data["type_pay"].isdigit() or self.get_name_type_payment(data) == "לא צויין":
+                error["notice"] = "סוג תשלום לא תקין"
+                return error
 
+            client.d_money = float(dmoney)
+            client.type_pay = int(data["type_pay"])
+            DBase.session.commit()
+
+        # /* important */
         self.reinvoice_client(client_id)
 
         return {"success":True}
@@ -545,7 +585,11 @@ class DBClientApi:
         DBase.session.commit()
         return generate_link_path(cid, agree_id), True
 
-
+    @staticmethod
+    def is_event_expired_date(c:Client):
+        date:list = c.event_date.replace("-", ".").split(".")
+        date.reverse()
+        return FormatTime.get_days_left(".".join(date)) < 0
 
 def create_agreement_client():
     file_data = open(BASEDIR + "/tmp/invoice_tmp/agreement.html", "r", encoding="utf-8").read()

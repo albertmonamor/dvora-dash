@@ -180,11 +180,21 @@ ul.leads-menu-action li:hover{
     font-weight: bold;
     margin-top: 15px;
 }
-.lead-box-info-head>i{
+.alert-calander-worng{
+    color: #812b34;
+}
+.lead-box-info-head>.icalander{
     position: absolute;
     right: 5px;
     top: 5px;
     color: rgb(63, 43, 145);
+}
+.worng-date{
+    position: absolute;
+    left: 0;
+    top: -12px;
+    color: #623a0b;
+    transform: rotate(-30deg);
 }
 
 .lead-profile-parent{
@@ -465,7 +475,9 @@ ul.leads-menu-action li:hover{
     text-align: center;
     border: 0;
     position: relative;
+    border-bottom: 1px solid #5f8a6e44; 
 }
+
 .c-bth > .edit-table-input{
     position: absolute;
     text-align: center;
@@ -623,6 +635,10 @@ ul.leads-menu-action li:hover{
     padding: 2px 15px 2px 15px;
 
 }
+.edit-type-payment{
+    display: flex;
+    
+}
 .payment-type-ico{
     background: transparent;
 }
@@ -740,12 +756,35 @@ ul.leads-menu-action li:hover{
     color: rgb(193, 193, 193);
     display: block;
     text-align: right;
-    margin-top: 10px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    display: flex;
+
+}
+
+.lnk-countdown{
+    display: flex;
+}
+
+#lnkd, #lnkh, #lnkm, #lnks{
+    padding-right: 5px;
+    padding-left: 5px;
+    color:#4cca78;
+    font-weight: bold;
+}
+.lnkexpired{
+    color: rgb(205, 43, 43) !important;
+}
+#lnks::after{
+    position: absolute;
+    content: ":";
+    margin-right: 4px;
 }
 .modal-buttons-actions-link{
     display: flex;
     margin-right: 15%;
     margin-left: 15%;
+
     
 }
 .modal-button-create-link{

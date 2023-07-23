@@ -1,14 +1,19 @@
 <div class="histories">
   <div class="histories-tab">
-      <button  id="opensearchhistory" class="button-tab-leads">
+      <button  id="opensearchhistory" class="button-tab-leads" onclick="showSearchHistory(this)">
           <span> חיפוש <i class="fa-brands fa-searchengin"></i></span>
       </button>
-      <button class="button-tab-leads">
-          <span>סנן <i class="fa-solid fa-filter"></i></span>
+      <button class="button-tab-leads" onclick="getTemplate($('#2')[0],'2', 1);">
+          <span><i class="fa-solid fa-rotate-right"></i></span>
       </button>
     </div>
 </div>
-
+<div class="search-leads" id="searchleads">
+    <input type="text" class="input-search-leads" id="searchinput" placeholder="פאלפון, שם לקוח">
+    <button type="button" class="button-tab-leads" onclick="searchLeads(this, 'both')">
+        <span><i class="fa-solid fa-magnifying-glass fa-fade"></i></span>
+    </button>
+</div>
 <div class="leads-list">
     {% for k, lead_box in leads.items()%}
         <div class="leads-box">
@@ -92,12 +97,12 @@
                         </p>
                         <p>
                             <span>
-                                {% if lead_box.low_e %}
+                                {% if not lead_box.iee %}
                                     <i class="fa-solid fa-circle-check v-valid"></i>
                                 {% else %}
                                     <i class="fa-solid fa-circle-xmark x-invalid"></i>
                                 {% endif %}
-                        </span>  הוצאות נמוכות
+                        </span> זמני האירוע
                         </p>
                     </div>
                 </div>
