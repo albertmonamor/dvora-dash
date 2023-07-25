@@ -214,9 +214,11 @@ def generate_invoice_path(client_phone):
     return f"{BASEDIR}\\invoices\\{client_phone.replace(' ', '_')}_{now.tm_mon}-{now.tm_year}.pdf"
 
 
-def generate_link_path(cid:str, ai:str) -> str:
-    return f"/agreement/?cid={cid}&aid={ai}"
+def generate_link_edit_agree(cid:str, aid:str) -> str:
+    return f"/agreement/?cid={cid}&aid={aid}"
 
+def generate_link_show_agree(si, cid) -> str:
+    return f"/agreement/?si={si}&cid={cid}"
 
 def XOR(value , key:str) -> bytes:
     key = key + (key[0] * (value.__len__() - key.__len__()))

@@ -40,7 +40,7 @@
             <div class="between">
                 <div class="bbody">
                     <span>ובן מר/גב'</span>
-                    {% if not cid.full_name %}
+                    {% if edit and not cid.full_name %}
                         <input type="text" class="input-side-B" placeholder="שם מלא" id="fname">
                     {% else %}
                         <span value="0" class="auto-complete" id="fname">{{ cid.full_name }}</span>
@@ -48,11 +48,15 @@
                 </div>
                 <div class="bbody"> 
                     <span>בכתובת</span>
-                    <input type="text" class="input-side-B" placeholder="כתובת בית" id="_location">
+                    {% if edit and not aid.location_client %}
+                        <input type="text" class="input-side-B" placeholder="כתובת בית" id="_location">
+                    {% else %}
+                        <span value="0" class="auto-complete" id="fname">{{ aid.location_client or 'לא צויין'}}</span>
+                    {% endif %}
                 </div>
                 <div class="bbody"> 
                     <span>ת.ז</span>
-                    {% if not cid.ID %}
+                    {% if edit and not cid.ID %}
                         <input type="tel" class="input-side-B input-ltr" placeholder="000-000-000" id="identify">
                     {% else %}
                         <span value="0" class="auto-complete" id="identify">{{ cid.ID}}</span>
@@ -60,7 +64,7 @@
                 </div>
                 <div class="bbody"> 
                     <span>פלאפון</span>
-                    {% if not cid.phone %}
+                    {% if edit and not cid.phone %}
                         <input type="tel" class="input-side-B input-ltr" placeholder="+972" id="phone">
                     {% else %}
                         <span value="0" class="auto-complete" id="phone">{{ cid.phone }}</span>
@@ -100,8 +104,8 @@
                 </div>
                 <div> 
                     <span>עד </span>
-                    <input type="date" class="input-side-B" placeholder="שם מלא" id="udate" value="{{ cid.event_date }}">
-
+                    <input type="date" class="input-side-B" placeholder="שם מלא" id="udate" value="{{ cid.event_date }}" disabled="{{ 'false' if edit else 'false'}}">
+ 
                 </div>
             </div>
         </div>
@@ -138,20 +142,37 @@
         </div>
         <div class="middle-title"></div>
         <div class="sig-agreement mrgn-15">
-            <div class="sig-owner">
-                <span>דביר הפקות - צד א'
-                    <i class="fa-solid fa-trash-can" onclick="clearSignature('sig-owner')"></i>
-                </span>
-                <canvas id="sig-owner"></canvas>
-            </div>
-            <div class="sig-client">
-                <span>הלקוח - צד ב'
-                    <i class="fa-solid fa-trash-can" onclick="clearSignature('sig-client')"></i>
-                </span>
-                <canvas id="sig-client"></canvas>
-            </div>
+            {% if edit and not aid.sig_owner %}
+                <div class="sig-owner">
+                    <span>דביר הפקות - צד א'
+                        <i class="fa-solid fa-trash-can" onclick="clearSignature('sig-owner')"></i>
+                    </span>
+                        <canvas id="sig-owner"></canvas>
+                </div>
+            {% else %}
+                <div id="sig-complate">
+                    <span class="title">חתימת המשכיר</span>                    
+
+                    <img src="{{ aid.sig_client }}" alt="חתימת המשכיר">
+                </div>
+            {% endif %}
+
+            {% if edit and not aid.sig_client %}
+                <div class="sig-client">
+                    <span>הלקוח - צד ב'
+                        <i class="fa-solid fa-trash-can" onclick="clearSignature('sig-client')"></i>
+                    </span>
+                        <canvas id="sig-client"></canvas>
+                </div>
+            {% else %}
+                <div id="sig-complate">
+                    <span class="title">חתימת הלקוח</span>
+                    <img src="{{ aid.sig_client }}" alt="חתימת הלקוח">
+                </div>
+            {% endif %}
         </div>
         <div class="middle-title"></div>
+        {% if edit %}
         <div class="submit-agreement">
             <button class="button-submit-agreement" onclick="sent_agreement_client(this)">
                 <span>שליחה</span>
@@ -159,7 +180,14 @@
             <span class="submit-notice"><i class="fa-solid fa-check fa-xl"></i>
                 בשליחת החוזה, אני מאשר את הסכמתי</span>
         </div>
-    </div>
+        {% else %}
+            <div class="agreement-close">
+                <i class="fa-solid fa-file-shield"></i>
+                <span class="pre-agree-date">חוזה זה נחתם בתאריך</span>
+                <span class="agree-date">{{ aid.ctime_date }}</span>
+            </div>
+        {% endif  %}
+    </div> 
     <div id="popup" class="popup">
         <i class="fa-solid fa-triangle-exclamation fa-bounce"></i>
         <span id="popup-title"></span>

@@ -1,6 +1,7 @@
-
-var signatureO = new SignaturePad(document.getElementById('sig-owner'));
-var signatureC = new SignaturePad(document.getElementById('sig-client'));
+if (document.getElementById('sig-owner')){
+    var signatureO = new SignaturePad(document.getElementById('sig-owner'));
+    var signatureC = new SignaturePad(document.getElementById('sig-client'));
+}
 
 
 function clearSignature(parent){

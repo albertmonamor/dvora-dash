@@ -1,25 +1,21 @@
-import binascii
-import os
 from json import loads, dumps
 from time import sleep
 
 from werkzeug.datastructures import FileStorage
 
 from Api.api_function import check_level_new_lead, check_equipment
-from Api.protocol import m_app, get_random_key, LOGIN_FAILED, LOGIN_SUCCESS, UN_ERROR, EMPTY_LEAD_T, T404, TMP_DENIED, \
-    LEAD_ERROR, EQUIP_ERROR, EQUIP_SUCCESS, SEARCH_LEAD_ERR, EMPTY_HISTORY, INVOICE_ACTION_ERR, IMPORT_TXT_ERROR, \
-    MAX_IMPORT_TXT, FILENAME_IMPORT_TXT, BASEDIR, FILENAME_EXPORT_TXT, AGREE_ERROR, SUCCESS_AGREE
+from Api.protocol import *
 from flask import render_template, request, session, jsonify, redirect, url_for, \
     send_from_directory
 from Api.databases import Users, DBase, signup, db_new_client, add_supply, get_all_supply, verify_supply \
     , time, get_supply_by_id, generate_id_supply, DBClientApi, export_txt_equipment, import_txt_equipment,\
-    DBAgreementApi
+    DBAgreeApi
 
 
 #  ******************* ROUTES *************************
 
 @m_app.errorhandler(404)
-def _404(n_error):
+def _404(n_error=None):
     sleep(2)
     return render_template("./error_tmp/404.html")
 
@@ -73,11 +69,17 @@ def dashboard():
 def get_template_dashboard(tmp):
     if not session.get('is_admin'):
         return jsonify(TMP_DENIED)
+    # /* default template */
     res_tmp:str = T404
+    # /* default title */
     name = "404"
+    # /* client id */
+    cid = request.form.get("identify", "C0")
+    # /* Api Client */
+    capi = DBClientApi(cid)
     # /* <    *---MAIN TAB TEMPLATE---*    >
     if tmp == "0":
-        client_open = DBClientApi().get_all_client_by_mode("open")
+        client_open = capi.get_all_client_by_mode("open")
         res_tmp = "/dash_tmp/leads.html"
         return jsonify({"success":True,
                         "template":render_template(res_tmp, leads=client_open,empty_lead=EMPTY_LEAD_T),
@@ -90,7 +92,7 @@ def get_template_dashboard(tmp):
                                                    nonce_import=session["nonce_import"]),
                         "name":"ציוד"})
     elif tmp == "2":
-        client_open = DBClientApi().get_all_client_by_mode("both")
+        client_open = capi.get_all_client_by_mode("both")
         res_tmp = "/dash_tmp/history.html"
         return jsonify({"success":True,
                         "template":render_template(res_tmp, leads=client_open,empty_history=EMPTY_HISTORY),
@@ -102,7 +104,8 @@ def get_template_dashboard(tmp):
         res_tmp = "/dash_tmp/setting.html"
         name = "הגדרות"
     elif tmp == "10":
-        client_info = DBClientApi().get_info_client(request.form.get("identify", "C0"))
+        capi.new(cid)
+        client_info = capi.get_info_client()
 
         res_tmp = "/dash_tmp/client_info.html"
         return jsonify({"success":True, "template":render_template(res_tmp, ci=client_info)})
@@ -197,8 +200,10 @@ def search_lead(data):
     if not data or not type_search:
         return jsonify({error})
 
+    # /* default template */
     res_tmp = "/dash_tmp/leads.html"
-    client_found = DBClientApi().search_client(data, type_search)
+    capi = DBClientApi("none")
+    client_found = capi.search_client(data, type_search)
     if not client_found:
         return jsonify(error)
     return jsonify({"success": True,
@@ -224,6 +229,7 @@ def add_equipment():
                desc="",
                _id=generate_id_supply(),
                count=0)
+
     return jsonify({"success":True})
 
 
@@ -279,46 +285,58 @@ def event_actions(action:str):
         return jsonify(TMP_DENIED)
 
     client_id = request.form.get("client_id")
-    if not client_id and request.method == "POST":return jsonify(error)
+    capi = DBClientApi(client_id)
+
+    if not capi.ok() and request.method == "POST":return jsonify(error)
     if action == "0":
         # delete event
-        if not DBClientApi.set_event_status(0, client_id):
+        if not capi.set_event_status(0):
            return jsonify(error)
 
     elif action == "1":
         # move event to history
-        if not DBClientApi.set_event_status(1, client_id):
+        if not capi.set_event_status(1):
             return jsonify(error)
     elif action == "2":
         # create invoice
-        sleep(1)
-        if not DBClientApi().create_invoice_event(client_id, None):
+        if not capi.create_invoice_event(None):
             return jsonify(INVOICE_ACTION_ERR)
 
     elif action == "3":
+
         client_id = request.args.get('client_id')
-        pathfile = DBClientApi().get_invoice_client(client_id)
+        capi.new(client_id)
+        pathfile = capi.get_invoice_client()
         if not pathfile or not os.path.exists(pathfile):
-            DBClientApi().reinvoice_client(client_id)
+            capi.reinvoice_client()
             return redirect(url_for("dashboard"), 302)
 
         return send_from_directory("invoices", os.path.basename(pathfile), as_attachment=True)
 
     elif action == "4":
+        capi.new(client_id)
         override = request.form.get("override", "0")
-        params, status = DBClientApi().create_agreement(client_id, override)
+        params, status = capi.create_agreement(override)
 
         if not status:
             error["notice"] = params
             return jsonify(error)
 
-        return jsonify({"success":True, "url_params":params, "ctime":DBAgreementApi.get_ctime_agree_sess_by_cid(client_id)})
+        return jsonify({"success":True, "url_params":params, "ctime":DBAgreeApi.get_ctime_agree_sess_by_cid(client_id)})
 
     elif action == "5":
-        if not DBClientApi().set_event_status(2, client_id):
+        if not capi.set_event_status(2):
             error["notice"] = "שיחזור האירוע נכשל"
             return jsonify(error)
 
+    elif action == "6":
+        aapi = DBAgreeApi(client_id, by_cid=True)
+        error["notice"] = "שגיאה במזהה לקוח"
+        if not aapi.ok():
+            return jsonify(error)
+
+        si = aapi.set_show_agreement()
+        return jsonify({"success":True, "url_params":si})
 
     return jsonify({"success":True})
 
@@ -328,8 +346,8 @@ def update_lead(kind):
         return jsonify(TMP_DENIED)
 
     data = request.form.get("data")
-    client_id = request.form.get("client_id")
-    status = DBClientApi().update_lead_information(kind, data, client_id)
+    cid = request.form.get("client_id")
+    status = DBClientApi(cid).update_lead_information(kind, data)
     return jsonify(status)
 
 @m_app.route("/import_txt", methods=["POST"])
@@ -386,35 +404,39 @@ def agreement():
 
     client_id = request.args.get("cid")
     agree_id  = request.args.get("aid")
+    show_id   = request.args.get("si")
+
+    aapi = DBAgreeApi(agree_id)
+    capi = DBClientApi(client_id)
 
     if not any(request.args):
         error["notice"] = "הקישור לא תקין"
         return render_template(page_error, msg=error)
 
-    aid = DBAgreementApi.get_agreement_by_aid(agree_id)
-    if not aid:
+    if not show_id and not capi.ok() and not aapi.ok():
         error["notice"] = "מזהה חוזה לא תקין"
         return render_template(page_error, msg=error)
-    if DBAgreementApi().is_expired(aid):
-        error["notice"] = "פג תוקף הקישור"
-        return render_template(page_error, msg=error)
-    elif aid.is_accepted:
-        error["notice"] = "מסמך זה נחתם ורשום במערכת"
-        return render_template(page_error, msg=error)
 
-    # /* extract client by cid */
-    cid = DBClientApi().get_client_by_id(client_id)
-    if not cid:
-        error["notice"] = "הקישור לא תקין"
+    if not show_id:
+        if aapi.is_expired():
+            error["notice"] = "פג תוקף הקישור"
+            return render_template(page_error, msg=error)
+        elif aapi.is_accept():
+            error["notice"] = "מסמך זה נחתם ורשום במערכת"
+            return render_template(page_error, msg=error)
+
+    elif show_id and not aapi.new(show_id, by_si=1) or not capi.ok():
+        error["notice"] = "לא ניתן לפתוח את חוזה השכרה"
         return render_template(page_error, msg=error)
 
     # /* analyze equipment on this client */
-    equipment = DBClientApi.get_client_equipment(cid)
-    invoice_num = DBClientApi.get_invoice_number(cid) or "000000"
-    cid.invc_n = invoice_num
+    equipment = capi.get_client_equipment()
+    invoice_num = capi.get_invoice_number() or "000000"
+    capi.cid.invc_n = invoice_num
+    aapi.aid.ctime_date = aapi.get_ctime_client_singed()
     equip_policy:list[str] = open(BASEDIR+"/tmp/dash_tmp/equipment_policy.txt", 'r', encoding="utf8").read().split("\n")
     return render_template("/doc_tmp/agreement.html", equipment_p=equip_policy,
-                           cid=cid, equipment=equipment)
+                           cid=capi.cid, aid=aapi.aid, equipment=equipment, edit=not bool(aapi.aid.show_id))
 
 # /* access: *
 @m_app.route("/add_agreement", methods=["POST"])
@@ -430,41 +452,25 @@ def add_agreement():
     client_id = request.args.get("cid")
     agree_id = request.args.get("aid")
 
-    cid = DBClientApi.get_client_by_id(client_id)
-    aid = DBAgreementApi.get_agreement_by_aid(agree_id)
-    if not cid or not aid:
-        return jsonify(error)
-    if DBAgreementApi.is_expired(aid):
-        error["notice"] = "הקישור פג תוקף"
+    capi = DBClientApi(client_id)
+    aapi = DBAgreeApi(agree_id)
+    if not capi.ok() or not aapi.ok():
         return jsonify(error)
 
-
-
-    fname = request.form.get("fname") or cid.full_name
+    fname = request.form.get("fname") or capi.cid.full_name
     location = request.form.get("_location")
-    identify = request.form.get("identify") or cid.ID
-    phone = request.form.get("phone") or cid.phone
-    udate = request.form.get("udate") or cid.event_date
+    identify = request.form.get("identify") or capi.cid.ID
+    phone = request.form.get("phone") or capi.cid.phone
+    udate = request.form.get("udate") or capi.cid.event_date
     signature = request.form.get("signature")
-    for i, v in zip([2, 7, 4, 3, 6], [fname,location, identify, phone, udate]):
-        b, r = check_level_new_lead(str(i), v)
-        if not b:
-            return r
 
     if not signature or signature.__len__() < 4000:
         error["notice"] = "החתימה קצרה מידיי"
         return jsonify(error)
 
-    aid.sig_client = signature
-    aid.sig_date = time()
-    aid.from_date = cid.event_date
-    aid.to_date = cid.event_date
-    aid.location_client = location
-    aid.is_accepted = True
-    # /* success
-    cid.is_signature = True
-    DBase.session.commit()
-
+    desc = aapi.add_agreement(signature, [fname,location, identify, phone, udate], capi, error)
+    if not desc["success"]:
+        return error
 
     return jsonify({"success":True, "template": render_template(page_error, msg=SUCCESS_AGREE)})
 

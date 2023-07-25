@@ -1,6 +1,6 @@
 
 body{
-    background: rgb(240, 242, 251) !important;
+    background: rgb(244, 245, 250) !important;
     font-family: 'Noto Serif Hebrew';
     direction: rtl;
 
@@ -118,7 +118,7 @@ body{
 
 .agree-form{
     margin-top: 5rem;
-    background: rgb(229, 233, 251);
+    background: rgb(234, 238, 251);
     border-radius: 7px;
     box-shadow: 0 3px 10px 0 rgb(181, 181, 181);
     padding: .5rem;
@@ -175,7 +175,7 @@ body{
     border: none;
     outline:none;
     margin-left: 10px;
-    background: rgb(237, 239, 255);
+    background: rgb(234, 238, 251);
     transition: 300ms;
     font-size: 18px;
     padding: 10px 12px 6px 8px ;
@@ -195,7 +195,7 @@ body{
     margin-right: 20px;
     margin-left: 10px;
     font-weight: bold;
-    padding: 10px 12px 6px 8px ;
+    padding: 8px 12px 6px 8px ;
 }
 
 .middle-title{
@@ -208,7 +208,7 @@ body{
 
 .equipments, .agree-policy{
     margin-top: 1rem;
-    background: rgb(229, 233, 251);
+    background: rgb(234, 238, 251);
     border-radius: 7px;
     box-shadow: 0 3px 10px 0 rgb(181, 181, 181);
 
@@ -329,7 +329,17 @@ body{
     padding-left: 10px;
     cursor: pointer;
     
+}
 
+#sig-complate{
+    display: flex;
+}
+
+#sig-complate > .title{
+    color:#30285c;
+    font-weight: bold;
+    padding-right: 10px;
+    transform: skewX(-10deg);
 }
 .submit-agreement{
     margin-right: 30%;
@@ -365,6 +375,32 @@ body{
 
 }
 
+.agreement-close{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 3rem;
+    padding: 10px;
+    border-radius: 7px;
+}
+
+.agreement-close >.pre-agree-date{
+    font-weight: bold;
+    color: rgb(97, 97, 97);
+    
+    margin-left: 10px;
+
+}
+.agreement-close > i{
+    margin-right: 10px;
+    margin-left: 10px;
+
+}
+
+.agreement-close > .agree-date{
+    transform: skewX(-10deg);
+    text-align: left;
+}
 
 @media screen and (max-width:1000px) {
     .base-title{
@@ -410,5 +446,10 @@ body{
     .popup{
         margin-left:1%;
         margin-right: 1%;
+    }
+    .agreement-close{
+        flex-direction: column;
+        row-gap: 20px;
+
     }
 }

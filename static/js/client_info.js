@@ -362,7 +362,14 @@ function reEditInformation(_this, _type, toUpdate=0){
 }
 
 
-function open_modal_link(_this){
+/**
+ * 
+ * @param {Element} _this 
+ * @param {String} _title 
+ * @param {String} btn 
+ * @param {String} show_agree 
+ */
+function open_modal_link(_this, _title=null,btn=null, show_agree=null){
     cid =_this.id.slice(1, _this.id.length)
     var ML = document.createElement('div');
     ML.id = "modallink"+cid
@@ -377,22 +384,34 @@ function open_modal_link(_this){
 
     var title = document.createElement('span');
     title.classList.add("modal-link-title")
-    title.textContent = "שלח את הלינק ללקוח לחתימה"
-    title.innerHTML += `<span class="subtitle"> <b>שם לב:</b>
-    נותרו
-    <div class="lnk-countdown">
-        <span id="lnks">--</span>
-        <span id="lnkm">--</span>
-    </div>
-    דקות לחתום על החוזה 
-    </span>`
+    if (!_title){
+        title.textContent = "שלח את הלינק ללקוח לחתימה"
+        title.innerHTML += `<span class="subtitle"> <b>שם לב:</b>
+        נותרו
+        <div class="lnk-countdown">
+            <span id="lnks">--</span>
+            <span id="lnkm">--</span>
+        </div>
+        דקות לחתום על החוזה 
+        </span>`
+    }else{
+        title.textContent = _title;
+    }
+
     title.innerHTML += `<i onclick='close_modal_link("${cid}")' class="fa-solid fa-circle-xmark"></i>`
+
     MB.appendChild(title)
 
     var DB = document.createElement('div');
     DB.classList.add('modal-buttons-actions-link');
     MB.appendChild(DB);
-    DB.innerHTML += `<button id="getlink" class="modal-button-create-link" type="button" onclick="show_link_client(this, '${_this.id}')">הצג לינק</button>`
+    if (!show_agree){
+        show_agree = `show_link_client(this, '${_this.id}')`
+    }
+    if (!btn){
+        btn = "הצג לינק"
+    }
+    DB.innerHTML += `<button id="getlink" class="modal-button-create-link" type="button" onclick="${show_agree}">${btn}</button>`
 }
 
 function close_modal_link(_id){
@@ -408,7 +427,6 @@ function show_link_client(_t, acid, override){
             return;
         }
     }
-    _t.onclick=function(){show_link_client(this, acid, 1);}
     _body = _t.parentElement.parentElement;
     lhtml = _t.innerHTML;
     _t.innerHTML = `<i class="fa-solid fa-ellipsis fa-beat-fade fa-2xl"></i>`;
@@ -421,6 +439,7 @@ function show_link_client(_t, acid, override){
         success:(res)=>{
             if (res.success){
                 _this = document.getElementById("getlink")
+                _this.onclick=function(){show_link_client(this, acid, 1);} 
                 _this.innerHTML = `<i class="fa-solid fa-arrows-rotate"></i>`
                 if (!_this.parentElement.children[1]){
                     b = document.createElement("button")
@@ -460,7 +479,7 @@ function show_link_client(_t, acid, override){
             }
             else{
                 show_popup_error(res, null);
-                _this.innerHTML = lhtml;
+                _t.innerHTML = lhtml;
             }
         }
     })
@@ -480,4 +499,54 @@ function copy_link_agreement(_tbut){
         setTimeout(()=>{_tbut.innerHTML=_tbuthtml}, 2000);
     }
 
+}
+
+
+/**
+ * 
+ * @param {Element} t 
+ */
+function open_modal_agreement(t){
+    open_modal_link(t, "פתח חוזה השכרה", "הצג קישור", `show_agreement(this, '${t.id}')`);
+}
+
+function show_agreement(t, acid){
+    lhtml = t.innerHTML;
+    t.innerHTML = `<i class="fa-solid fa-ellipsis fa-beat-fade fa-2xl"></i>`;
+    _body = t.parentElement.parentElement
+    parent = t.parentElement
+    a = acid.slice(0, 1)
+    cid = acid.slice(1, acid.length)
+    $.ajax({
+        url:"/event_lead_action/"+a,
+        type:"post",
+        data:{"client_id":cid},
+        success:(res)=>{
+            if (res.success){
+                _link_ = window.location.origin + res.url_params
+
+                b = document.createElement("button")
+                b.type ="button"
+                b.classList.add("modal-button-create-link") 
+                b.classList.add("copy-link") 
+                b.onclick = function(){window.open(_link_, "_blank");}
+                b.innerHTML = `<i class="fa-solid fa-up-right-from-square fa-rotate-270"></i>`
+                parent.appendChild(b)
+
+                t.innerHTML = `<i class="fa-solid fa-copy">`
+                t.onclick = function(){copy_link_agreement(this)}
+                link = document.createElement("input")
+                link.type = "text"
+                link.classList.add("input-link")
+                link.id = "inputlink"
+                link.value = _link_
+                _body.appendChild(link)
+            }
+            else{
+                show_popup_error(res, null)
+                t.innerHTML = lhtml
+            }
+    
+        }
+    })
 }
