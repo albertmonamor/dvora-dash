@@ -256,3 +256,18 @@ def idValid(_id: str):
         size_of_id += int(result)
 
     return size_of_id % 10 == 0
+
+
+def verify_mail(mail:str) -> int:
+    lmail = mail.split("@")
+    if '@' not in mail or " " in mail:
+        return 0
+    elif not len(lmail) == 2:
+        return 0
+    elif not lmail[0]:
+        return 0
+    elif "." not in lmail[1]:
+        return 0
+
+    return 1
+

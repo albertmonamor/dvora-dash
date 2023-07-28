@@ -64,6 +64,7 @@ function reCancel_eventLead(_this){
                 setTimeout(()=>{getTemplate($("#2")[0],"2", 1);cleanHash();}, 500);
             }else{
                 show_popup_error(res, null);
+
             }
         }
     })
@@ -547,6 +548,35 @@ function show_agreement(t, acid){
                 t.innerHTML = lhtml
             }
     
+        }
+    })
+}
+
+
+
+function open_modal_finished(t){
+    name_client = document.getElementById("cname").textContent;
+    open_modal_link(t, `האירוע של "${name_client}" הסתיים?`, "סיימנו!", `event_finished(this, '${t.id}')`);
+}
+
+function event_finished(t, acid){
+
+    a = acid.slice(0, 1)
+    cid = acid.slice(1, acid.length);
+    $.ajax({
+        url:"/event_lead_action/"+a,
+        type:"post",
+        data:{"client_id":cid},
+        success:(res)=>{
+            if (res.success){
+                t.innerHTML = `<i class="fa-solid fa-star fa-bounce"></i>`
+                closeLeadInforamtionModal(null, cid);
+                setTimeout(()=>{close_modal_link(cid);getTemplate($("#0")[0],"0", 1);cleanHash();}, 2000);
+
+            }
+            else{
+                show_popup_error(res, null);
+            }
         }
     })
 }

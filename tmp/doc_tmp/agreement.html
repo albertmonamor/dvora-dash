@@ -22,11 +22,11 @@
             </div>
             <div class="box-tab">
                 <span class="l"> מספר עוסק</span>
-                <span class="c">314816919</span>
+                <span class="c">{{ u.identify }}</span>
             </div>
             <div class="box-tab last">
                 <span class="l"> אימייל </span>
-                <a class="c" href='mailto:dvora.sabbann@gmail.com'>dvora.sabbann@gmail.com</a>
+                <a class="c" href='mailto:{{ u.email }}'>{{ u.email }}</a>
             </div>
         </div>
         <div class="agree-form mrgn-15 ">
@@ -142,7 +142,7 @@
         </div>
         <div class="middle-title"></div>
         <div class="sig-agreement mrgn-15">
-            {% if edit and not aid.sig_owner %}
+            {% if not aid.sig_owner %}
                 <div class="sig-owner">
                     <span>דביר הפקות - צד א'
                         <i class="fa-solid fa-trash-can" onclick="clearSignature('sig-owner')"></i>
@@ -153,7 +153,7 @@
                 <div id="sig-complate">
                     <span class="title">חתימת המשכיר</span>                    
 
-                    <img src="{{ aid.sig_client }}" alt="חתימת המשכיר">
+                    <img src="{{ aid.sig_owner }}" alt="חתימת המשכיר">
                 </div>
             {% endif %}
 

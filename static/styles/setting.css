@@ -1,0 +1,242 @@
+
+
+.mrgn-10{
+    margin-right: 10%;
+    margin-left: 10%;
+    width: auto;
+    height: auto;
+
+}
+.mrgn-15{
+    margin-right: 15%;
+    margin-left: 15%;
+    width: auto;
+    height: auto;
+}
+
+.part-section{
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+.setting-owner{
+    color: aliceblue;
+}
+
+.setting-owner > .title{
+    font-weight: bold;
+    font-size: 20px;
+    color: rgb(197, 186, 244);
+    text-shadow: 2px 2px 4px rgba(133, 133, 133, 0.498);
+}
+
+.items{
+    border-radius: 12px;
+    background-color: #2f2d35;
+    padding: .75rem;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 0 11px 0 rgba(0, 0, 0, 0.203);
+    border:1px solid rgba(111, 111, 111, 0.2);
+    display: flex;
+    flex-direction: column;
+    row-gap: 25px;
+}
+.items > .item{
+    margin-bottom: 1rem;
+}
+.items > .item > .body{
+    margin: 10px;
+    margin-top: 15px;
+}
+.items > .item > .title{
+    font-weight: bold;
+    color: gray;
+    margin-bottom: .75rem;
+    
+}
+.body > .defined{
+    font-size: 15px;
+    color: rgb(115, 230, 192);
+    margin-right: 25px;
+
+}
+.body-signature{
+    display: flex;
+    align-items: end;
+
+}
+
+ /* setting signature */
+.btn-add-sig, .btn-change-sig{
+    background: rgb(33, 161, 125);
+    padding: 8px;
+    border: 1px solid rgba(240, 248, 255, 0.489);
+    font-weight: bold;
+    border-radius: 7px;
+    color: aliceblue;
+    transition: 300ms all, 100ms border, 0ms padding;
+}
+
+.button-add-sig:hover,
+.button-add-sig:active{
+    box-shadow: 0 0 11px 0 rgba(0, 0, 0, 0.903);
+    background: rgb(57, 173, 140);
+    border: none;
+    padding: 9px;
+}
+.btn-change-sig{
+    background: #554d6d;
+}
+
+
+/* css signature setting */
+.sig-owner{
+    display: flex;
+    flex-direction: column;
+    text-align: right ;
+    color: #000;
+    box-sizing: border-box;
+
+}
+.sig-owner > span{
+    font-weight: bold;
+    text-align: center;
+    padding: 10px 1px 10px 10px;
+    background:rgb(61, 55, 85);
+    color: aliceblue;
+    position: relative;
+    font-size: 18px;
+}
+
+.sig-owner > span > i{
+    position: absolute;
+    left: 2px;
+    border-right: 1px solid #e4e2ff87;
+    padding-right: 10px;
+    padding-left: 10px;
+    cursor: pointer;
+}
+.sig-owner > canvas{
+    width: 55%;
+    height:200px;
+    margin-left: 22%;
+    margin-right: 22%;
+    background: whitesmoke;
+    border-radius: 7px;
+}
+
+/* setting mail */
+.set-input-mail, .set-input-id{
+    padding: 8px;
+    border: 1px solid rgba(240, 248, 255, 0.196);
+    outline: none;
+    background: #2f2d35;
+    border-radius: 0 7px 7px 0;
+    color: aliceblue;
+    width: 30%;
+    
+}
+.set-input-mail:active,
+.set-input-mail:hover{
+    box-shadow: 0 0 11px rgba(68, 68, 68, 0.89);
+}
+
+
+.btn-mail{
+    border-radius: 7px 0 0 7px;
+}
+
+
+/* setting identify */
+.set-input-id{
+    text-align: center;
+    direction: ltr;
+}
+.set-input-id:hover,
+.set-input-id:active{
+    box-shadow: 0 0 11px rgba(68, 68, 68, 0.89);
+}
+
+
+
+
+
+
+
+
+/* modal */
+
+.modal-setting{
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    display: none;
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px); 
+    background-color: rgba(0, 0, 0, 0.2); 
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    overflow: auto;
+    color: aliceblue;
+
+}
+.ms-d > .content{
+    margin-left: 30%;
+    margin-right: 30%;
+    background: #2f2d35;
+    margin-top: 2rem;
+    padding: .75rem;
+    
+
+
+}   
+.ms-d > .content > .header{
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.308);
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    
+}
+.ms-close{
+    color: rgb(141, 119, 226);
+    background: transparent !important;
+}
+
+.ms-body{
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+.ms-footer{
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+
+
+@media screen  and (max-width:1000px){
+    .mrgn-10, .mrgn-15{
+        margin-right: 1px;
+        margin-left: 1px;
+    }
+
+
+    /* modal setting */
+    .ms-d > .content{
+        margin-left: 1px;
+        margin-right: 1px;
+    }
+    .sig-owner > canvas{
+        position: relative;
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    /* setting mail */
+    .set-input-mail, .set-input-id{
+        width: 70%;
+    }
+}

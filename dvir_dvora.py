@@ -3,14 +3,19 @@ from time import sleep
 
 from werkzeug.datastructures import FileStorage
 
-from Api.api_function import check_level_new_lead, check_equipment
+from Api.api_function import check_level_new_lead, check_equipment, verify_mail, idValid
 from Api.protocol import *
 from flask import render_template, request, session, jsonify, redirect, url_for, \
     send_from_directory
-from Api.databases import Users, DBase, signup, db_new_client, add_supply, get_all_supply, verify_supply \
-    , time, get_supply_by_id, generate_id_supply, DBClientApi, export_txt_equipment, import_txt_equipment,\
-    DBAgreeApi
+from Api.databases import DBase, signup, db_new_client, add_supply \
+    , time, generate_id_supply, DBClientApi, export_txt_equipment, import_txt_equipment, \
+    DBAgreeApi, DBUserApi, DBSupplyApi
 
+
+# ==================== FILTER =========================
+@m_app.template_filter('decimal')
+def decimal_integer(value):
+    return f"{value:,}"
 
 #  ******************* ROUTES *************************
 
@@ -47,12 +52,11 @@ def login():
     user= request.form.get("user", "?").lower()
     pwd = request.form.get('pwd')
     key = request.form.get('key')
-    in_db = Users.query.filter_by(user=user).first()
-    if key == session['sess-login'] and in_db and in_db.pwd == pwd:
-        session['is_admin'] = True
+    usr = DBUserApi(user)
+    if key == session['sess-login'] and usr.ok() and usr.u.pwd == pwd:
+        session['is_admin'] = usr.u.is_admin
         session['user']     = user
         del session['sess-login']
-        print(request.remote_user, request.remote_addr, request.environ['REMOTE_ADDR'], request.environ.get('HTTP_X_FORWARDED_FOR'))
         return jsonify(LOGIN_SUCCESS)
     else:
         return jsonify(LOGIN_FAILED)
@@ -67,6 +71,8 @@ def dashboard():
 
 @m_app.route("/template/<tmp>", methods=['POST'])
 def get_template_dashboard(tmp):
+    error = dict(UN_ERROR)
+
     if not session.get('is_admin'):
         return jsonify(TMP_DENIED)
     # /* default template */
@@ -88,7 +94,7 @@ def get_template_dashboard(tmp):
         res_tmp = "/dash_tmp/equipment.html"
         session["nonce_import"] = get_random_key()
         return jsonify({"success":True,
-                        "template":render_template(res_tmp, equipment=get_all_supply(),
+                        "template":render_template(res_tmp, equipment=DBSupplyApi.get_all_supply(),
                                                    nonce_import=session["nonce_import"]),
                         "name":"ציוד"})
     elif tmp == "2":
@@ -103,6 +109,10 @@ def get_template_dashboard(tmp):
     elif tmp == "4":
         res_tmp = "/dash_tmp/setting.html"
         name = "הגדרות"
+        usr = DBUserApi(session['user'])
+        return jsonify({"success": True,
+                        "template": render_template(res_tmp, usr=usr.u),
+                        "name": name})
     elif tmp == "10":
         capi.new(cid)
         client_info = capi.get_info_client()
@@ -110,10 +120,13 @@ def get_template_dashboard(tmp):
         res_tmp = "/dash_tmp/client_info.html"
         return jsonify({"success":True, "template":render_template(res_tmp, ci=client_info)})
     elif tmp == '15':
+        if not DBSupplyApi.equipment_exist():
+            error["notice"] = "הוסף ציוד לפני הוספת לקוח"
+            return jsonify(error)
         res_tmp = "/dash_tmp/add_lead.html"
         return jsonify({"success":True,
                         "template":render_template(res_tmp,user=session['user']),
-                        "supply":get_all_supply(),
+                        "supply":DBSupplyApi.get_all_supply(),
                         "welcome":render_template("/dash_tmp/wel_add_lead")})
     elif tmp == '16':
         res_tmp = "/dash_tmp/add_equip.html"
@@ -134,7 +147,6 @@ def new_lead():
 
 @m_app.route("/add_lead", methods=["POST"])
 def add_lead():
-    sleep(1)
     res:dict = dict(LEAD_ERROR)
     if not session.get("is_admin"):
         return jsonify(TMP_DENIED)
@@ -163,9 +175,9 @@ def add_lead():
             return result[1]
 
     # // SUCCESS
-    equipment_is_ok, s_lead = verify_supply(loads(equipment))
+    equipment_is_ok, s_lead = DBSupplyApi.verify_equipments(loads(equipment))
 
-    if not equipment_is_ok:
+    if not DBSupplyApi.equipment_exist() or not equipment_is_ok :
         return jsonify(EQUIP_ERROR)
     # // SUCCESS
     db_new_client(write_by=session['user'],
@@ -245,8 +257,9 @@ def update_equipment(eq_id):
         error["notice"] = result[1]
         return jsonify(error)
 
-    equip = get_supply_by_id(eq_id)
-    if not equip:
+
+    equip = DBSupplyApi(eq_id)
+    if not equip.ok():
         error["notice"] = "ציוד לא מוכר"
         return jsonify(error)
 
@@ -264,12 +277,12 @@ def del_equipment(eq_id):
 
     if not session.get("is_admin"):
         return jsonify(TMP_DENIED)
-    equip = get_supply_by_id(eq_id)
-    if not equip:
+    equip = DBSupplyApi(eq_id)
+    if not equip.ok():
         error["notice"] = "נמחק או לא קיים"
         return jsonify(error)
     # delete
-    DBase.session.delete(equip)
+    DBase.session.delete(equip.ei)
     DBase.session.commit()
     # SUCCESS
     return jsonify({"success":True})
@@ -294,12 +307,16 @@ def event_actions(action:str):
            return jsonify(error)
 
     elif action == "1":
-        # move event to history
+        aapi = DBAgreeApi(client_id, by_cid=True)
+        if not aapi.ok() or not aapi.is_agreement_singed():
+            error["notice"] = "הלקוח לא חתם על החוזה"
+            return jsonify(error)
+
         if not capi.set_event_status(1):
             return jsonify(error)
     elif action == "2":
         # create invoice
-        if not capi.create_invoice_event(None):
+        if not capi.create_invoice_event(session['user']):
             return jsonify(INVOICE_ACTION_ERR)
 
     elif action == "3":
@@ -314,9 +331,14 @@ def event_actions(action:str):
         return send_from_directory("invoices", os.path.basename(pathfile), as_attachment=True)
 
     elif action == "4":
+        usr = DBUserApi(session['user'])
+        if not usr.ok() or not usr.info_exist():
+            error["notice"] = "הגדר חתימה ופרטי עוסק!"
+            return jsonify(error)
+
         capi.new(client_id)
         override = request.form.get("override", "0")
-        params, status = capi.create_agreement(override)
+        params, status = capi.create_agreement(capi.cid.write_by, override)
 
         if not status:
             error["notice"] = params
@@ -339,6 +361,8 @@ def event_actions(action:str):
         return jsonify({"success":True, "url_params":si})
 
     return jsonify({"success":True})
+
+
 
 @m_app.route("/update_lead/<kind>", methods=["POST"])
 def update_lead(kind):
@@ -369,7 +393,7 @@ def upload_equipment_txt():
     file_s.filename = FILENAME_IMPORT_TXT
 
     binary = file_s.stream.read()
-    key_xor = Users.query.filter_by(user=session['user']).first().pwd
+    key_xor = DBUserApi(session['user']).u.pwd
     if binary.__len__() > MAX_IMPORT_TXT:
         error["notice"] = "קובץ גדול מידיי"
         return jsonify(error)
@@ -389,8 +413,8 @@ def download_equipment_txt():
         return redirect(url_for("dashboard"), 302)
 
     fp = BASEDIR+"\\exports\\"+FILENAME_EXPORT_TXT
-    key_xor = Users.query.filter_by(user=session["user"]).first().pwd
-    if not key_xor or not export_txt_equipment(fp, key_xor):
+    user = DBUserApi(session["user"])
+    if not user.ok() or not export_txt_equipment(fp, user.u.pwd):
         return redirect(url_for("dashboard"), 302)
 
     return send_from_directory("exports", os.path.basename(FILENAME_EXPORT_TXT), as_attachment=True)
@@ -408,12 +432,13 @@ def agreement():
 
     aapi = DBAgreeApi(agree_id)
     capi = DBClientApi(client_id)
+    usr = DBUserApi(capi.cid.write_by)
 
     if not any(request.args):
         error["notice"] = "הקישור לא תקין"
         return render_template(page_error, msg=error)
 
-    if not show_id and not capi.ok() and not aapi.ok():
+    if not show_id and ( not capi.ok() or not aapi.ok()):
         error["notice"] = "מזהה חוזה לא תקין"
         return render_template(page_error, msg=error)
 
@@ -436,7 +461,7 @@ def agreement():
     aapi.aid.ctime_date = aapi.get_ctime_client_singed()
     equip_policy:list[str] = open(BASEDIR+"/tmp/dash_tmp/equipment_policy.txt", 'r', encoding="utf8").read().split("\n")
     return render_template("/doc_tmp/agreement.html", equipment_p=equip_policy,
-                           cid=capi.cid, aid=aapi.aid, equipment=equipment, edit=not bool(aapi.aid.show_id))
+                           cid=capi.cid, aid=aapi.aid, equipment=equipment, u=usr.u, edit=not bool(aapi.aid.show_id))
 
 # /* access: *
 @m_app.route("/add_agreement", methods=["POST"])
@@ -470,16 +495,61 @@ def add_agreement():
 
     desc = aapi.add_agreement(signature, [fname,location, identify, phone, udate], capi, error)
     if not desc["success"]:
+        error["notice"] = desc["notice"]
         return error
 
     return jsonify({"success":True, "template": render_template(page_error, msg=SUCCESS_AGREE)})
 
 
+@m_app.route("/setting/<ac>", methods=["POST"])
+def setting(ac:str):
+
+    error = dict(UN_ERROR)
+    if not session.get("is_admin"):
+        return jsonify(TMP_DENIED)
+
+    if not ac or not ac.isdigit() or not any(request.form) or not session.get("user"):
+        return jsonify(error)
+
+    usr = DBUserApi(session['user'])
+
+    if ac == "0":
+        signature = request.form.get("signature", str())
+        if signature.__len__() < 3500:
+            error["notice"] = "חתימה קצרה מידיי"
+            return jsonify(error)
+
+        if not usr.ok():#or not usr.admin():
+            error["notice"] = "שגיאה בזיהוי המנהל"
+            return jsonify(error)
+
+        usr.u.signature = signature
+    elif ac == "1":
+        email = request.form.get('email', str())
+        if not verify_mail(email):
+            error["notice"] = "דואר לא תקין"
+            return jsonify(error)
+
+        usr.u.email = email
+
+    elif ac == "2":
+        identify = request.form.get("identify", str())
+        if not idValid(identify):
+            error["notice"] = "תעודת זהות שגויה"
+            return jsonify(error)
+
+        usr.u.identify = identify
+
+    DBase.session.commit()
+    return jsonify({"success":True})
+
 
 if __name__ == "__main__":
     with m_app.app_context():
         DBase.create_all()
-        # signup(user='דבי', pwd='משי', ip='2.55.187.108')
+
+        #signup(user='דבורה', pwd='משי', ip='2.55.187.108', is_admin=True)
+        #signup(user='דביר', pwd='משי', ip='2.55.187.108', is_admin=True)
     m_app.run(host="0.0.0.0", port=80, debug=True)
 
 

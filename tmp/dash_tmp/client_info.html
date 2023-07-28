@@ -34,15 +34,15 @@
                 <tbody id="body-table-information" role="{{ ci.client_id }}">
                     {% for k, item in ci.event_supply.items() %}
                         <tr id="{{ k }}">
-                            <th class="c-bth">{{ item.name }}</th>
-                            <th class="c-bth">{{ item.count }}<span style="font-size: 12px;">x{{item.price}}</span></th>
-                            <th class="c-bth">{{ item.price*item.count }} ש"ח</th>
+                            <th class="c-bth name">{{ item.name }}</th>
+                            <th class="c-bth count">{{ item.count }}<span style="font-size: 12px;color: rgb(146, 216, 183);">x{{item.price}}</span></th>
+                            <th class="c-bth price">{{ (item.price*item.count) | decimal }} ש"ח</th>
                         </tr>
                     {% endfor %}
                         <tr>
                             <th class="c-bth"></th>
                             <th class="c-bth"></th>
-                            <th class="c-pth"><span class="total">סה"כ</span> {{ ci.pay_for_equipment|float }} <span style="font-size: 13px;">ש"ח</span></th>
+                            <th class="c-pth"><span class="total">סה"כ</span> {{ ci.pay_for_equipment | float | decimal }} <span style="font-size: 13px;">ש"ח</span></th>
                         </tr>
                 </tbody>
             </table>
@@ -83,11 +83,11 @@
             </div>
             <div class="fuel">
                 <span class="l">דלק</span>
-                <span id="cfuel" class="{{ 'pay-red' if ci.expen_fuel > 0 else ''}}">{{ ci.expen_fuel_i }}.<span>{{ci.expen_fuel_d}}</span> ₪</span>
+                <span id="cfuel" class="{{ 'pay-red' if ci.expen_fuel > 0 else ''}}">{{ ci.expen_fuel_i |int |decimal }}.<span>{{ci.expen_fuel_d}}</span> ₪</span>
             </div>
             <div class="employee">
                 <span class="l">עובדים</span>
-                <span id="cemployee" class="{{ 'pay-red' if ci.expen_employee > 0 else ''}}">{{ ci.expen_employee_i }}.<span>{{ ci.expen_employee_d }}</span> ₪</span>
+                <span id="cemployee" class="{{ 'pay-red' if ci.expen_employee > 0 else ''}}">{{ ci.expen_employee_i|int|decimal  }}.<span>{{ ci.expen_employee_d }}</span> ₪</span>
             </div>
         </div>
         <span class="linfo">תשלום</span>
@@ -105,7 +105,7 @@
                 {% else %}
                     <div id="prepayment">
                         <span id="present">{{ (ci.d_money*100)// ci.net}}%</span>
-                        <span id="chowpay"> {{ ci.d_money }} ₪</span>
+                        <span id="chowpay"> {{ ci.d_money|int|decimal }} ₪</span>
                     </div>
                 {% endif %}
             </div>
@@ -131,6 +131,10 @@
         <span class="linfo">פעולות</span>
         <div class="client-actions">
             {% if ci.is_open %}
+                <button type="button" class="client-baction finish" id="1{{ ci.client_id }}" onclick="open_modal_finished(this)">
+                    <i class="fa-regular fa-star"></i>
+                    <span>סיום</span>
+                </button>
                 <button type="button" class="client-baction remove" id="0{{ ci.client_id }}" onclick="del_his_eventLead(this)">
                     <i class="fa-solid fa-trash-can"></i>
                     <span>מחק</span>
@@ -157,7 +161,7 @@
                     <i class="fa-solid fa-file-signature"></i>
                     <span>להחתים לקוח</span>
                 </button> 
-            {% elif ci.is_open and ci.is_signature %}
+            {% elif ci.is_open or ci.is_garbage or not ci.is_open and ci.is_signature %}
                 <button type="button" class="client-baction signature" id="6{{ ci.client_id }}" onclick="open_modal_agreement(this)">
                     <i class="fa-solid fa-file-contract"></i>
                     <span>הצג חוזה</span>

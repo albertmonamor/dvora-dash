@@ -18,9 +18,32 @@ class Users(DBase.Model):
     pwd         = DBase.Column(DBase.String(10), nullable=False)
     ip          = DBase.Column(DBase.String(22), nullable=False)
     is_admin    = DBase.Column(DBase.Boolean, unique=False, default=False)
+    email       = DBase.Column(DBase.String,  nullable=True)
+    identify    = DBase.Column(DBase.Integer,  nullable=True)
+    phone       = DBase.Column(DBase.Integer,  nullable=True)
+    signature   = DBase.Column(DBase.String,    nullable=True)
 
     def __repr__(self):
         return f"<{self.__tablename__}> {self.index}"
+class DBUserApi:
+
+    def __init__(self, user:str):
+        self.u:None | Users = None
+        self._u: None | str = None
+        self.new(user)
+
+    def new(self, user):
+        self.u = Users.query.filter_by(user=user).first()
+        self._u = user
+
+    def ok(self) -> bool:
+        return bool(self.u)
+
+    def admin(self) -> bool:
+        return self.u.is_admin
+
+    def info_exist(self) -> bool:
+        return self.u.email and self.u.signature and self.u.identify
 
 
 class Client(DBase.Model):
@@ -52,268 +75,6 @@ class Client(DBase.Model):
     total_money     = DBase.Column(DBase.Float,         nullable=False)
     client_payment  = DBase.Column(DBase.Float,         nullable=False)
     # for API bool
-
-
-class Supply(DBase.Model):
-    __tablname__    = "supply"
-    index           = DBase.Column(DBase.Integer,       primary_key=True)
-    name            = DBase.Column(DBase.String(500),   nullable=False)
-    price           = DBase.Column(DBase.Integer,       nullable=False)
-    desc            = DBase.Column(DBase.String(1000),  nullable=False)
-    _id             = DBase.Column(DBase.String(20),    nullable=False)
-    exist           = DBase.Column(DBase.Integer,       nullable=False)
-    count           = DBase.Column(DBase.Integer,       nullable=False)
-
-
-class Invoice(DBase.Model):
-    __tablename__ = 'invoice'
-
-    index           = DBase.Column(DBase.Integer,       primary_key=True)
-    invoice_id      = DBase.Column(DBase.Integer,       nullable=False)
-    client_id       = DBase.Column(DBase.Integer,       nullable=False)
-
-
-class OwnerInformation(DBase.Model):
-
-    __tablename__ = "owner"
-
-    index       = DBase.Column(DBase.Integer, primary_key=True)
-    full_name  = DBase.Column(DBase.String,  nullable=False)
-    email       = DBase.Column(DBase.String,  nullable=False)
-    identify    = DBase.Column(DBase.Integer,  nullable=False)
-    phone       = DBase.Column(DBase.Integer,  nullable=False)
-
-
-class ClientAgreement(DBase.Model):
-    __tablename__ = "agreement"
-    index         = DBase.Column(DBase.Integer, primary_key=True)
-    path          = DBase.Column(DBase.String, nullable=True)
-    client_id     = DBase.Column(DBase.String, nullable=False)
-    is_accepted   = DBase.Column(DBase.Boolean, nullable=False, default=False)
-    agree_id      = DBase.Column(DBase.String, nullable=False)
-    sig_owner     = DBase.Column(DBase.String, nullable=True)
-    sig_client    = DBase.Column(DBase.String, nullable=True)
-    sig_date      = DBase.Column(DBase.Float, nullable=False)
-    from_date     = DBase.Column(DBase.String, nullable=False, default="01.01.1970")
-    to_date       = DBase.Column(DBase.String, nullable=False, default="01.01.1970")
-    location_client = DBase.Column(DBase.String, nullable=True)
-    agree_sesslife = DBase.Column(DBase.Float, nullable=False)
-    show_id       = DBase.Column(DBase.String, nullable=True)
-
-
-def signup(**kwargs):
-    user = Users(**kwargs)
-    DBase.session.add(user)
-    DBase.session.commit()
-
-
-def db_new_client(**kwargs):
-    n_client = Client(**kwargs)
-    DBase.session.add(n_client)
-    DBase.session.commit()
-
-
-def add_supply(**kwargs):
-    n_supply = Supply(**kwargs)
-    DBase.session.add(n_supply)
-    DBase.session.commit()
-
-
-def get_all_supply():
-    _all = {}
-    supplies:list[Supply] = Supply.query.all()
-    for s in supplies:
-        _all[s._id] = {"id":s._id, "name":s.name, "price":s.price, "exist":s.exist, "count":s.count}
-
-    return _all
-
-
-def get_supply_by_id(_id) -> Supply:
-    return Supply.query.filter_by(_id=_id).first()
-
-
-def generate_ascii(length:int = 5) -> str:
-    return binascii.b2a_hex(os.urandom(length)).decode()
-
-
-def generate_id_supply() ->str:
-    return "E"+generate_ascii()
-
-def generate_id_agree() ->str:
-    return "A"+generate_ascii()
-
-
-def verify_supply(supp: dict) -> tuple[bool, dict]:
-    _supply_lead = {}
-    try:
-        for key, supply in supp.items():
-            # db
-            db_supply = get_supply_by_id(supply["id"])
-            # if int(supply['count']) > db_supply.exist:
-            #     return False, db_supply.name, {}
-            if int(supply["count"]):
-                _supply_lead[key] = supply
-    except (KeyError,Exception) as error:
-        return False, {}
-
-    return True, _supply_lead
-
-
-def import_txt_equipment(d:bytes, pwd=None) -> bool:
-    try:
-        new_supply = loads(XOR(d.decode(encoding="utf8"), pwd).decode())
-    except (Exception, UnicodeDecodeError):
-        return False
-    if not new_supply:
-        return False
-
-    for nsupply in new_supply:
-        supply = Supply()
-        supply.name = nsupply["name"]
-        supply.price = int(nsupply["price"])
-        supply.desc = nsupply["desc"]
-        supply._id = nsupply["_id"]
-        supply.exist = int(nsupply["exist"])
-        supply.count = int(nsupply["count"])
-        DBase.session.add(supply)
-        DBase.session.commit()
-    return True
-
-
-def export_txt_equipment(fp, pwd=None) -> bool:
-    new_supply:list[Supply] = Supply.query.all()
-    result:list[dict] = []
-    if not new_supply:
-        return False
-
-    for equip in new_supply:
-        dict_equip = deepcopy(equip.__dict__)
-        dict_equip.pop('_sa_instance_state')
-        result.append(dict_equip)
-
-    buffer = dumps(result)
-    with open(fp, "wb") as fexport:
-        fexport.write(XOR(buffer, pwd))
-
-    return True
-
-class DBAgreeApi:
-
-    def __init__(self, aid:str, by_cid=False):
-        self.aid:None|ClientAgreement    = None
-        self._aid:None|str   = None
-        self.new(aid, by_cid=by_cid)
-
-    def new(self, aid, by_cid=False, by_si=False):
-        kwargs = {}
-        if by_cid:
-            kwargs['client_id'] = aid
-        elif by_si:
-            kwargs['show_id'] = aid
-        else:
-            kwargs["agree_id"] = aid
-        self.aid: ClientAgreement = ClientAgreement.query.filter_by(**kwargs).first()
-        self._aid = aid
-        return self.ok()
-
-    def ok(self):
-        return bool(self.aid)
-    def is_expired(self):
-        return not (time() - self.aid.agree_sesslife) < 960
-
-    @staticmethod
-    def get_agreement_by_cid(cid:str):
-        agree: ClientAgreement = ClientAgreement.query.filter_by(client_id=cid).first()
-        if not agree:
-            return False
-        return agree
-
-    def get_ctime_agree_sess(self):
-        return ctime(self.aid.agree_sesslife+AGREE_SESS_LIFE)
-    @staticmethod
-    def get_ctime_agree_sess_by_cid(cid:str) -> str:
-        a:ClientAgreement = DBAgreeApi.get_agreement_by_cid(cid)
-        if not a:
-            return "0"
-        return ctime(a.agree_sesslife+AGREE_SESS_LIFE)
-
-    def is_agreement_singed(self):
-        return bool(self.aid.sig_client)
-
-    def is_accept(self):
-        return self.aid.is_accepted
-
-    @staticmethod
-    def is_agreement_signed_by_cid(cid:str):
-        a:ClientAgreement = DBAgreeApi.get_agreement_by_cid(cid)
-        if not a:
-            return False
-
-        return bool(a.sig_client)
-
-    def add_agreement(self, sig_client, data:list, capi:"DBClientApi" ,_e) -> dict:
-        if self.is_expired():
-            _e["notice"] = "הקישור פג תוקף"
-            return  _e
-
-        for i, v in zip([2, 7, 4, 3, 6], data):
-            b, r = check_level_new_lead(str(i), v)
-            if not b:
-                return loads(r).get_data(True)
-
-        self.aid.sig_client = sig_client
-        self.aid.sig_date = time()
-        self.aid.from_date = capi.cid.event_date
-        self.aid.to_date = capi.cid.event_date
-        self.aid.location_client = data[1]
-        self.aid.is_accepted = True
-        # /* success
-        capi.cid.is_signature = True
-        DBase.session.commit()
-
-        return {"success":True}
-
-    def create_agreement(self, is_order, override) -> tuple[str, int]:
-        agree_id = generate_id_agree()
-
-        if self.ok() and self.aid.is_accepted:
-            return "הלקוח חתם על החוזה", 0
-        elif not is_order:
-            return "אין ציוד בהזמנה", 0
-        elif self.ok() and not self.aid.is_accepted:
-            # /* update signature time and key */
-            if override == "1":
-                self.aid.agree_sesslife = time()
-                self.aid.agree_id = agree_id
-            else:
-                agree_id = self.aid.agree_id
-        elif not self.ok():
-            # /* new signature */
-            new_sig = ClientAgreement(
-                client_id=self._aid,
-                agree_id=agree_id,
-                sig_date=time(),
-                agree_sesslife=time()
-            )
-            DBase.session.add(new_sig)
-
-        DBase.session.commit()
-
-        return generate_link_edit_agree(self._aid, agree_id), True
-
-    def set_show_agreement(self) -> str:
-        if not self.aid.show_id and self.is_accept():
-            self.aid.show_id = generate_ascii(10)
-            DBase.session.commit()
-
-        return generate_link_show_agree(self.aid.show_id, self.aid.client_id)
-
-    def get_ctime_client_singed(self):
-        if self.aid.sig_date:
-            return ctime(self.aid.sig_date)
-        return ctime(time())
-
-
 class DBClientApi:
 
     def __init__(self, cid:str):
@@ -502,7 +263,7 @@ class DBClientApi:
 
         return False
 
-    def create_invoice_event(self, name_owner):
+    def create_invoice_event(self, admin):
         res = False
         client = self.get_info_client()
         invoice = Invoice.query.first()
@@ -510,19 +271,22 @@ class DBClientApi:
             num_invoice = Invoice(invoice_id=1000, client_id=self._cid)
             DBase.session.add(num_invoice)
             DBase.session.commit()
-            invoice = Invoice.query.filter_by(client_id=self._cid).first()
+            invoice = Invoice.query.first()
             invoice.invoice_id = invoice.invoice_id+1
         else:
             invoice.invoice_id =  invoice.invoice_id+1
 
 
         self.cid.invoice_id = generate_invoice_path(client["phone"])
+        usr = DBUserApi(admin)
+        if not usr.ok() or not usr.info_exist():
+            return False
 
         file_data = open(BASEDIR+"/tmp/invoice_tmp/invoice_client.html", "r", encoding="utf-8").read()
         style, body = file_data.split("<body>")
 
-        tmp_format = body.format(owner_id="314816919",
-                                     email="dvora.sabbann@gmail.com",
+        tmp_format = body.format(owner_id=usr.u.identify,
+                                     email=usr.u.email,
                                      number_invoice=invoice.invoice_id,
                                      client_name=client["full_name"],
                                      date=ctime(),
@@ -638,18 +402,283 @@ class DBClientApi:
 
         return {"success":True}
 
-    def create_agreement(self, override) -> tuple:
+    def create_agreement(self, admin, override) -> tuple:
         if not self.ok():
             return "לקוח לא קיים",0
 
         aapi = DBAgreeApi(self._cid, by_cid=True)
-        return aapi.create_agreement(is_order=self.is_order_equipment(), override=override)
+        return aapi.create_agreement(admin=admin, is_order=self.is_order_equipment(), override=override)
 
 
     def is_event_expired_date(self):
         date:list = self.cid.event_date.replace("-", ".").split(".")
         date.reverse()
         return FormatTime.get_days_left(".".join(date)) < 0
+
+class Supply(DBase.Model):
+    __tablname__    = "supply"
+    index           = DBase.Column(DBase.Integer,       primary_key=True)
+    name            = DBase.Column(DBase.String(500),   nullable=False)
+    price           = DBase.Column(DBase.Integer,       nullable=False)
+    desc            = DBase.Column(DBase.String(1000),  nullable=False)
+    _id             = DBase.Column(DBase.String(20),    nullable=False)
+    exist           = DBase.Column(DBase.Integer,       nullable=False)
+    count           = DBase.Column(DBase.Integer,       nullable=False)
+class DBSupplyApi:
+
+    def __init__(self, ei:str):
+        self.ei: None | Supply = None
+        self._ei: str | None = None
+        self.new(ei)
+
+    def new(self, ei:str):
+        self.ei = Supply.query.filter_by(_id=ei).first()
+        self._ei= ei
+
+    def ok(self) -> bool:
+        return bool(self.ei)
+
+    @staticmethod
+    def verify_equipments(equip: dict) -> tuple[bool, dict]:
+        equip_lead = {}
+        try:
+            for key, supply in equip.items():
+                # db
+                # self.new(supply['id'])
+                # if int(supply['count']) > self.ei.exist:
+                #     return False, db_supply.name, {}
+                if int(supply["count"]):
+                    equip_lead[key] = supply
+        except (KeyError, Exception) as error:
+            return False, {}
+
+        return True, equip_lead
+
+    @staticmethod
+    def get_all_supply():
+        _all = {}
+        supplies: list[Supply] = Supply.query.all()
+        for s in supplies:
+            _all[s._id] = {"id": s._id, "name": s.name, "price": s.price, "exist": s.exist, "count": s.count}
+
+        return _all
+
+    @staticmethod
+    def equipment_exist() -> bool:
+        _all_ = Supply.query.all()
+        return bool(_all_.__len__())
+
+class Invoice(DBase.Model):
+    __tablename__ = 'invoice'
+
+    index           = DBase.Column(DBase.Integer,       primary_key=True)
+    invoice_id      = DBase.Column(DBase.Integer,       nullable=False)
+    client_id       = DBase.Column(DBase.Integer,       nullable=False)
+
+
+class ClientAgreement(DBase.Model):
+    __tablename__ = "agreement"
+    index         = DBase.Column(DBase.Integer, primary_key=True)
+    path          = DBase.Column(DBase.String, nullable=True)
+    client_id     = DBase.Column(DBase.String, nullable=False)
+    is_accepted   = DBase.Column(DBase.Boolean, nullable=False, default=False)
+    agree_id      = DBase.Column(DBase.String, nullable=False)
+    sig_owner     = DBase.Column(DBase.String, nullable=True)
+    sig_client    = DBase.Column(DBase.String, nullable=True)
+    sig_date      = DBase.Column(DBase.Float, nullable=False)
+    from_date     = DBase.Column(DBase.String, nullable=False, default="01.01.1970")
+    to_date       = DBase.Column(DBase.String, nullable=False, default="01.01.1970")
+    location_client = DBase.Column(DBase.String, nullable=True)
+    agree_sesslife = DBase.Column(DBase.Float, nullable=False)
+    show_id       = DBase.Column(DBase.String, nullable=True)
+class DBAgreeApi:
+
+    def __init__(self, aid:str, by_cid=False):
+        self.aid:None|ClientAgreement    = None
+        self._aid:None|str   = None
+        self.new(aid, by_cid=by_cid)
+
+    def new(self, aid, by_cid=False, by_si=False):
+        kwargs = {}
+        if by_cid:
+            kwargs['client_id'] = aid
+        elif by_si:
+            kwargs['show_id'] = aid
+        else:
+            kwargs["agree_id"] = aid
+        self.aid: ClientAgreement = ClientAgreement.query.filter_by(**kwargs).first()
+        self._aid = aid
+        return self.ok()
+
+    def ok(self):
+        return bool(self.aid)
+    def is_expired(self):
+        return not (time() - self.aid.agree_sesslife) < 960
+
+    @staticmethod
+    def get_agreement_by_cid(cid:str):
+        agree: ClientAgreement = ClientAgreement.query.filter_by(client_id=cid).first()
+        if not agree:
+            return False
+        return agree
+
+    def get_ctime_agree_sess(self):
+        return ctime(self.aid.agree_sesslife+AGREE_SESS_LIFE)
+    @staticmethod
+    def get_ctime_agree_sess_by_cid(cid:str) -> str:
+        a:ClientAgreement = DBAgreeApi.get_agreement_by_cid(cid)
+        if not a:
+            return "0"
+        return ctime(a.agree_sesslife+AGREE_SESS_LIFE)
+
+    def is_agreement_singed(self):
+        return self.aid.sig_client and self.aid.sig_owner
+
+    def is_accept(self):
+        return self.aid.is_accepted
+
+    @staticmethod
+    def is_agreement_signed_by_cid(cid:str):
+        a:ClientAgreement = DBAgreeApi.get_agreement_by_cid(cid)
+        if not a:
+            return False
+
+        return bool(a.sig_client)
+
+    def add_agreement(self, sig_client, data:list, capi:"DBClientApi" ,_e) -> dict:
+        if self.is_expired():
+            _e["notice"] = "הקישור פג תוקף"
+            return  _e
+
+        for i, v in zip([2, 7, 4, 3, 6], data):
+            b, r = check_level_new_lead(str(i), v)
+            if not b:
+                return loads(r.get_data(True))
+
+        self.aid.sig_client = sig_client
+        self.aid.sig_date = time()
+        self.aid.from_date = capi.cid.event_date
+        self.aid.to_date = capi.cid.event_date
+        self.aid.location_client = data[1]
+        self.aid.is_accepted = True
+        # /* success
+        capi.cid.is_signature = True
+        DBase.session.commit()
+
+        return {"success":True}
+
+    def create_agreement(self, admin,  is_order, override) -> tuple[str, int]:
+        agree_id = generate_id_agree()
+        usr = DBUserApi(admin)
+        if not usr.ok():
+            return "שיגאה בזיהוי המנהל", 0
+        if self.ok() and self.aid.is_accepted:
+            return "הלקוח חתם על החוזה", 0
+        elif not is_order:
+            return "אין ציוד בהזמנה", 0
+        elif self.ok() and not self.aid.is_accepted:
+            # /* update signature time and key */
+            if override == "1":
+                self.aid.agree_sesslife = time()
+                self.aid.agree_id = agree_id
+            else:
+                agree_id = self.aid.agree_id
+        elif not self.ok():
+            # /* new signature */
+            new_sig = ClientAgreement(
+                client_id=self._aid,
+                agree_id=agree_id,
+                sig_date=time(),
+                agree_sesslife=time(),
+                sig_owner=usr.u.signature
+            )
+            DBase.session.add(new_sig)
+
+        DBase.session.commit()
+
+        return generate_link_edit_agree(self._aid, agree_id), True
+
+    def set_show_agreement(self) -> str:
+        if not self.aid.show_id and self.is_accept():
+            self.aid.show_id = generate_ascii(10)
+            DBase.session.commit()
+
+        return generate_link_show_agree(self.aid.show_id, self.aid.client_id)
+
+    def get_ctime_client_singed(self):
+        if self.aid.sig_date:
+            return ctime(self.aid.sig_date)
+        return ctime(time())
+
+
+
+def signup(**kwargs):
+    user = Users(**kwargs)
+    DBase.session.add(user)
+    DBase.session.commit()
+
+
+def db_new_client(**kwargs):
+    n_client = Client(**kwargs)
+    DBase.session.add(n_client)
+    DBase.session.commit()
+
+
+def add_supply(**kwargs):
+    n_supply = Supply(**kwargs)
+    DBase.session.add(n_supply)
+    DBase.session.commit()
+
+
+def generate_ascii(length:int = 5) -> str:
+    return binascii.b2a_hex(os.urandom(length)).decode()
+
+
+def generate_id_supply() ->str:
+    return "E"+generate_ascii()
+
+def generate_id_agree() ->str:
+    return "A"+generate_ascii()
+
+
+def import_txt_equipment(d:bytes, pwd=None) -> bool:
+    try:
+        new_supply = loads(XOR(d.decode(encoding="utf8"), pwd).decode())
+    except (Exception, UnicodeDecodeError):
+        return False
+    if not new_supply:
+        return False
+
+    for nsupply in new_supply:
+        supply = Supply()
+        supply.name = nsupply["name"]
+        supply.price = int(nsupply["price"])
+        supply.desc = nsupply["desc"]
+        supply._id = nsupply["_id"]
+        supply.exist = int(nsupply["exist"])
+        supply.count = int(nsupply["count"])
+        DBase.session.add(supply)
+        DBase.session.commit()
+    return True
+
+
+def export_txt_equipment(fp, pwd=None) -> bool:
+    new_supply:list[Supply] = Supply.query.all()
+    result:list[dict] = []
+    if not new_supply:
+        return False
+
+    for equip in new_supply:
+        dict_equip = deepcopy(equip.__dict__)
+        dict_equip.pop('_sa_instance_state')
+        result.append(dict_equip)
+
+    buffer = dumps(result)
+    with open(fp, "wb") as fexport:
+        fexport.write(XOR(buffer, pwd))
+
+    return True
+
 
 def create_agreement_pdf():
     file_data = open(BASEDIR + "/tmp/invoice_tmp/agreement.html", "r", encoding="utf-8").read()

@@ -1,73 +1,70 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    form {
-      max-width: 500px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      font-family: Arial, sans-serif;
-    }
-    
-    label {
-      display: block;
-      margin-bottom: 10px;
-      font-weight: bold;
-    }
-    
-    input[type="text"],
-    input[type="tel"],
-    input[type="date"],
-    textarea {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    
-    input[type="submit"] {
-      background-color: #4CAF50;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-    
-    input[type="submit"]:hover {
-      background-color: #45a049;
-    }
-  </style>
-</head>
-<body>
-  <form>
-    <label for="customer-name">Customer Name:</label>
-    <input type="text" id="customer-name" name="customer-name" required>
-    
-    <label for="client-phone">Client Cell Phone:</label>
-    <input type="tel" id="client-phone" name="client-phone" required>
-    
-    <label for="customer-id">Customer ID Card:</label>
-    <input type="text" id="customer-id" name="customer-id" required>
-    
-    <label for="equipment">Equipment the Customer Wants:</label>
-    <input type="text" id="equipment" name="equipment" required>
-    
-    <label for="event-date">Date of Event:</label>
-    <input type="date" id="event-date" name="event-date" required>
-    
-    <label for="event-location">Location of Event:</label>
-    <input type="text" id="event-location" name="event-location" required>
-    
-    <label for="advance-payment">Advance Payment:</label>
-    <input type="text" id="advance-payment" name="advance-payment" required>
-    
-    <label for="total-payment">Total Payment:</label>
-    <input type="text" id="total-payment" name="total-payment" required>
-    
-    <input type="submit" value="Submit">
-  </form>
-</body>
-</html>
+<div class="histories">
+  <div class="histories-tab">
+      <button class="button-tab-leads" onclick="getTemplate($('#4')[0],'4', 1);">
+          <span><i class="fa-solid fa-rotate-right"></i></span>
+      </button>
+    </div>
+</div>
+<section id="owner-setting" class="part-section mrgn-15">
+  <div class="setting-owner">
+    <span class="title">הגדרות מנהל ({{ usr.user }})</span>
+    <div class="items">
+      <div class="item">
+        <span class="title">הגדר חתימה לחוזה</span>
+        <div class="body body-signature">
+            {% if not usr.signature %}  
+              <button class="btn-add-sig" type="button" onclick="open_modal_signature(this)">
+                <span>הוסף חתימה</span>
+                <i class="fa-regular fa-square-plus"></i>
+              </button>
+          {% else %}
+            <button class="btn-change-sig" type="button" onclick="open_modal_signature(this)">
+              <span>שנה חתימה</span>
+              <i class="fa-regular fa-square-plus"></i>
+            </button>
+            <span class="defined">
+              <i class="fa-solid fa-check"></i>
+              הוגדרה חתימה
+            </span>
+          {% endif  %}
+        </div>
+      </div>
+      <div class="item">
+        <span class="title">מייל</span>
+        <div class="body body-signature">
+          <input class="set-input-mail " type="mail" placeholder="מייל" id="mailsetting" value="{{ usr.email if usr.email else '' }}">
+          <button class="btn-change-sig btn-mail" type="button" onclick="set_email(this)" role="1">
+            <span>{{ 'הגדר' if not usr.email else 'עדכן' }}</span>
+          </button>
+        </div>
+      </div>
+      <div class="item">
+        <span class="title">תעודת זהות</span>
+        <div class="body body-signature">
+          <input class="set-input-id" type="tel" placeholder="ת.ז" id="idsetting" value="{{ usr.identify if usr.identify else ''}}">
+          <button class="btn-change-sig btn-mail" type="button" onclick="set_identify(this)" role="2">
+            <span>{{ 'הגדר' if not usr.identify else 'עדכן' }}</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="modal-setting" tabindex="-1" role="dialog" id="modalsetting">
+  <div class="ms-d" role="document">
+    <div class="content">
+      <div class="header">
+        <h5 class="title" id='ms-title'></h5>
+        <button type="button" class="ms-close" onclick="hide_ms()">
+          <i class="fa-solid fa-circle-xmark fa-xl"></i>
+        </button>
+      </div>
+      <div class="ms-body" id="ms-body">
+      </div>
+      <div class="ms-footer" id="ms-footer">
+      </div>
+    </div>
+  </div>
+</div>

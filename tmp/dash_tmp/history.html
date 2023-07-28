@@ -38,12 +38,13 @@
                     </ul>
                 </div>
             </div>
+
             <div class="lead-box-info">
                 <div class="lead-box-info-head"> 
                     {% if not lead_box.ea and not lead_box.eg %}
                         <span class="event-date-closed">האירוע הסתיים</span>
                     {% else %}
-                    <i class="fa-regular fa-calendar-days"></i> {{lead_box.ed}}
+                    <i class="fa-regular fa-calendar-days icalander"></i> {{lead_box.ed}}
                     {% endif %}
                 </div>
                 <div class="lead-profile-parent">
