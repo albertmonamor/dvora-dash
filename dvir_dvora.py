@@ -432,7 +432,6 @@ def agreement():
 
     aapi = DBAgreeApi(agree_id)
     capi = DBClientApi(client_id)
-    usr = DBUserApi(capi.cid.write_by)
 
     if not any(request.args):
         error["notice"] = "הקישור לא תקין"
@@ -441,6 +440,8 @@ def agreement():
     if not show_id and ( not capi.ok() or not aapi.ok()):
         error["notice"] = "מזהה חוזה לא תקין"
         return render_template(page_error, msg=error)
+
+    usr = DBUserApi(capi.cid.write_by)
 
     if not show_id:
         if aapi.is_expired():
