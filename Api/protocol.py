@@ -46,6 +46,10 @@ EMPTY_HISTORY           = "ההיסטוריה ריקה"
 # /** templates
 T404                    = "/error_tmp/404.html"
 
+# time
+DAY       = 3600*24
+MONTH     = DAY*30
+SIX_MONTH = MONTH*6
 PDF_OPTIONS = {
     'encoding': 'UTF-8',
     'margin-left': '0mm',

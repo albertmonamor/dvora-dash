@@ -1,6 +1,6 @@
 <div class="histories">
   <div class="histories-tab">
-      <button  id="opensearchhistory" class="button-tab-leads" onclick="showSearchHistory(this)">
+      <button  id="opensearch" class="button-tab-leads" onclick="showSearchHistory(this)">
           <span> חיפוש <i class="fa-brands fa-searchengin"></i></span>
       </button>
       <button class="button-tab-leads" onclick="getTemplate($('#2')[0],'2', 1);">
@@ -10,7 +10,7 @@
 </div>
 <div class="search-leads" id="searchleads">
     <input type="text" class="input-search-leads" id="searchinput" placeholder="פאלפון, שם לקוח">
-    <button type="button" class="button-tab-leads" onclick="searchLeads(this, 'both')">
+    <button type="button" class="button-tab-leads" onclick="searchLeads(this, 'both', 2)">
         <span><i class="fa-solid fa-magnifying-glass fa-fade"></i></span>
     </button>
 </div>

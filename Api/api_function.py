@@ -1,8 +1,7 @@
-import os.path
-
 from flask import jsonify
 from time import gmtime, time, ctime, strptime, mktime
 from Api.protocol import UN_ERROR, LEAD_ERROR, BASEDIR, DOMAIN_NAME
+import calendar
 
 DAYS_HEBREW = {
     "Sun": "ראשון",
@@ -100,16 +99,27 @@ def verify_date(value):
 
 
 class FormatTime:
-    def __init__(self, _time:float):
+    def __init__(self, _time:float, _now:float=0):
         self.original = _time
         self.date = gmtime(_time)
-        self.now = gmtime(time())
+        if not _now or _now < _time:
+            self.now = gmtime(time())
+            self._now = _now
+        else:
+            self.now = gmtime(_now)
+            self._now = _now
+
         self.text = "{type} {BOL} {ft}"
 
     def is_year(self):
         nm = self.now.tm_mon
         dm = self.date.tm_mon
         return self.date.tm_year == self.now.tm_year or (self.date.tm_year+1 == self.now.tm_year and nm < dm)
+
+    def is_six_month(self):
+        sm = 6 * 30 * 24 * 60 * 60
+        result = abs(self._now - self.original)
+        return result <= sm
 
     def is_month(self):
         nm = self.now.tm_mon
@@ -124,6 +134,19 @@ class FormatTime:
         nh = self.now.tm_hour
         dh = self.date.tm_hour
         return self.is_month() and nd==dd or (dd+1 == nd and nh <dh)
+
+    def is_year_abs(self):
+        return self.date.tm_year == self.now.tm_year
+
+    def is_month_abs(self):
+        nm = self.now.tm_mon
+        dm = self.date.tm_mon
+        return self.is_year_abs() and dm == nm
+
+    def is_today_abs(self):
+        nd = self.now.tm_mday
+        dd = self.date.tm_mday
+        return self.is_month_abs() and nd==dd
 
     def is_hour(self):
         nh = self.now.tm_hour
@@ -161,6 +184,17 @@ class FormatTime:
         elif not self.is_year():
             return self.text.format(type=t, BOL=self.get_year(), ft="שנים")
 
+
+    @staticmethod
+    def make_time(date:str):
+        """
+        required format %Y-%m-%d
+        :param date:
+        :return:
+        """
+        _format = '%Y-%m-%d'
+        return float(mktime(strptime(date, _format)))
+
     @staticmethod
     def get_name_day_and_date(_time):
         """
@@ -189,6 +223,8 @@ class FormatTime:
             return 30
         return -1
 
+    def get_days_month(self) -> int:
+        return calendar.monthrange(self.date.tm_year, self.date.tm_mon)[1]
 def get_clear_money(payment:int|str):
     return int(payment)-990.90
 
@@ -270,4 +306,3 @@ def verify_mail(mail:str) -> int:
         return 0
 
     return 1
-

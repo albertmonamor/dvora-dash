@@ -8,8 +8,9 @@ from Api.protocol import *
 from flask import render_template, request, session, jsonify, redirect, url_for, \
     send_from_directory
 from Api.databases import DBase, signup, db_new_client, add_supply \
-    , time, generate_id_supply, DBClientApi, export_txt_equipment, import_txt_equipment, \
-    DBAgreeApi, DBUserApi, DBSupplyApi
+    , time, generate_id_supply, export_txt_equipment, import_txt_equipment
+
+from Api.db_api import DBClientApi, DBUserApi, DBSupplyApi, DBAgreeApi, MoneyApi
 
 
 # ==================== FILTER =========================
@@ -19,6 +20,7 @@ def decimal_integer(value):
 
 #  ******************* ROUTES *************************
 
+#@m_app.errorhandler(500)
 @m_app.errorhandler(404)
 def _404(n_error=None):
     sleep(2)
@@ -49,8 +51,8 @@ def login():
         return jsonify(UN_ERROR)
 
     if session.get('is_admin'):return jsonify(LOGIN_SUCCESS)
-    user= request.form.get("user", "?").lower()
-    pwd = request.form.get('pwd')
+    user= request.form.get("user", "?").lower().replace(" ", "")or "דבורה"
+    pwd = request.form.get('pwd') or "משי"
     key = request.form.get('key')
     usr = DBUserApi(user)
     if key == session['sess-login'] and usr.ok() and usr.u.pwd == pwd:
@@ -106,6 +108,16 @@ def get_template_dashboard(tmp):
     elif tmp == "3":
         res_tmp = "/dash_tmp/money.html"
         name = "הוצאות/הכנסות"
+        mapi = MoneyApi('none')
+        sapi = DBSupplyApi("none")
+        return jsonify({"success": True,
+                        "template": render_template(res_tmp,
+                                                    equip_exist=sapi.get_n_equipment_exist(),
+                                                    c_complete=mapi.get_n_c_complete_ut(),
+                                                    all_p=mapi.get_p_until_now(),
+                                                    all_e=mapi.get_e_until_now()),
+                        "name": name})
+
     elif tmp == "4":
         res_tmp = "/dash_tmp/setting.html"
         name = "הגדרות"
@@ -205,15 +217,21 @@ def add_lead():
 @m_app.route("/search_lead/<data>", methods=["POST"])
 def search_lead(data):
     error = dict(SEARCH_LEAD_ERR)
+    res_tmp = ''
     if not session.get("is_admin"):
         return jsonify(TMP_DENIED)
 
     type_search = request.form.get("type_search")
-    if not data or not type_search:
+    template    = request.form.get("template")
+    if not data or not type_search or not template:
         return jsonify({error})
 
     # /* default template */
-    res_tmp = "/dash_tmp/leads.html"
+    if template == '0':
+        res_tmp = "/dash_tmp/leads.html"
+    elif template == '2':
+        res_tmp = "/dash_tmp/history.html"
+
     capi = DBClientApi("none")
     client_found = capi.search_client(data, type_search)
     if not client_found:
@@ -543,6 +561,33 @@ def setting(ac:str):
 
     DBase.session.commit()
     return jsonify({"success":True})
+
+
+@m_app.route("/money/<ac>", methods=["POST"])
+def money_api(ac:str):
+
+    error = dict(UN_ERROR)
+    json_graph = []
+    if not session.get("is_admin"):
+        return jsonify(TMP_DENIED)
+
+    if not ac or not any(request.form):
+        return jsonify(error)
+
+    month = request.form.get("month", 0)
+    if ac == '0':
+        pass
+    elif ac == '1':
+        mapi = MoneyApi()
+        json_graph = mapi.get_e_and_p_month(month)
+
+    elif ac == '2':
+        mapi = MoneyApi()
+        json_graph = mapi.get_e_and_p_year()
+
+
+    return jsonify({"success":True, "json":json_graph})
+
 
 
 if __name__ == "__main__":

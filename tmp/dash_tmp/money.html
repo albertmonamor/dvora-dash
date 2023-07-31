@@ -1,9 +1,9 @@
-<section class="histories">
+<section class="histories" id="money_tab">
     <div class="histories-tab">
         <button  class="button-tab-leads" onclick="filter_date(this)">
             <span> סינון <i class="fa-solid fa-filter"></i></span>
         </button>
-        <button class="button-tab-leads" onclick="getTemplate($('#3')[0],'3', 1);">
+        <button class="button-tab-leads" onclick="getTemplate($('#3')[0],'3', 1);function _(){type_graph='year'}_()">
             <span><i class="fa-solid fa-rotate-right"></i></span>
         </button>
     </div>
@@ -24,7 +24,7 @@
             <i class="fa-solid fa-person-circle-plus fa-lg"></i>
         </div>
         <div class="card-body">
-            <span class="value">5</span>
+            <span class="value">{{ c_complete | decimal }} </span>
             <span class="desc">לקוחות שסגרו אירוע ושהסתיים</span>
         </div>
     </div>
@@ -34,7 +34,7 @@
             <i class="fa-solid fa-boxes-stacked fa-lg"></i>
         </div>
         <div class="card-body">
-            <span class="value">13</span>
+            <span class="value">{{ equip_exist | decimal }} </span>
             <span class="desc">סוגי ציוד </span>
         </div>
     </div>
@@ -44,30 +44,49 @@
             <i class="fa-solid fa-shekel-sign fa-lg"></i>
         </div>
         <div class="card-body">
-            <span class="value">₪3200</span>
+            <span class="value">+₪{{ all_p | decimal }} </span>
             <span class="desc">ההכנסות שלך עד לתאריך הנוכחי</span>
+        </div>
+    </div>
+    <div class="card-statistic ce">
+        <div class="card-title">
+            <span>הוצאות</span>
+            <i class="fa-solid fa-shekel-sign fa-lg"></i>
+        </div>
+        <div class="card-body">
+            <span class="value">-₪{{ all_e | decimal }} </span>
+            <span class="desc">ההצאות שלך עד לתאריך הנוכחי</span>
         </div>
     </div>
 </section>
 
 
 <section class="charts-money margin-10">
-    <div class="graph-money" id="pgraph-money">
-        <span class="title">הוצאות / הכנסות</span>
+    <div class="graph-money" id="pgraph-money" onmousemove="moveMenu(event)"  onmouseleave="closeGraphMenu()">
+        <div class="header">
+            <span class="title">
+                הוצאות / הכנסות
+            </span>
+            <div class="filter-charts">
+                <button type="button" class="btn-fil" id="monthbtnf" onclick="showGraphFilter(this, 1)" role="month">חודש</button>
+                <button type="button" class="btn-fil bfselcted" id="yearbtnf" onclick="showGraphFilter(this, 2)" role="year">שנה</button>
+            </div>
+        </div>
         <div class="b-g-money" id="graph-money">
-            <div class="money-item">
-                <span class="e" title="הכנסות"></span>
-                <span class="i" title="הוצאות"></span>
-            </div>
-            <div class="money-item">
-                <span class="e" title="הכנסות"></span>
-                <span class="i" title="הוצאות"></span>
-            </div>
         </div>
         <div class="footer-labels" id="footer-labels">
-            <span>אפריל</span>
-            <span>אוגוסט</span>
+            
         </div>
+        <div class="menu-specific-column-graph" id="menu-on-graph" >
+            
+          </div>
+    </div>
+    <div class="about-phone-screen">
+        <h1>
+            כדי לראות את הגרף היכנס דרך המחשב
+        </h1>
+
     </div>
 
 </section>
+

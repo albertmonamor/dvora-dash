@@ -23,86 +23,6 @@ function unloading(_this, text){
     _this.appendChild(span);
 }
 
-// ALERT
-function _deleted__showAlert(title, des){
-    // document.getElementById("modal-show").style.display = "block";
-    // $("#alert-title").html(title);
-    // $("#alert-des").html(des);
-}
-function _deleted__setLevelText(nl){
-    document.getElementById("level").innerText = nl+'/10';
-    ShowProgressStatus(parseInt(nl-2));
-}
-function _deleted__showNextLevel(_this, nl, force=null, call_java=0){
-    if (force){
-        if (_this != undefined){$(_this.parentElement.parentElement).hide("slow")}
-        document.getElementById(nl).style.display = "block";
-        setLevelText(nl);
-        return  0;
-    }
-    if (nl ==10){
-        document.getElementById("summery").innerHTML="";
-    }
-    if (_this != undefined){
-        $.ajax({
-            url:"/new_lead", 
-            type:"POST", 
-            data:{"level":nl-1,"value":_this.parentElement.parentElement.children[1].children[0].value},
-            success:(res)=>{
-                if (!res.success){
-                    showAlert(res.title, res.notice)
-                }else{
-                    $(_this.parentElement.parentElement).hide(300);
-                    $(document.getElementById(nl)).show(300);
-                    setLevelText(nl);
-                }
-            }
-        })
-    }
-
-}
-function _deleted__showPrevLevel(_this, nl, force=null, call_java=0){
-    _this.parentElement.parentElement.style.display = 'none';
-    document.getElementById(nl).style.display = "block";
-    setLevelText(nl);
-}
-function _deleted__getSubTemplpateDashboard(_this)
-{
-
-    $.ajax({
-        url:'/template/'+_this.id,
-        type:"POST",
-        success:(res)=>{
-            if (res.success){
-                showModal(res.template);
-                showNextLevel(undefined, "1", true);
-                if (res.supply!=undefined){
-                    supply_json = res.supply;
-                }
-
-            }
-
-            else{
-                showAlert(res.title, res.notice);
-            }
-        }
-    })    
-}
-function _deleted__startAddLead(_this){
-    $.ajax({
-        url:'/new_lead',
-        type: "POST",
-        data:{"level":1, 'value':"password:l<I>lP<e*2>P"},
-        success:(res)=>{
-            if (res.success){
-                showNextLevel(_this, "2", force=true);
-            }
-            else{
-                showAlert(res.title, res.notice);
-            }
-        }
-    })
-}
 function cleanHash () { 
     history.pushState("", document.title, window.location.pathname + window.location.search);
 }
@@ -271,7 +191,11 @@ function tabSelected(_this){
 /**
  * contain all templates of dashboard that need
  */
-const templates         = {}
+var templates         = {0:{tmp:'', name:''},
+                           1:{tmp:'', name:''},
+                           2:{tmp:'', name:''},
+                           3:{tmp:'', name:''},
+                           4:{tmp:'', name:''}}
 var supply_json         = {}
 var total               = 0
 const identify_total    = {}
@@ -307,16 +231,18 @@ function close_loading_screen(){
 function getTemplate(_this, _id, reget=0){
     tmp_num = _id;    
     _parent = document.getElementsByClassName("dashboard-template")[0];
+
     tabSelected(_this);
-    setLastTemplate(_id)
-    if (templates[tmp_num] != undefined && !reget){
+    setLastTemplate(_id);
+
+    if (templates[tmp_num].tmp !='' && !reget){
         _parent.innerHTML = templates[tmp_num].tmp;
         document.getElementById("tab-name").innerText = templates[tmp_num].name;
         if (search_is_open.client && _id == 0){
             showSearchLeads(document.getElementById('opensearch'))
         }
         if (search_is_open.history && _id == 2){
-            showSearchHistory(document.getElementById("opensearchhistory"))
+            showSearchHistory(document.getElementById("opensearch"))
             
         }
         return 0;
@@ -457,7 +383,7 @@ function showModalContent(_this){
     $(document.getElementById("modalstart")).fadeOut(300)
     $(document.getElementById("modalcontent")).fadeIn(300);
 }
-function searchLeads(_this, _type){
+function searchLeads(_this, _type, t=0){
     element = document.getElementById("searchinput");
     value = element.value;
     if (!value){return;}
@@ -466,13 +392,16 @@ function searchLeads(_this, _type){
     $.ajax({
         url:"/search_lead/"+value,
         type:"post",
-        data:{"type_search":_type},
+        data:{"type_search":_type, "template":t},
         success:(res)=>{
             if (res.success){
-                templates[0].tmp = res.template;
+                templates[t].tmp = res.template;
                 document.getElementsByClassName("dashboard-template")[0].innerHTML = res.template;
-
-                showSearchLeads();
+                if (t == 0){
+                    showSearchLeads();
+                }else if (t == 2){
+                    showSearchHistory();
+                }
                 document.getElementById("searchinput").value = value;
             }
             else{
