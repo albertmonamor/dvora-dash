@@ -217,7 +217,7 @@ class DBClientApi:
         elif status == 1:
             self.cid.is_open = False
             self.cid.is_garbage = False
-            self.cid.date_closed = time()-SIX_MONTH
+            self.cid.date_closed = time()
             DBase.session.commit()
             return True
         elif status == 2:
@@ -607,10 +607,11 @@ class MoneyApi:
         result = self.get_empty_jf('m', month=mn, mrange=FormatTime(time()).get_days_month())
         for c in self.dbc._all_:
             gm = gmtime(c.date_closed)
-            mtime = FormatTime.make_time(f"{gm.tm_year}-{mn}-01")
-            if FormatTime(mtime+(3600*4)).is_month_abs():
-                same = result[gm.tm_mday]["day"] == gm.tm_mday
-                self.__update_this_json_date(same, result, gm.tm_mday, gm, c)
+            day = gm.tm_mday-1
+
+            if gm.tm_mon == mn:
+                same = result[day]["json"]["p"]
+                self.__update_this_json_date(same, result, day, gm, c)
 
         return result
 
@@ -618,11 +619,12 @@ class MoneyApi:
         result = self.get_empty_jf('y')
         for c in self.dbc._all_:
             gm = gmtime(c.date_closed)
-            mtime = FormatTime.make_time(f"{gm.tm_year}-01-01")
+            month = gm.tm_mon-1
 
-            if FormatTime(mtime+(3600*2)).is_year_abs():
-                same = result[gm.tm_mon]["month"] == gm.tm_mon
-                self.__update_this_json_date(same, result, gm.tm_mon, gm, c)
+            if gm.tm_year == gmtime(time()).tm_year:
+                same = result[month]["json"]["p"]
+                self.__update_this_json_date(same, result, month, gm, c)
+
 
         return result
 
@@ -674,3 +676,8 @@ class MoneyApi:
         else:
             t[i]["json"]["p"] = c.client_payment
             t[i]["json"]["e"] = c.expen_fuel + c.expen_employee
+
+
+# with m_app.app_context():
+#     DBase.create_all()
+#     d = MoneyApi().get_e_and_p_year()

@@ -13,26 +13,19 @@ const listen = new IntersectionObserver(showGraphAgain, {
 
 
 
-const json_monts_year = [
+const json_monts_year = {
+     "1": "ינואר" , 2: "פברואר" ,
+    3: "מרץ" ,  4: "אפריל" , 
+    5: "מאי" , 6: "יוני" ,
+    7: "יולי" , 8: "אוגוסט" , 
+    9: "ספטמבר" ,10: "אוקטובר" ,
+    11: "נובמבר" ,12: "דצמבר" }
 
-    { "month": 1, "name": "ינואר" },
-    { "month": 2, "name": "פברואר" },
-    { "month": 3, "name": "מרץ" },
-    { "month": 4, "name": "אפריל" },
-    { "month": 5, "name": "מאי" },
-    { "month": 6, "name": "יוני" },
-    { "month": 7, "name": "יולי" },
-    { "month": 8, "name": "אוגוסט" },
-    { "month": 9, "name": "ספטמבר" },
-    { "month": 10, "name": "אוקטובר" },
-    { "month": 11, "name": "נובמבר" },
-    { "month": 12, "name": "דצמבר" }
-];
 
 // Function to handle the intersection observer callback
 function showGraphAgain(entries) {
     entries.forEach((entry) => {
-      if (entry.isIntersecting) {
+      if (entry.isIntersecting && getLastTemplate() == '3') {
         setJson(type_gapi);
         setValuesGraphEAP(type_graph);
         
@@ -43,17 +36,6 @@ function showGraphAgain(entries) {
 listen.observe(document.getElementById("footer-dashboard"))
  
 
-
-function waitAndSet(){
-    interval_id = setInterval(function(){
-        if (getLastTemplate() === '3'){
-            clearInterval(interval_id);
-            setJson(type_gapi);
-            return;
-            
-        }
-    }, 500)
-}
 
 /**
  * 
@@ -82,9 +64,8 @@ async function setValuesGraphEAP(type='year'){
         sparent.classList.add("graph-year")
         fparent.classList.add('graph-year')
 
-        for ([index, value] of Object.entries(json_exp_inc))
+        for ( value of json_exp_inc)
         {
-            console.log(index, value)
             div = document.createElement("div")
             div.classList.add('money-item')
             span1 = document.createElement('span')
@@ -104,7 +85,7 @@ async function setValuesGraphEAP(type='year'){
             div.appendChild(span2)
             sparent.appendChild(div);
             footer_span = document.createElement("span")
-            footer_span.textContent = json_monts_year[index].name;
+            footer_span.textContent = json_monts_year[value.month];
             footer_span.role = value.month
             footer_span.onclick = function(){showGraphByMonth(this)}
             fparent.appendChild(footer_span);
@@ -123,14 +104,14 @@ async function setValuesGraphEAP(type='year'){
             div.classList.add('money-item')
             span1 = document.createElement('span')
             span1.title='הכנסות'
-            span1.style.height = `${MIN_exp_inc+parseInt((100*value.json.p)/MAX_exp_inc)}px`
+            span1.style.height = `${MIN_exp_inc+parseInt((200*value.json.p)/MAX_exp_inc)}px`
             span1.classList.add('i')
             span1.classList.add('width-month')
             span1.id = value.json.p
             span1.onmouseover= function(){showGraphMenu()}
             span2 = document.createElement("span")
             span2.title='הוצאות'
-            span2.style.height = `${MIN_exp_inc+parseInt((100*value.json.e)/MAX_exp_inc)}px`
+            span2.style.height = `${MIN_exp_inc+parseInt((200*value.json.e)/MAX_exp_inc)}px`
             span2.classList.add('e')
             span2.classList.add('width-month')
             span2.id = value.json.e
@@ -138,8 +119,8 @@ async function setValuesGraphEAP(type='year'){
             div.appendChild(span2)
             sparent.appendChild(div);
             footer_span = document.createElement("span")
-            if (index%7==0){
-                footer_span.textContent = index;
+            if (1){
+                footer_span.textContent = value.day;
             }  
             fparent.appendChild(footer_span);
             $(span1).show(300)
@@ -215,5 +196,3 @@ function showGraphByMonth(_this){
     type_graph = 'month'
     setJson(1, _this.role);
 }
-
-waitAndSet();

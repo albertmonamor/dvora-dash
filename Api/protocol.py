@@ -1,3 +1,4 @@
+import sys
 from datetime import timedelta
 
 from flask import Flask
@@ -59,5 +60,9 @@ PDF_OPTIONS = {
     'page-size': 'A4',
 }
 PATH_PDFKIT_EXE = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
-BASEDIR         = "\\".join(os.getcwd().split("\\")[0:-1]) if os.getcwd().split("\\")[-1] !="dvora-dash" else os.getcwd()
+if sys.platform == "win32":
+    BASEDIR         = "\\".join(os.getcwd().split("\\")[0:-1]) if os.getcwd().split("\\")[-1] !="dvora-dash" else os.getcwd()
+else:
+    BASEDIR         = "/home/dror/dvir-dvora"
+
 DOMAIN_NAME     = "dror.pythonanywhere.com"

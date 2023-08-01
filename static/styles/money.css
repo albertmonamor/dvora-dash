@@ -291,8 +291,13 @@
         margin: 2.5rem .3rem;
     }
     .info-statistics-cards{
-        justify-content: right;
+        flex-direction: column;
+        padding: .75rem 0;
+        overflow:scroll !important;
+        scroll-snap-type: y mandatory;
+        row-gap: 40px;
     }
+
     .graph-money{
         display: none;
     }

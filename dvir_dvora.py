@@ -51,8 +51,8 @@ def login():
         return jsonify(UN_ERROR)
 
     if session.get('is_admin'):return jsonify(LOGIN_SUCCESS)
-    user= request.form.get("user", "?").lower().replace(" ", "")or "דבורה"
-    pwd = request.form.get('pwd') or "משי"
+    user= request.form.get("user", "?").lower().replace(" ", "")
+    pwd = request.form.get('pwd')
     key = request.form.get('key')
     usr = DBUserApi(user)
     if key == session['sess-login'] and usr.ok() and usr.u.pwd == pwd:

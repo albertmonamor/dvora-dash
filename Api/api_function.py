@@ -1,3 +1,5 @@
+import sys
+
 from flask import jsonify
 from time import gmtime, time, ctime, strptime, mktime
 from Api.protocol import UN_ERROR, LEAD_ERROR, BASEDIR, DOMAIN_NAME
@@ -247,7 +249,12 @@ def check_equipment(data:dict[str]) -> tuple[bool, str]:
 
 def generate_invoice_path(client_phone):
     now = gmtime(time())
-    return f"{BASEDIR}\\invoices\\{client_phone.replace(' ', '_')}_{now.tm_mon}-{now.tm_year}.pdf"
+    if sys.platform == 'linux':
+        base = f"{BASEDIR}/invoices/"
+    elif sys.platform == 'win32':
+        base = f"{BASEDIR}\\invoices\\"
+
+    return f"{base}{client_phone.replace(' ', '_')}_{now.tm_mon}-{now.tm_year}.pdf"
 
 
 def generate_link_edit_agree(cid:str, aid:str) -> str:
