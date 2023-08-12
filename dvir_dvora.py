@@ -47,18 +47,18 @@ def index():
 # response: <json>                           << API
 @m_app.route('/login', methods=['POST'])
 def login():
-    if not session.get('sess-login'):
-        return jsonify(UN_ERROR)
 
     if session.get('is_admin'):return jsonify(LOGIN_SUCCESS)
     user= request.form.get("user", "?").lower().replace(" ", "")
     pwd = request.form.get('pwd')
     key = request.form.get('key')
     usr = DBUserApi(user)
-    if key == session['sess-login'] and usr.ok() and usr.u.pwd == pwd:
+
+    if (key == session.get('sess-login') or APP[0] == key) and usr.ok() and usr.u.pwd == pwd:
         session['is_admin'] = usr.u.is_admin
         session['user']     = user
-        del session['sess-login']
+        if session.get('sess-login'):
+            del session['sess-login']
         return jsonify(LOGIN_SUCCESS)
     else:
         return jsonify(LOGIN_FAILED)
@@ -71,6 +71,17 @@ def dashboard():
 
     return render_template('dashboard.html')
 
+# ------------- API -------------------
+
+@m_app.route("/api/mobile/<action>", methods=["POST"])
+def api(action:str):
+    if not session.get("is_admin"):
+        return jsonify(UN_ERROR)
+
+    if action == "leads":
+        kind = request.form.get("kind")
+        cid = DBClientApi("none")
+        return jsonify({"success":True, "clients":cid.get_all_client_by_mode(kind)})
 @m_app.route("/template/<tmp>", methods=['POST'])
 def get_template_dashboard(tmp):
     error = dict(UN_ERROR)

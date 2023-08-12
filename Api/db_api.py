@@ -122,7 +122,7 @@ class DBClientApi:
 
         return _clients
 
-    def get_client_indexing(self, _client:list[Client]):
+    def get_client_indexing(self, _client:list[Client]) -> dict:
         client = {}
         for index, c in enumerate(_client):
             self.new(c.client_id)

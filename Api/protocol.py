@@ -21,7 +21,7 @@ DBase: SQLAlchemy = SQLAlchemy(m_app)
 # /* conf
 
 get_random_key: callable = lambda: binascii.b2a_hex(os.urandom(5)).decode()
-
+APP = {0:"android"}
 # /* api json
 # /* global scope of flags
 LOGIN_FAILED: dict      = {"success":False, "title":"שגיאה" , "notice": "הסיסמה או השם לא מוכרים"}
