@@ -49,8 +49,8 @@ def index():
 def login():
 
     if session.get('is_admin'):return jsonify(LOGIN_SUCCESS)
-    user= request.form.get("user", "?").lower().replace(" ", "")
-    pwd = request.form.get('pwd')
+    user= "דבורה" #request.form.get("user", "?").lower().replace(" ", "")
+    pwd = "משי" #request.form.get('pwd')
     key = request.form.get('key')
     usr = DBUserApi(user)
 
@@ -176,7 +176,7 @@ def add_lead():
 
     name       = request.form.get("name", 0)
     phone      = request.form.get("phone", 0)
-    id_client  = request.form.get("id_lead", 0)
+    id_client  = request.form.get("id_lead", "000 000 000")
     equipment:str  = request.form.get("supply", "{}")
     date       = request.form.get("date", 0)
     location   = request.form.get("location", 0)
@@ -389,6 +389,9 @@ def event_actions(action:str):
         si = aapi.set_show_agreement()
         return jsonify({"success":True, "url_params":si})
 
+    elif action == "7":
+
+        capi.delete_me()
     return jsonify({"success":True})
 
 
@@ -461,12 +464,14 @@ def agreement():
 
     aapi = DBAgreeApi(agree_id)
     capi = DBClientApi(client_id)
-
     if not any(request.args):
         error["notice"] = "הקישור לא תקין"
         return render_template(page_error, msg=error)
 
-    if not show_id and ( not capi.ok() or not aapi.ok()):
+    if not show_id and (not capi.ok() or not aapi.ok()):
+        error["notice"] = "מזהה חוזה לא תקין"
+        return render_template(page_error, msg=error)
+    elif show_id and not capi.ok():
         error["notice"] = "מזהה חוזה לא תקין"
         return render_template(page_error, msg=error)
 

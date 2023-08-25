@@ -20,8 +20,6 @@
     <input type="text" id="equipment" name="equipment" placeholder="חפש/י ציוד" oninput="showEquipmentBySearch(this.value)" ondblclick="this.value='';showEquipmentBySearch(this.value)">
     <div id="list-equipment" class="list-equipment">
     </div>
-
-
     <label for="event-date">תאריך האירוע<span>*</span>
         <p>שלב 5</p>
     </label>
@@ -35,50 +33,68 @@
         <span>לסיכום</span>
     </button>
 </form>
+
 <div id="lead-summary" class="lead-summary">
   <h3 class="lead-summary-title">
     <i onclick="backAddLead()" class="fa-solid fa-circle-chevron-left fa-flip-horizontal"></i> סיכום לקוח</h3>
-  <table id="table-summary">
-    <tr>
-      <th class="thitem">שם מלא</th>
-      <td class="tditem"></td>
-    </tr>
-    <tr>
-      <th class="thitem">פאלפון</th>
-      <td class="tditem"></td>
-    </tr>
-    <tr>
-      <th class="thitem">תעודת זהות</th>
-      <td class="tditem"></td>
-    </tr>
-    <tr>
-      <th class="thitem">ציוד </th>
-      <td class="tditem" style="background: rgb(29, 26, 33);">
-      </td>
-    </tr>
-    <tr>
-      <th class="thitem">תאריך האירוע</th>
-      <td class="tditem"></td>
-    </tr>
-    <tr>
-      <th class="thitem">מיקום האירוע</th>
-      <td class="tditem"></td>
-    </tr>
-  </table>
+  <section>
+    <div class="title-section">
+      פרטים אישיים
+    </div>
+    <table id="table-summary">
+      <tr>
+        <th class="thitem">שם מלא</th>
+        <td class="tditem"></td>
+      </tr>
+      <tr>
+        <th class="thitem">פאלפון</th>
+        <td class="tditem"></td>
+      </tr>
+      <tr>
+        <th class="thitem">תעודת זהות</th>
+        <td class="tditem"></td>
+      </tr>
+      <tr>
+        <th class="thitem">תאריך האירוע</th>
+        <td class="tditem"></td>
+      </tr>
+      <tr>
+        <th class="thitem">מיקום האירוע</th>
+        <td class="tditem"></td>
+      </tr>
+    </table>
+  </section>
+  <section>
+    <div class="title-section">
+      ציוד שנבחר
+    </div>
+    <table class="table-equipment" id="tableequipment">
+      <thead>
+          <th class="t-e-thead">
+            שם הציוד
+          </th>
+          <th class="t-e-thead">
+            כמות
+          </th>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </section>
   <div class="leader-expense">
     <h3 class="lead-summary-title">הוצאות ותשלום</h3>
     <div class="manager-expense-item">
         <label for="exp-fuel">הוצאות דלק</label>
         <div class="input-pay">
           <i class="fa-solid fa-shekel-sign"></i>
-          <input class="payment-total-safe" type="tel" id="exp-fuel" value="0" name="exp-fuel" oninput="updateTotalSummary(this)" ondblclick="this.value='';">
+          <input class="payment-total-safe" type="tel" id="exp-fuel" value="0" name="exp-fuel" oninput="updateTotalSummary(this)" onclick="this.value='';">
         </div>
     </div>
     <div class="manager-expense-item">
       <label for="exp-employee">הוצאות עובדים</label>
       <div class="input-pay">
         <i class="fa-solid fa-shekel-sign"></i>
-        <input type="tel" class="payment-total-safe" id="exp-employee" value="0" name="exp-employe" oninput="updateTotalSummary(this)" ondblclick="this.value='';">
+        <input type="tel" class="payment-total-safe" id="exp-employee" value="0" name="exp-employe" oninput="updateTotalSummary(this)" onclick="this.value='';">
       </div>
   </div>
   <div class="manager-expense-item">
@@ -99,14 +115,17 @@
         </label>
         <div class="input-pay">
           <i class="fa-solid fa-shekel-sign"></i>
-          <input type="tel" class="payment-total-safe" id="payment-safe" name="payment-safe" value="0" ondblclick="this.value='';">
+          <input type="tel" class="payment-total-safe" id="payment-safe" name="payment-safe" value="0" onclick="this.value='';">
         </div>
     </div>
     <div class="manager-expense-item">
-        <label for="payment-total"> ברוטו</label>
+        <label for="payment-total" style="display: flex;">לתשלום   
+          <span style="font-size: small;color: gray;">(כולל הנחה)</span>
+
+        </label>
         <div class="input-pay">
           <i class="fa-solid fa-shekel-sign"></i>
-          <input type="tel" class="payment-total-safe" id="payment-total" value="0" name="payment-total" ondblclick="this.value='';">
+          <input type="tel" class="payment-total-safe" id="payment-total" value="0" name="payment-total" onclick="this.placeholder=tmp_total_money_equip;this.value='';">
         </div>
     </div>
   </div>

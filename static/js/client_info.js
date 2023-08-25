@@ -17,7 +17,7 @@ function getDateAsValue(strDate){
  * @param {Element} _this 
  * @returns 
  */
-function del_his_eventLead(_this){
+function del_his_eventLead(_this, __tmp=0){
     if (!confirm("אתה בטוח?")){
         return;
     }
@@ -37,7 +37,7 @@ function del_his_eventLead(_this){
             if (res.success){
                 closeLeadInforamtionModal(null, cid);
                 location.href = "#"+cid;
-                setTimeout(()=>{getTemplate($("#0")[0],"0", 1);cleanHash();}, 500);
+                setTimeout(()=>{getTemplate($("#"+__tmp)[0],__tmp, 1);cleanHash();}, 500);
             }
             else{
                 _this.innerHTML = lhtml;
@@ -164,6 +164,7 @@ function editLeadInforamtion(_this, _type){
         parent = document.getElementById("edit-payment");
         parent1 = document.getElementById("prepayment");
         parent2 = document.getElementById("typepayment")
+        parent3 = document.getElementById("total-pay-info");
         // p1
         $(parent1.children[0]).hide();
         ch = parent1.children[1];
@@ -191,6 +192,11 @@ function editLeadInforamtion(_this, _type){
         else if (a == 2){
             selectTypePay(parent2.children[2].children[2], a)
         }
+        // p3 
+        total_pay = parent3.children[0];
+        parent3.innerHTML = `<input type="tel" style="width:100%" placeholder="${total_pay.textContent}" class="edit-table-input">`
+
+
 
 
 
@@ -322,6 +328,7 @@ function reEditInformation(_this, _type, toUpdate=0){
         parent = document.getElementById("edit-payment");
         parent1 = document.getElementById("prepayment");
         parent2 = document.getElementById("typepayment")
+        parent3 = document.getElementById("total-pay-info")
         // p1
         $(parent1.children[0]).show();
         ch = parent1.children[1];
@@ -335,15 +342,23 @@ function reEditInformation(_this, _type, toUpdate=0){
         $(parent2.children[0]).show()
         $(parent2.children[1]).show()
         parent2.children[2].remove()
+
+        //p3 
+        tp = parent3.children[0];
+        const _total_money = tp.value ? tp.value: tp.placeholder;
+        parent3.innerHTML =  `<span id="totalpay">${tp.placeholder}</span>`;
+
+        
         
         
         if (toUpdate){
             $.ajax({
                 url:"/update_lead/"+_type,
                 type:"post",
-                data:{"data":JSON.stringify({"dmoney":dmoney, "type_pay":type_payemnt}), "client_id":parent.role, },
+                data:{"data":JSON.stringify({"dmoney":dmoney, "type_pay":type_payemnt, 'total_money':_total_money}), "client_id":parent.role, },
                 success:(res)=>{
                     if (res.success){
+                        
                         parent = document.getElementById("edit-payment");
                         openLeadInformationModal(document.getElementById("10|"+parent.role));
                     }

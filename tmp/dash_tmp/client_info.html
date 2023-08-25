@@ -7,7 +7,7 @@
        </div>
        <div class="clabel">
         <span class="l">מספר זהות</span>
-        {% if ci.ID == 0 %}
+        {% if ci.ID %}
             <span id="cid">{{ ci.ID }} <i class="fa-solid fa-id-card"></i></span>
         {% else %}
             <span id="cid">לא צויין <i class="fa-solid fa-id-card"></i></span>
@@ -127,6 +127,12 @@
                     {% endif %}
                 </div>
             </div>
+            <div class="e-payment">
+                <span>סך הכול לתשלום</span>
+                <div id="total-pay-info">
+                    <span id="totalpay"> {{ ci.client_payment|int|decimal }} ₪</span>
+                </div>
+            </div>
         </div>
         <span class="linfo">פעולות</span>
         <div class="client-actions">
@@ -143,6 +149,10 @@
                 <button type="button" class="client-baction history" id="5{{ ci.client_id }}" onclick="reCancel_eventLead(this)">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                     <span>שחזר אירוע</span>
+                </button>
+                <button type="button" class="client-baction remove" id="7{{ ci.client_id }}" onclick="del_his_eventLead(this, 2)">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>מחק לנצח</span>
                 </button>
             {% endif %} 
             {% if ci.invoice_id %}

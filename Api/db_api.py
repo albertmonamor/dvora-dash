@@ -82,18 +82,17 @@ class DBClientApi:
     def is_low_expenses(self, c:Client):
         return self.get_net_all(c) >= 1000
 
-    def get_gross_all(self, c:Client) -> float | int:
-        money_equipments = self.get_info_equipment()["money"]
-        return c.expen_fuel+c.expen_employee+money_equipments
+    def is_discount_event(self, c:Client) -> int | bool:
+        return -1
 
-    def get_gross_client(self, c:Client) -> float | int:
-        money_equipments = self.get_info_equipment()["money"]
-        return money_equipments
+    def get_gross_all(self, c:Client) -> float | int:
+        return c.expen_fuel+c.expen_employee+c.client_payment
 
     def get_net_all(self, c:Client) -> float | int:
-        result = self.get_info_equipment()["money"] - c.expen_fuel - c.expen_employee
+        return c.client_payment - c.expen_fuel - c.expen_employee
 
-        return result
+    def get_net_client(self, c:Client):
+        return c.client_payment
 
     def get_client_equipment(self):
         equip = loads(self.cid.event_supply)
@@ -120,6 +119,7 @@ class DBClientApi:
         elif data.isdigit():
             _clients = self.get_all_client_by_mode(mode, phone=data)
 
+
         return _clients
 
     def get_client_indexing(self, _client:list[Client]) -> dict:
@@ -137,7 +137,7 @@ class DBClientApi:
                              "ep": c.event_place,
                              "dm": c.d_money,
                              "ps": self.is_pay_down_payment(),
-                             "tm": f"{self.get_gross_client(c) :,}",
+                             "tm": f"{self.get_net_client(c) :,}",
                              "oe": self.is_order_equipment(),
                              "cm": f"{self.get_net_all(c) :,}",
                              'low_e': self.is_low_expenses(c),
@@ -159,6 +159,7 @@ class DBClientApi:
         date_full.reverse()
 
         dc["event_supply"] = loads(self.cid.event_supply)
+        dc["client_payment"] = self.get_net_client(self.cid)
         dc["net"] = self.get_net_all(self.cid)
         dc["gross"] = self.get_gross_all(self.cid)
         dc["pay_for_equipment"] = info_equip["money"]
@@ -316,6 +317,10 @@ class DBClientApi:
 
             self.cid.event_supply = dumps(last_equip)
             DBase.session.commit()
+            # reload
+            self.new(self._cid)
+            self.cid.client_payment = int(self.get_info_equipment()["money"])
+            DBase.session.commit()
 
         elif kind == "1":
             status, _ = check_level_new_lead('6', data)
@@ -347,9 +352,12 @@ class DBClientApi:
             DBase.session.commit()
 
         elif kind == "4":
+            clear = lambda x: x.replace(" ", "").replace("₪", "").replace(",", "")
             data = loads(data)
-            dmoney = data["dmoney"].replace(" ", "").replace("₪", "")
+            dmoney = clear(data["dmoney"])
+            total:str = clear(data["total_money"])
             status, _ = check_level_new_lead('8', dmoney)
+
             if not status:
                 error['notice'] = "מקדמה לא תקינה"
                 return error
@@ -357,9 +365,12 @@ class DBClientApi:
             if not data["type_pay"].isdigit() or not self.is_type_payment_valid():
                 error["notice"] = "סוג תשלום לא תקין"
                 return error
-
+            if not total or not total.isdigit():
+                error["notice"] = 'סכום לתשלום לא תקין'
+                return error
             self.cid.d_money = float(dmoney)
             self.cid.type_pay = int(data["type_pay"])
+            self.cid.client_payment = int(total)
             DBase.session.commit()
 
         # /* important */
@@ -379,6 +390,10 @@ class DBClientApi:
         date:list = self.cid.event_date.replace("-", ".").split(".")
         date.reverse()
         return FormatTime.get_days_left(".".join(date)) < 0
+
+    def delete_me(self):
+        DBase.session.delete(self.cid)
+        DBase.session.commit()
 
 
 # ============== Supply table ====================

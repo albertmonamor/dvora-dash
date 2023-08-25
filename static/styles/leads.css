@@ -583,7 +583,7 @@ ul.leads-menu-action li:hover{
 .client-location{
     justify-content: space-between;
 }
-.icolocation, #chowpay, #present{
+.icolocation, #chowpay, #present, #totalpay{
     box-shadow: 0px 0px 11px 0px rgba(0, 0, 0, 0.66);
     border-radius: 7px;
     padding: 2px 10px 2px 10px ;

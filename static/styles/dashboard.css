@@ -35,7 +35,8 @@ input{
     height: 100%;
     margin-left: 15%;
     margin-right: 15%;
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
     white-space: nowrap;
 
 }

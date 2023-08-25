@@ -54,6 +54,7 @@ class Client(DBase.Model):
     d_money         = DBase.Column(DBase.Float,         nullable=False, default=0)
     total_money     = DBase.Column(DBase.Float,         nullable=False)
     client_payment  = DBase.Column(DBase.Float,         nullable=False)
+
     # for API bool
 
 

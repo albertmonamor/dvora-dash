@@ -289,41 +289,33 @@ function getLastTemplate(){
     }
     return t
 }
-function createTableEquipmentSelected(parent){
-    parent.innerHTML="";
+function createTableEquipmentSelected(){
+    const parent = document.getElementById("tableequipment");
+    const tbody = parent.children[1];
     tmp_total_money_equip = 0
+
     equipment_selected = []
     for ([key, values] of Object.entries(supply_json)){ 
         if (!values.count){continue;}
         tmp_total_money_equip+=values.count*values.price;
-        equipment_selected.push({"שם":values.name, "כמות":values.count, "סך הכול": values.count*values.price +" ש\"ח"})
+        equipment_selected.push({"שם":values.name, "כמות":values.count})
     }
     elem = document.getElementById("payment-total");
     elem.value = tmp_total_money_equip;
     total = tmp_total_money_equip;
-    // create table & create titles (headers)
-    table = document.createElement('table');
-    table.classList.add('table-equipment');
-    const titleR = document.createElement('tr');
-    for (const key in equipment_selected[0]) {
-        headerC = document.createElement('th');
-        headerC.textContent = key;
-        titleR.appendChild(headerC);
-    }
-    // done
-    table.appendChild(titleR);
+
+
     // body of table with values
     equipment_selected.forEach(item => {
         bodyR = document.createElement('tr');
         for (const key in item) {
             bodyC = document.createElement('td');
+            bodyC.classList.add("t-e-tbody");
             bodyC.textContent = item[key];
             bodyR.appendChild(bodyC);
         }
-        table.appendChild(bodyR);
+        parent.appendChild(bodyR);
     });
-    // DONE!!
-    parent.appendChild(table);
 }
 function closeModalAddLead(no_ask=0){
     if (no_ask || confirm("לבטל הוספת לקוח?")){
@@ -421,24 +413,22 @@ function clientSummary(event, _this){
     leadS   = document.getElementById("lead-summary");
     tableS  = document.getElementById("table-summary");
     array_values = [];
+    var index = 0;
     for (i=0;i!=14;i++){o = _this.children[i];
-        if(o.type != undefined){
+        if(o.type != undefined && o.id != "equipment" && o.id != "submitaddlead"){
+            console.log(o);
             array_values.push(o.value);
+            elementK = tableS.children[0].children[index].children[0];
+            elementV = tableS.children[0].children[index].children[1];
+            elementV.innerText = o.value != "" ? o.value : "לא צוין";
+            index+=1;
         }
         
     }
-    for (i=0;i!=6;i++){
-        elementK = tableS.children[0].children[i].children[0];
-        elementV = tableS.children[0].children[i].children[1];
-        if (elementK.innerText.includes("ציוד")){
-            createTableEquipmentSelected(elementV);
-            continue;
-        }
 
-        elementV.innerText = array_values[i] ? array_values[i]: "לא צוין";
-    }
     $(leadS).fadeIn(300);
     updateTotalSummary($("#payment-safe"));
+    createTableEquipmentSelected();
 
 }
 
