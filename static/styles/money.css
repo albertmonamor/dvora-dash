@@ -162,7 +162,7 @@
     background: #262732;
 }
 .bfselcted{
-    transition: 300ms;
+    transition: 100ms;
     background: rgb(110, 90, 189);
 }
 .menu-specific-column-graph{

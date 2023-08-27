@@ -35,6 +35,7 @@ function closeClientInformation(_this){
  * @param {Element} _this 
  */
 function openLeadInformationModal(_this){
+    edit_table_is_open = false;
     parent = _this.parentElement.parentElement;
     modal = parent.children[parent.childElementCount-1];
     $(modal).fadeIn(300);

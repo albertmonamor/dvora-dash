@@ -10,7 +10,7 @@ from flask import render_template, request, session, jsonify, redirect, url_for,
 from Api.databases import DBase, signup, db_new_client, add_supply \
     , time, generate_id_supply, export_txt_equipment, import_txt_equipment
 
-from Api.db_api import DBClientApi, DBUserApi, DBSupplyApi, DBAgreeApi, MoneyApi
+from Api.db_api import DBClientApi, DBUserApi, DBSupplyApi, DBAgreeApi, MoneyApi, DBSettingApi
 
 
 # ==================== FILTER =========================
@@ -26,6 +26,12 @@ def _404(n_error=None):
     sleep(2)
     return render_template("./error_tmp/404.html")
 
+@m_app.route("/l0g0ut", methods=["GET"])
+def logout():
+    if not session.get("is_admin"):
+        return jsonify(LOGIN_SUCCESS)
+    session.clear()
+    return jsonify({"success":True})
 
 # @m_app.errorhandler(500)
 # def _500(n_error):
@@ -49,8 +55,8 @@ def index():
 def login():
 
     if session.get('is_admin'):return jsonify(LOGIN_SUCCESS)
-    user= "דבורה" #request.form.get("user", "?").lower().replace(" ", "")
-    pwd = "משי" #request.form.get('pwd')
+    user= request.form.get("user", "?").lower().replace(" ", "")
+    pwd = request.form.get('pwd')
     key = request.form.get('key')
     usr = DBUserApi(user)
 
@@ -133,8 +139,9 @@ def get_template_dashboard(tmp):
         res_tmp = "/dash_tmp/setting.html"
         name = "הגדרות"
         usr = DBUserApi(session['user'])
+        sett = DBSettingApi()
         return jsonify({"success": True,
-                        "template": render_template(res_tmp, usr=usr.u),
+                        "template": render_template(res_tmp, usr=usr.u, sett=sett.get_setting_events()),
                         "name": name})
     elif tmp == "10":
         capi.new(cid)
@@ -187,7 +194,7 @@ def add_lead():
     type_pay    = request.form.get("type_pay", -1)
     # /* Irrelevant
     if not any(request.form.values()) :
-        res["notice"] = "אחד מהנתונים חסר או לא ברור!"
+        res["notice"] = "אחד מהנתונים חסר או לא תקין!"
         return jsonify(res)
 
     # // SUCCESS
@@ -252,6 +259,31 @@ def search_lead(data):
                     "name": "לקוחות"})
 
 
+@m_app.route("/filter", methods=["POST"])
+def filter_az():
+    error = dict(SEARCH_LEAD_ERR)
+    res_tmp = ''
+    if not session.get("is_admin"):
+        return jsonify(TMP_DENIED)
+
+    type_filter = request.form.get("type_filter")
+    tmp    = request.form.get("tmp")
+    if not tmp or not tmp.isdigit():
+        return jsonify(error)
+
+    kw = {}
+    if tmp == '0':
+        res_tmp = "/dash_tmp/leads.html"
+        kw["empty_lead"] = EMPTY_LEAD_T
+    elif tmp == '2':
+        res_tmp = "/dash_tmp/history.html"
+        kw["empty_history"] = EMPTY_HISTORY
+
+    capi = DBClientApi("none")
+    cf = capi.get_all_client_by_mode(type_filter)
+    return jsonify({"success":True,
+                    "template":render_template(res_tmp, leads=cf, **kw)})
+
 @m_app.route("/add_equipment", methods=["POST"])
 def add_equipment():
     error = dict(EQUIP_ERROR)
@@ -315,6 +347,22 @@ def del_equipment(eq_id):
     DBase.session.commit()
     # SUCCESS
     return jsonify({"success":True})
+
+@m_app.route("/add_equipment_client", methods=["POST"])
+def add_equipment_client():
+    error = dict(EQUIP_ERROR)
+    if not session.get("is_admin"):
+        return jsonify(TMP_DENIED)
+
+    cid = request.form.get("cid")
+    supply = request.form.get("supply", "{}")
+    capi = DBClientApi(cid)
+    status, equipment = DBSupplyApi.verify_equipments(loads(supply))
+    if not capi.ok() or not status:
+        error["notice"] = "משהו השתבש בציוד או בלקוח"
+        return jsonify(error)
+
+    return jsonify(capi.update_lead_information("6", equipment))
 
 
 @m_app.route("/event_lead_action/<action>", methods=["POST", "GET"])
@@ -543,11 +591,15 @@ def setting(ac:str):
     if not session.get("is_admin"):
         return jsonify(TMP_DENIED)
 
-    if not ac or not ac.isdigit() or not any(request.form) or not session.get("user"):
+    if not ac or not ac.isdigit() or not any(request.form):
+        return jsonify(error)
+    elif not session.get("user"):
+        error["notice"] = "התחבר מחדש"
         return jsonify(error)
 
     usr = DBUserApi(session['user'])
 
+    # /* signature */
     if ac == "0":
         signature = request.form.get("signature", str())
         if signature.__len__() < 3500:
@@ -559,6 +611,7 @@ def setting(ac:str):
             return jsonify(error)
 
         usr.u.signature = signature
+    # /*  email */
     elif ac == "1":
         email = request.form.get('email', str())
         if not verify_mail(email):
@@ -566,7 +619,7 @@ def setting(ac:str):
             return jsonify(error)
 
         usr.u.email = email
-
+    # /* identify */
     elif ac == "2":
         identify = request.form.get("identify", str())
         if not idValid(identify):
@@ -574,6 +627,13 @@ def setting(ac:str):
             return jsonify(error)
 
         usr.u.identify = identify
+    # /* delete auto garbage */
+    # /* finish auto old valid event */
+    elif ac == "3" or ac == "4":
+        ts = request.form.get("ts")
+        value:bool = bool(int(request.form.get("value", "0")))
+        sett = DBSettingApi()
+        sett.events_setting(ts, value)
 
     DBase.session.commit()
     return jsonify({"success":True})
@@ -609,7 +669,8 @@ def money_api(ac:str):
 if __name__ == "__main__":
     with m_app.app_context():
         DBase.create_all()
-
+        # /* __ initial DBase __ */
+        DBSettingApi().create()
         #signup(user='דבורה', pwd='משי', ip='2.55.187.108', is_admin=True)
         #signup(user='דביר', pwd='משי', ip='2.55.187.108', is_admin=True)
     m_app.run(host="0.0.0.0", port=80, debug=True)

@@ -5,11 +5,12 @@ from json import loads, dumps
 import pdfkit
 
 from Api.databases import Client, DBase, m_app, Users, Invoice, Supply, ClientAgreement, generate_id_agree, \
-    generate_ascii
+    generate_ascii, Setting
 from Api.api_function import FormatTime, generate_invoice_path, check_level_new_lead, generate_link_edit_agree, \
     generate_link_show_agree
 from time import ctime, time, gmtime, mktime
-from Api.protocol import SIX_MONTH, BASEDIR, PDF_OPTIONS, UPDATE_LEAD_ERROR, AGREE_SESS_LIFE, PATH_PDFKIT_EXE
+from Api.protocol import SIX_MONTH, BASEDIR, PDF_OPTIONS, UPDATE_LEAD_ERROR, AGREE_SESS_LIFE, PATH_PDFKIT_EXE, \
+    D_SETTING, MONTH
 
 
 # =============== Users table ===================
@@ -39,6 +40,8 @@ class DBUserApi:
 class DBClientApi:
 
     def __init__(self, cid:str):
+        # /* idk */
+        self.auto_manager_leads()
         self.cid:Client| None  = None
         self._cid = cid
         self.new(cid)
@@ -51,7 +54,7 @@ class DBClientApi:
     def ok(self):
         return bool(self.cid)
 
-    def get_all_client_by_mode(self, mode:str = "open", original=False, **kwargs):
+    def get_all_client_by_mode(self, mode:str | None = "open", original=False, **kwargs):
         # which mode?
         if mode == "open":
             _client: list[Client] = Client.query.filter_by(is_open=True, **kwargs).all()
@@ -94,7 +97,7 @@ class DBClientApi:
     def get_net_client(self, c:Client):
         return c.client_payment
 
-    def get_client_equipment(self):
+    def get_client_equipment(self) -> dict:
         equip = loads(self.cid.event_supply)
         return equip
 
@@ -113,14 +116,13 @@ class DBClientApi:
             return {}
 
         # /* by name of client */
-        _clients:dict = {}
-        if data.isalpha():
-            _clients = self.get_all_client_by_mode(mode, full_name=data)
-        elif data.isdigit():
-            _clients = self.get_all_client_by_mode(mode, phone=data)
+        __res = {}
+        _clients:dict[int, Client] = self.get_all_client_by_mode(mode)
+        for index, client in _clients.items():
+            if data in client["fn"] or data in client["phone"] or data in client["id"]:
+                __res[index] = client
 
-
-        return _clients
+        return __res
 
     def get_client_indexing(self, _client:list[Client]) -> dict:
         client = {}
@@ -310,10 +312,15 @@ class DBClientApi:
             new_equip = loads(data)
             last_equip = self.get_client_equipment()
             for neq in new_equip:
-                if not neq["count"].replace(" ", "").isdigit():
-                    error["notice"] = f"{last_equip[neq['equip_id']]['name']} עם כמות שגויה "
+                try:
+                    if not neq["count"].replace(" ", "").isdigit():
+                        error["notice"] = f"{last_equip[neq['equip_id']]['name']} עם כמות שגויה "
+                        return error
+
+                    last_equip[neq['equip_id']]["count"] = int(neq["count"])
+                except KeyError:
+                    error["notice"] = "ציוד לא קיים"
                     return error
-                last_equip[neq['equip_id']]["count"] = int(neq["count"])
 
             self.cid.event_supply = dumps(last_equip)
             DBase.session.commit()
@@ -373,6 +380,33 @@ class DBClientApi:
             self.cid.client_payment = int(total)
             DBase.session.commit()
 
+        elif kind == "5":
+            equip = loads(data)
+            error["notice"] = "שגיאה בעת מחיקת הציוד"
+            if not equip.get("eid"):
+                return error
+
+            elif not self.delete_equipment_client(equip["eid"]):
+                return error
+
+            self.new(self._cid)
+            self.cid.client_payment = int(self.get_info_equipment()["money"])
+            DBase.session.commit()
+
+        elif kind == "6":
+            """
+            data have to for clean before commit
+            BUG: equipment id can be change but not name, | operator cause multiply names
+            """
+            data:dict
+            list_e:dict[str, dict] = self.get_client_equipment()
+            self.cid.event_supply = dumps(list_e | data)
+            DBase.session.commit()
+            # // reload
+            self.new(self._cid)
+            self.cid.client_payment = int(self.get_info_equipment()["money"])
+            DBase.session.commit()
+
         # /* important */
         self.reinvoice_client()
 
@@ -390,6 +424,28 @@ class DBClientApi:
         date:list = self.cid.event_date.replace("-", ".").split(".")
         date.reverse()
         return FormatTime.get_days_left(".".join(date)) < 0
+
+    def delete_equipment_client(self, aid) -> int:
+        list_e = self.get_client_equipment()
+        for key, equip in list_e.items():
+            if key == aid:
+                del list_e[key]
+                self.cid.event_supply = dumps(list_e)
+                DBase.session.commit()
+                return 1
+        return 0
+
+    def auto_manager_leads(self):
+        sett = DBSettingApi().get_setting_events()
+        if not sett['ge']["delete"] or sett['ce']["complete"]:
+            return
+        for client in self.get_all_client_by_mode(None, original=True):
+            self.new(client.client_id)
+            if time()-MONTH < client.date_closed and client.is_garbage:
+                self.delete_me()
+            elif client.is_open and FormatTime.get_days_left("".join(FormatTime.get_name_day_and_date(self.cid.event_date).split(" ")[2::])) < 0:
+                self.set_event_status(1)
+
 
     def delete_me(self):
         DBase.session.delete(self.cid)
@@ -693,6 +749,43 @@ class MoneyApi:
             t[i]["json"]["e"] = c.expen_fuel + c.expen_employee
 
 
-# with m_app.app_context():
-#     DBase.create_all()
-#     d = MoneyApi().get_e_and_p_year()
+class DBSettingApi:
+    def __init__(self):
+        self.sapi:Setting = Setting.query.first()
+
+    def ok(self) -> bool:
+        return bool(self.sapi)
+
+    def create(self) -> bool:
+        """
+        just for one
+        :return:
+        """
+        if self.ok():return False;
+        init_setting = Setting()
+        init_setting.garbage_event = D_SETTING["ge"]
+        init_setting.close_event   = D_SETTING["ce"]
+        DBase.session.add(init_setting)
+        DBase.session.commit()
+        return True
+    def new(self):
+        self.sapi:Setting = Setting.query.all().first()
+
+    def events_setting(self, _type, value:bool) -> bool:
+        if _type == "garbage":
+            new_setting = deepcopy(D_SETTING['ge'])
+            new_setting["delete"] = value
+            self.sapi.garbage_event = new_setting
+        elif _type == "complete":
+            new_setting = deepcopy(D_SETTING['ce'])
+            new_setting[_type] = value
+            self.sapi.close_event = new_setting
+        else:
+            return False
+
+        DBase.session.commit()
+        print(self.sapi.close_event, self.sapi.garbage_event)
+        return True
+
+    def get_setting_events(self):
+        return {"ge":self.sapi.garbage_event, "ce":self.sapi.close_event}

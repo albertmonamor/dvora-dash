@@ -1,5 +1,11 @@
+:root{
+    --d-color:rgb(52, 53, 65);
+    --l-color: rgb(235, 236, 249) ;
+}
+
+
 body{
-    background: rgb(52, 53, 65) !important;
+    background: var(--d-color) !important;
     font-family: 'Roboto', 'consolas';
     direction: rtl;
 }

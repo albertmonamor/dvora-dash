@@ -9,6 +9,13 @@ from Api.api_function import XOR
 from Api.protocol import DBase, m_app, PDF_OPTIONS, PATH_PDFKIT_EXE, BASEDIR
 
 
+class Setting(DBase.Model):
+    __tablename__ = "setting"
+    index           = DBase.Column(DBase.Integer, primary_key=True)
+    garbage_event   = DBase.Column(DBase.JSON, nullable=False)
+    close_event     = DBase.Column(DBase.JSON, nullable=False)
+
+
 class Users(DBase.Model):
     __tablename__ = "users"
     index       = DBase.Column(DBase.Integer, primary_key=True)

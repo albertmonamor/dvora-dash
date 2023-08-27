@@ -1,5 +1,6 @@
 
 
+edit_table_is_open = false;
 
 function getDateAsValue(strDate){
     const dateParts = strDate.split(".");
@@ -120,9 +121,10 @@ function editLeadInforamtion(_this, _type){
         parent = document.getElementById('body-table-information');
         for (tr of parent.children){
             b = tr.children[1];
-            if (b.textContent){
+            if (b.textContent && tr.children[0].id != "addequipment"){
                 count = b.textContent.split("x")[0];
                 b.innerHTML = `<input type="text" class="edit-table-input" value="${count}" placeholder="${b.textContent}">`;
+                edit_table_is_open = true;
             }
         }
         
@@ -220,6 +222,7 @@ function reEditInformation(_this, _type, toUpdate=0){
                 b.innerHTML = `${input.placeholder.split("x")[0]}<span style="font-size: 12px;">x${input.placeholder.split("x")[1]}</span>`;
             }
         }
+        edit_table_is_open = false;
         if (toUpdate){
             $.ajax({
                 url:"/update_lead/"+_type,
@@ -378,6 +381,59 @@ function reEditInformation(_this, _type, toUpdate=0){
 }
 
 
+function open_modal_add_equipment(_this){
+    cid =_this.parentElement.parentElement.parentElement.role;
+    var ML = document.createElement('div');
+    ML.id = "modaladdequipment"+cid
+    ML.classList.add('modal-link');
+    ML.style.zIndex = '1000';
+    document.body.appendChild(ML);
+
+    var MB = document.createElement('div');
+    MB.classList.add('modal-link-body');
+    ML.appendChild(MB);
+
+    var title = document.createElement('span');
+    title.classList.add("modal-link-title")
+    title.textContent = "הוספת ציוד ללקוח";
+    title.innerHTML += `<i onclick='close_modal_add_equipment("${cid}")' class="fa-solid fa-circle-xmark"></i>`
+    MB.appendChild(title)
+    var DB = document.createElement('div');
+    DB.innerHTML = `
+    <div class="search-form">
+        <span>חפש מתוך הרשימה</span>
+        <input class="search-input" id="searchinputadd" placeholder="לדוגמא: הגברה" oninput='showEquipmentBySearch(this.value)' name="search-equip">
+    </div>
+    <div class='list-equipment search-result' id="list-equipment">
+
+    </div>
+    <div class="search-action">
+        <button type="button" class="search-save-btn" onclick="updateEquipmentClient(this, '${cid}')">
+            <span>שמירה</span>
+            <i class="fa-solid fa-check"></i>
+        </button>
+    </div>
+    </div>
+    
+    `;
+    MB.appendChild(DB);
+    $.ajax({
+        url:"/template/15",
+        type:"post",
+        success:(res)=>{
+            if (res.success){
+                supply_json = res.supply;
+            }
+            else{
+                show_popup_error(res, null)
+            }
+        }
+    })
+}
+
+function close_modal_add_equipment(cid){
+    document.getElementById("modaladdequipment"+cid).remove()
+}
 /**
  * 
  * @param {Element} _this 
@@ -588,6 +644,75 @@ function event_finished(t, acid){
                 closeLeadInforamtionModal(null, cid);
                 setTimeout(()=>{close_modal_link(cid);getTemplate($("#0")[0],"0", 1);cleanHash();}, 2000);
 
+            }
+            else{
+                show_popup_error(res, null);
+            }
+        }
+    })
+}
+
+function showOptionItemEquipmentClient(t){
+    if (edit_table_is_open){return;}
+    reEditEquipmentItem()
+    eid = t.id;
+    cid = t.parentElement.role
+    t.onclick='';
+    div = document.createElement('div');
+    div.classList.add('edit-equipment-option');
+    div.innerHTML = `
+    <div class="equipment-option">
+        <div class="option-body-e">
+        <i class="fa-solid fa-trash-can" onclick="removeEquipmentItem(this, '${cid}', '${eid}', 5)"></i>
+        <i class="fa-solid fa-xmark" onclick="reEditEquipmentItem()"></i>
+        </div>
+    </div>
+    `
+    t.appendChild(div);
+
+
+}
+
+function removeEquipmentItem(t, cid, eid, _type){
+    equipment = document.getElementById(eid);
+    $.ajax({
+        url:"/update_lead/"+_type,
+        type:"post",
+        data:{"data":JSON.stringify({"eid":eid}), "client_id":cid},
+        success:(res)=>{
+            if (res.success){
+                parent = document.getElementById('body-table-information');
+                openLeadInformationModal(document.getElementById("10|"+cid));
+            }
+            else{
+                show_popup_error(res, null);
+            }
+        }
+    })
+    reEditEquipmentItem();
+}
+
+function reEditEquipmentItem(){
+    elem = document.getElementsByClassName("edit-equipment-option")[0]
+    if (elem == undefined){
+        return;
+    }
+    var parent_edit = elem.parentElement;
+    elem.remove();
+    setTimeout(function(){parent_edit.onclick= function(){showOptionItemEquipmentClient(this)}}, 1000);
+    
+}   
+
+function updateEquipmentClient(t, cid){
+    console.log(cid)
+    $.ajax({
+        url:"/add_equipment_client",
+        type:"post",
+        data:{"cid":cid, "supply":JSON.stringify(supply_json)},
+        success:(res)=>{
+            if (res.success){
+                close_modal_add_equipment(cid);
+                openLeadInformationModal(document.getElementById("10|"+cid));
             }
             else{
                 show_popup_error(res, null);

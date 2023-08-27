@@ -633,6 +633,19 @@ function countdown(ctime){
 }
 
 
+function logout(){
+    $.ajax({
+        url:"/l0g0ut",
+        success:(res)=>{
+            if (res.success){
+                location.href="/";
+            }
+            else{
+                show_popup_error(res, null);
+            }
+        }
+    })
+}
 
 /***
  * show alert 
@@ -651,6 +664,7 @@ window.onclick = function(event) {
 
     }
 }
+
 
 
 

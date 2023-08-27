@@ -1,13 +1,16 @@
 <div class="histories">
-  <div class="histories-tab">
       <button  id="opensearch" class="button-tab-leads" onclick="showSearchHistory(this)">
           <span> חיפוש <i class="fa-brands fa-searchengin"></i></span>
       </button>
       <button class="button-tab-leads" onclick="getTemplate($('#2')[0],'2', 1);">
           <span><i class="fa-solid fa-rotate-right"></i></span>
       </button>
+    <div class="filter-charts">
+        <button type="button" class="btn-fil" onclick="filter_event(this)" id="complate" role="close">הושלם</button>
+        <button type="button" class="btn-fil" onclick="filter_event(this)" id="cancelevent" role="garbage">בוטל</button>
+        <button type="button" class="btn-fil bfselcted" onclick="filter_event(this)" id="allevent" role="both">הכול</button>
     </div>
-</div>
+</div>  
 <div class="search-leads" id="searchleads">
     <input type="text" class="input-search-leads" id="searchinput" placeholder="פאלפון, שם לקוח">
     <button type="button" class="button-tab-leads" onclick="searchLeads(this, 'both', 2)">

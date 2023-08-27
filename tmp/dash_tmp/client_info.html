@@ -33,16 +33,20 @@
                 </thead>
                 <tbody id="body-table-information" role="{{ ci.client_id }}">
                     {% for k, item in ci.event_supply.items() %}
-                        <tr id="{{ k }}">
-                            <th class="c-bth name">{{ item.name }}</th>
-                            <th class="c-bth count">{{ item.count }}<span style="font-size: 12px;color: rgb(146, 216, 183);">x{{item.price}}</span></th>
-                            <th class="c-bth price">{{ (item.price*item.count) | decimal }} ש"ח</th>
+                        <tr id="{{ k }}" onclick="showOptionItemEquipmentClient(this)">
+                            <td class="c-bth name">{{ item.name }}</td>
+                            <td class="c-bth count">{{ item.count }}<span style="font-size: 12px;color: rgb(146, 216, 183);">x{{item.price}}</span></td>
+                            <td class="c-bth price">{{ (item.price*item.count) | decimal }} ש"ח</td>
                         </tr>
                     {% endfor %}
                         <tr>
-                            <th class="c-bth"></th>
-                            <th class="c-bth"></th>
-                            <th class="c-pth"><span class="total">סה"כ</span> {{ ci.pay_for_equipment | float | decimal }} <span style="font-size: 13px;">ש"ח</span></th>
+                            <td class="c-bth" id="addequipment">
+                                <button class="btn-add-equipment" type="button" onclick="open_modal_add_equipment(this)">
+                                    <i class="fa-solid fa-plus fa-xl"></i>
+                                </button>
+                            </td>
+                            <td class="c-bth"></th>
+                            <td class="c-pth"><span class="total">סה"כ</span> {{ ci.pay_for_equipment | float | decimal }} <span style="font-size: 13px;">ש"ח</span></td>
                         </tr>
                 </tbody>
             </table>

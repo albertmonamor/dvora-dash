@@ -47,7 +47,49 @@
           </button>
         </div>
       </div>
+      <div class="item">
+        <span class="title">כניסת מנהל</span>
+        <div class="body body-signature">
+          <button class="btn-add-sig" type="button" onclick="logout()">
+            <span>החלף חשבון</span>
+            <i class="fa-solid fa-right-from-bracket fa-rotate-180"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
+<section id="system-setting" class="part-section mrgn-15">
+  <div class="setting-owner">
+    <span class="title">הגדרות מערכת</span>
+    <div class="items">
+      <div class="item">
+        <span class="title">מחיקה אוטומטית לאירועים שבוטלו</span>
+        <div class="body body-signature">
+          <div class="switch-binary">
+            {% if sett.ge.delete %}
+              <input type="checkbox" checked id="tgl-event-grbg"  onchange="update_setting(this, 'garbage')" role="3" class="tgl-input">
+            {% else %}
+              <input type="checkbox" id="tgl-event-grbg"  onchange="update_setting(this, 'garbage')" role="3" class="tgl-input">
+            {% endif %}
+            <label for="tgl-event-grbg" class="tgl-label"></label>
+          </div>
+        </div>
+      </div>
+      <div class="item">
+        <span class="title">סיום אירוע אוטומטי</span>
+        <div class="body body-signature">
+          <div class="switch-binary">
+            {% if sett.ce.complete %}
+              <input type="checkbox" checked id="tgl-event-complete" onchange="update_setting(this, 'complete')" role="4" class="tgl-input">
+            {% else %}
+            <input type="checkbox" id="tgl-event-complete" onchange="update_setting(this, 'complete')" role="4" class="tgl-input"> 
+            {% endif %}
+            <label for="tgl-event-complete" class="tgl-label"></label>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>

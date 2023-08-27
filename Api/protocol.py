@@ -4,7 +4,7 @@ from datetime import timedelta
 from flask import Flask
 import os, binascii
 from flask_sqlalchemy import SQLAlchemy
-
+from flask_migrate import Migrate
 
 # /* db:name
 FILE_NAME_DB = "dvir"
@@ -16,6 +16,7 @@ m_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # // default
 m_app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
 m_app.secret_key = binascii.hexlify(os.urandom(25)).decode()
 DBase: SQLAlchemy = SQLAlchemy(m_app)
+migrate = Migrate(m_app, DBase)
 
 
 # /* conf
@@ -46,7 +47,6 @@ EMPTY_LEAD_T            = "אין אירועים קרובים"
 EMPTY_HISTORY           = "ההיסטוריה ריקה"
 # /** templates
 T404                    = "/error_tmp/404.html"
-
 # time
 DAY       = 3600*24
 MONTH     = DAY*30
@@ -66,3 +66,6 @@ else:
     BASEDIR         = "/home/dror/dvir-dvora"
 
 DOMAIN_NAME     = "dror.pythonanywhere.com"
+D_SETTING = {"ge":{"delete":False, "after":MONTH},
+             "ce":{"complete":False}
+             }

@@ -313,3 +313,4 @@ def verify_mail(mail:str) -> int:
         return 0
 
     return 1
+

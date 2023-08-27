@@ -63,12 +63,13 @@ function set_identify(t){
 
 }
 
-function update_or_set_ajax(t, data){
+function update_or_set_ajax(t, data, callb=null){
     $.ajax({
         url:"/setting/"+t.role,
         type:"post",
         data:data,
         success:(res)=>{
+            callb ? callb(res):undefined;
             if (res.success){
                 getTemplate($('#4')[0],'4', 1);
             }
@@ -92,3 +93,18 @@ function hide_ms(rechache=0){
 
 }
 
+
+/**
+ * 
+ * @param {Element} t 
+ */
+function update_setting(t, ts){
+    const value = t.checked ? 1 : 0;
+    
+    update_or_set_ajax(t, {"ts":ts, "value":value}, function(res){
+        if (!res.success){
+            t.checked = false;
+        }
+    });
+
+}

@@ -91,6 +91,63 @@ button{
     font-size: 24px;
     box-shadow: 0px 0px 4px 5px rgba(59, 42, 125, 0.37);
 }
+
+/* switchers */
+.switch-binary{
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 30px;
+    border-radius: 15px;
+
+}
+.switch-binary:hover,
+.switch-binary:active{
+    box-shadow: 0 0 11px 0 rgba(108, 85, 207, 1);
+}
+.tgl-input {
+    display: none;
+}
+
+.tgl-label{
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-color: #ccc;
+    border-radius: 15px;
+    position: absolute;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.tgl-label::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 26px;
+    height: 26px;
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: 0 0 11px 0  black;
+    transition: transform 0.3s;
+}
+.tgl-input:checked + .tgl-label {
+    background-color: rgb(125, 101, 221);
+}
+  
+.tgl-input:checked + .tgl-label::after {
+    transform: translateX(-30px); 
+}
+  
+  
+  
+  
+  
+
+
+
+
 @media screen and (max-width:1000px) {
     .button-start-addlead{
         width: 50%;
