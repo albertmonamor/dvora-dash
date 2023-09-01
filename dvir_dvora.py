@@ -146,6 +146,9 @@ def get_template_dashboard(tmp):
     elif tmp == "10":
         capi.new(cid)
         client_info = capi.get_info_client()
+        if not client_info:
+            error["notice"] = "מזהה לקוח שגוי"
+            return error
 
         res_tmp = "/dash_tmp/client_info.html"
         return jsonify({"success":True, "template":render_template(res_tmp, ci=client_info)})
@@ -205,8 +208,7 @@ def add_lead():
             return result[1]
 
     # // SUCCESS
-    equipment_is_ok, s_lead = DBSupplyApi.verify_equipments(loads(equipment))
-
+    equipment_is_ok, s_lead = DBSupplyApi.verify_equipments(equipment)
     if not DBSupplyApi.equipment_exist() or not equipment_is_ok :
         return jsonify(EQUIP_ERROR)
     # // SUCCESS
@@ -357,7 +359,8 @@ def add_equipment_client():
     cid = request.form.get("cid")
     supply = request.form.get("supply", "{}")
     capi = DBClientApi(cid)
-    status, equipment = DBSupplyApi.verify_equipments(loads(supply))
+
+    status, equipment = DBSupplyApi.verify_equipments(supply)
     if not capi.ok() or not status:
         error["notice"] = "משהו השתבש בציוד או בלקוח"
         return jsonify(error)
@@ -562,7 +565,7 @@ def add_agreement():
 
     capi = DBClientApi(client_id)
     aapi = DBAgreeApi(agree_id)
-    if not capi.ok() or not aapi.ok():
+    if not capi.ok() or not aapi.ok() or capi.cid.is_signature:
         return jsonify(error)
 
     fname = request.form.get("fname") or capi.cid.full_name

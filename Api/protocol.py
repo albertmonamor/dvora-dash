@@ -25,6 +25,8 @@ get_random_key: callable = lambda: binascii.b2a_hex(os.urandom(5)).decode()
 APP = {0:"android"}
 # /* api json
 # /* global scope of flags
+SESSIONS                = [{"ip":0, "session":"", "gone":False}]
+AV_NOTICE               = "זוהה שינוי מכוון בחבילת המידע"
 LOGIN_FAILED: dict      = {"success":False, "title":"שגיאה" , "notice": "הסיסמה או השם לא מוכרים"}
 LOGIN_SUCCESS: dict     = {"success":True,  "title":None, "notice":None, 'location':'/dashboard'}
 UN_ERROR: dict          = {"success":False, "title":"שגיאה", "notice":"תרענן את הדף"}

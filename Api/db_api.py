@@ -10,7 +10,7 @@ from Api.api_function import FormatTime, generate_invoice_path, check_level_new_
     generate_link_show_agree
 from time import ctime, time, gmtime, mktime
 from Api.protocol import SIX_MONTH, BASEDIR, PDF_OPTIONS, UPDATE_LEAD_ERROR, AGREE_SESS_LIFE, PATH_PDFKIT_EXE, \
-    D_SETTING, MONTH
+    D_SETTING, MONTH, AV_NOTICE
 
 
 # =============== Users table ===================
@@ -309,7 +309,12 @@ class DBClientApi:
             return error
 
         if kind == "0":
-            new_equip = loads(data)
+            error["notice"] = "ציוד לא קיים"
+            try:
+                new_equip = loads(data)
+            except UnicodeDecodeError:
+                return error
+
             last_equip = self.get_client_equipment()
             for neq in new_equip:
                 try:
@@ -346,8 +351,11 @@ class DBClientApi:
             DBase.session.commit()
 
         elif kind == "3":
-            new_expense = loads(data)
             error['notice'] = "הוצאה לא תקינה"
+            try:
+                new_expense = loads(data)
+            except UnicodeDecodeError:
+                return error
             for index, exp in enumerate(new_expense):
                 try:
                     new_expense[index] = int(float(exp.replace("₪", "")))
@@ -360,7 +368,11 @@ class DBClientApi:
 
         elif kind == "4":
             clear = lambda x: x.replace(" ", "").replace("₪", "").replace(",", "")
-            data = loads(data)
+            try:
+                data = loads(data)
+            except UnicodeDecodeError:
+                error["notice"] = AV_NOTICE
+                return error
             dmoney = clear(data["dmoney"])
             total:str = clear(data["total_money"])
             status, _ = check_level_new_lead('8', dmoney)
@@ -381,8 +393,12 @@ class DBClientApi:
             DBase.session.commit()
 
         elif kind == "5":
-            equip = loads(data)
             error["notice"] = "שגיאה בעת מחיקת הציוד"
+            try:
+                equip = loads(data)
+            except UnicodeDecodeError:
+                return error
+
             if not equip.get("eid"):
                 return error
 
@@ -469,9 +485,10 @@ class DBSupplyApi:
         return bool(self.ei)
 
     @staticmethod
-    def verify_equipments(equip: dict) -> tuple[bool, dict]:
+    def verify_equipments(equip: str) -> tuple[bool, dict]:
         equip_lead = {}
         try:
+            equip = loads(equip)
             for key, supply in equip.items():
                 # db
                 # self.new(supply['id'])
