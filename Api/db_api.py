@@ -9,8 +9,7 @@ from Api.databases import Client, DBase, m_app, Users, Invoice, Supply, ClientAg
 from Api.api_function import FormatTime, generate_invoice_path, check_level_new_lead, generate_link_edit_agree, \
     generate_link_show_agree
 from time import ctime, time, gmtime, mktime
-from Api.protocol import SIX_MONTH, BASEDIR, PDF_OPTIONS, UPDATE_LEAD_ERROR, AGREE_SESS_LIFE, PATH_PDFKIT_EXE, \
-    D_SETTING, MONTH, AV_NOTICE
+from Api.protocol import SIX_MONTH, BASEDIR, PDF_OPTIONS, getX, MONTH, PATH_PDFKIT_EXE, AGREE_SESS_LIFE, D_SETTING
 
 
 # =============== Users table ===================
@@ -299,21 +298,18 @@ class DBClientApi:
 
 
     def update_lead_information(self, kind:str, data:...):
-        error = dict(UPDATE_LEAD_ERROR)
+        error = getX(0)
         # /* valid: id or is closed/garbage */
         if not self.ok():
-            error["notice"] = "מזהה לא ידוע"
-            return error
+            return getX(44)
         elif not self.cid.is_open or self.cid.is_garbage:
-            error["notice"] = "לא ניתן לעדכן אירוע סגור"
-            return error
+            return getX(45)
 
         if kind == "0":
-            error["notice"] = "ציוד לא קיים"
             try:
                 new_equip = loads(data)
             except UnicodeDecodeError:
-                return error
+                return getX(46)
 
             last_equip = self.get_client_equipment()
             for neq in new_equip:
@@ -324,8 +320,7 @@ class DBClientApi:
 
                     last_equip[neq['equip_id']]["count"] = int(neq["count"])
                 except KeyError:
-                    error["notice"] = "ציוד לא קיים"
-                    return error
+                    return getX(46)
 
             self.cid.event_supply = dumps(last_equip)
             DBase.session.commit()
@@ -337,25 +332,22 @@ class DBClientApi:
         elif kind == "1":
             status, _ = check_level_new_lead('6', data)
             if not status:
-                error["notice"] = "תאריך לא תקין"
-                return error
+                return getX(47)
             self.cid.event_date = data
             DBase.session.commit()
 
         elif kind == "2":
             status, _ = check_level_new_lead('7', data)
             if not status:
-                error["notice"] = "המיקום לא תקין"
-                return error
+                return getX(48)
             self.cid.event_place = data
             DBase.session.commit()
 
         elif kind == "3":
-            error['notice'] = "הוצאה לא תקינה"
             try:
                 new_expense = loads(data)
             except UnicodeDecodeError:
-                return error
+                return getX(49)
             for index, exp in enumerate(new_expense):
                 try:
                     new_expense[index] = int(float(exp.replace("₪", "")))
@@ -371,39 +363,34 @@ class DBClientApi:
             try:
                 data = loads(data)
             except UnicodeDecodeError:
-                error["notice"] = AV_NOTICE
-                return error
+                return getX(50)
             dmoney = clear(data["dmoney"])
             total:str = clear(data["total_money"])
             status, _ = check_level_new_lead('8', dmoney)
 
             if not status:
-                error['notice'] = "מקדמה לא תקינה"
-                return error
+                return getX(36)
             # /* sec:bug <bypass less -1>
             if not data["type_pay"].isdigit() or not self.is_type_payment_valid():
-                error["notice"] = "סוג תשלום לא תקין"
-                return error
+                return getX(40)
             if not total or not total.isdigit():
-                error["notice"] = 'סכום לתשלום לא תקין'
-                return error
+                return getX(51)
             self.cid.d_money = float(dmoney)
             self.cid.type_pay = int(data["type_pay"])
             self.cid.client_payment = int(total)
             DBase.session.commit()
 
         elif kind == "5":
-            error["notice"] = "שגיאה בעת מחיקת הציוד"
             try:
                 equip = loads(data)
             except UnicodeDecodeError:
-                return error
+                return getX(52)
 
             if not equip.get("eid"):
-                return error
+                return getX(52)
 
             elif not self.delete_equipment_client(equip["eid"]):
-                return error
+                return getX(52)
 
             self.new(self._cid)
             self.cid.client_payment = int(self.get_info_equipment()["money"])
@@ -430,7 +417,8 @@ class DBClientApi:
 
     def create_agreement(self, admin, override) -> tuple:
         if not self.ok():
-            return "לקוח לא קיים",0
+            #53
+            return getX(53, n=True),0
 
         aapi = DBAgreeApi(self._cid, by_cid=True)
         return aapi.create_agreement(admin=admin, is_order=self.is_order_equipment(), override=override)
@@ -457,6 +445,8 @@ class DBClientApi:
             return
         for client in self.get_all_client_by_mode(None, original=True):
             self.new(client.client_id)
+            if not client.is_signature or not self.is_order_equipment():continue
+
             if time()-MONTH < client.date_closed and client.is_garbage:
                 self.delete_me()
             elif client.is_open and FormatTime.get_days_left("".join(FormatTime.get_name_day_and_date(self.cid.event_date).split(" ")[2::])) < 0:
@@ -578,8 +568,7 @@ class DBAgreeApi:
 
     def add_agreement(self, sig_client, data:list, capi:"DBClientApi" ,_e) -> dict:
         if self.is_expired():
-            _e["notice"] = "הקישור פג תוקף"
-            return  _e
+            return  getX(54)
 
         for i, v in zip([2, 7, 4, 3, 6], data):
             b, r = check_level_new_lead(str(i), v)
@@ -602,11 +591,11 @@ class DBAgreeApi:
         agree_id = generate_id_agree()
         usr = DBUserApi(admin)
         if not usr.ok():
-            return "שיגאה בזיהוי המנהל", 0
+            return getX(29, n=True), 0
         if self.ok() and self.aid.is_accepted:
-            return "הלקוח חתם על החוזה", 0
+            return getX(55, n=True), 0
         elif not is_order:
-            return "אין ציוד בהזמנה", 0
+            return getX(56, n=True), 0
         elif self.ok() and not self.aid.is_accepted:
             # /* update signature time and key */
             if override == "1":

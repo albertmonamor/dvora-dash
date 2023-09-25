@@ -1,4 +1,4 @@
-from json import loads, dumps
+from json import dumps
 from time import sleep
 
 from werkzeug.datastructures import FileStorage
@@ -7,7 +7,7 @@ from Api.api_function import check_level_new_lead, check_equipment, verify_mail,
 from Api.protocol import *
 from flask import render_template, request, session, jsonify, redirect, url_for, \
     send_from_directory
-from Api.databases import DBase, signup, db_new_client, add_supply \
+from Api.databases import DBase, db_new_client, add_supply \
     , time, generate_id_supply, export_txt_equipment, import_txt_equipment
 
 from Api.db_api import DBClientApi, DBUserApi, DBSupplyApi, DBAgreeApi, MoneyApi, DBSettingApi
@@ -67,7 +67,7 @@ def login():
             del session['sess-login']
         return jsonify(LOGIN_SUCCESS)
     else:
-        return jsonify(LOGIN_FAILED)
+        return jsonify(getX(0))
 
 # response: <html template>                  << HTML
 @m_app.route("/dashboard", methods=['GET'])
@@ -78,22 +78,11 @@ def dashboard():
     return render_template('dashboard.html')
 
 # ------------- API -------------------
-
-@m_app.route("/api/mobile/<action>", methods=["POST"])
-def api(action:str):
-    if not session.get("is_admin"):
-        return jsonify(UN_ERROR)
-
-    if action == "leads":
-        kind = request.form.get("kind")
-        cid = DBClientApi("none")
-        return jsonify({"success":True, "clients":cid.get_all_client_by_mode(kind)})
 @m_app.route("/template/<tmp>", methods=['POST'])
 def get_template_dashboard(tmp):
-    error = dict(UN_ERROR)
 
     if not session.get('is_admin'):
-        return jsonify(TMP_DENIED)
+        return jsonify(getX(2))
     # /* default template */
     res_tmp:str = T404
     # /* default title */
@@ -147,15 +136,14 @@ def get_template_dashboard(tmp):
         capi.new(cid)
         client_info = capi.get_info_client()
         if not client_info:
-            error["notice"] = "מזהה לקוח שגוי"
-            return error
+            return jsonify(getX(57))
 
         res_tmp = "/dash_tmp/client_info.html"
         return jsonify({"success":True, "template":render_template(res_tmp, ci=client_info)})
     elif tmp == '15':
         if not DBSupplyApi.equipment_exist():
-            error["notice"] = "הוסף ציוד לפני הוספת לקוח"
-            return jsonify(error)
+            # // 9
+            return jsonify(getX(9))
         res_tmp = "/dash_tmp/add_lead.html"
         return jsonify({"success":True,
                         "template":render_template(res_tmp,user=session['user']),
@@ -172,7 +160,7 @@ def get_template_dashboard(tmp):
 @m_app.route("/new_lead", methods=["POST"])
 def new_lead():
     if not session.get("is_admin"):
-        return jsonify(TMP_DENIED)
+        return jsonify(getX(2))
 
     level    = request.form.get("level", "-1") or "-1"
     value    = request.form.get('value', "error")
@@ -180,9 +168,8 @@ def new_lead():
 
 @m_app.route("/add_lead", methods=["POST"])
 def add_lead():
-    res:dict = dict(LEAD_ERROR)
     if not session.get("is_admin"):
-        return jsonify(TMP_DENIED)
+        return jsonify(getX(2))
 
     name       = request.form.get("name", 0)
     phone      = request.form.get("phone", 0)
@@ -196,9 +183,8 @@ def add_lead():
     exp_employee = request.form.get("exp_employee", 0)
     type_pay    = request.form.get("type_pay", -1)
     # /* Irrelevant
-    if not any(request.form.values()) :
-        res["notice"] = "אחד מהנתונים חסר או לא תקין!"
-        return jsonify(res)
+    if not any(request.form.values()):
+        return jsonify(getX(10))
 
     # // SUCCESS
     for _index, (k, v) in enumerate(request.form.items()):
@@ -210,7 +196,7 @@ def add_lead():
     # // SUCCESS
     equipment_is_ok, s_lead = DBSupplyApi.verify_equipments(equipment)
     if not DBSupplyApi.equipment_exist() or not equipment_is_ok :
-        return jsonify(EQUIP_ERROR)
+        return jsonify(getX(3))
     # // SUCCESS
     db_new_client(write_by=session['user'],
                   last_write=time(),
@@ -231,20 +217,20 @@ def add_lead():
                   client_payment=int(payment)-(int(exp_fuel)+int(exp_employee)),
                   type_pay=type_pay)
     # SUCCESS
-    return jsonify(EQUIP_SUCCESS)
+    return jsonify(getX(4))
 
 
 @m_app.route("/search_lead/<data>", methods=["POST"])
 def search_lead(data):
-    error = dict(SEARCH_LEAD_ERR)
+    error = dict(getX(5))
     res_tmp = ''
     if not session.get("is_admin"):
-        return jsonify(TMP_DENIED)
+        return jsonify(getX(2))
 
     type_search = request.form.get("type_search")
     template    = request.form.get("template")
     if not data or not type_search or not template:
-        return jsonify({error})
+        return jsonify(error)
 
     # /* default template */
     if template == '0':
@@ -263,10 +249,10 @@ def search_lead(data):
 
 @m_app.route("/filter", methods=["POST"])
 def filter_az():
-    error = dict(SEARCH_LEAD_ERR)
+    error = dict(getX(5))
     res_tmp = ''
     if not session.get("is_admin"):
-        return jsonify(TMP_DENIED)
+        return jsonify(getX(2))
 
     type_filter = request.form.get("type_filter")
     tmp    = request.form.get("tmp")
@@ -288,10 +274,10 @@ def filter_az():
 
 @m_app.route("/add_equipment", methods=["POST"])
 def add_equipment():
-    error = dict(EQUIP_ERROR)
+    error = dict(getX(3))
 
     if not session.get("is_admin"):
-        return jsonify(TMP_DENIED)
+        return jsonify(getX(2))
     result = check_equipment(request.form)
     if not result[0]:
         error["notice"] = result[1]
@@ -310,10 +296,10 @@ def add_equipment():
 
 @m_app.route("/update_equipment/<eq_id>", methods=["POST"])
 def update_equipment(eq_id):
-    error = dict(EQUIP_ERROR)
+    error = dict(getX(3))
 
     if not session.get("is_admin"):
-        return jsonify(TMP_DENIED)
+        return jsonify(getX(2))
 
     result = check_equipment(request.form)
     if not result[0]:
@@ -323,6 +309,7 @@ def update_equipment(eq_id):
 
     equip = DBSupplyApi(eq_id)
     if not equip.ok():
+        # // 11
         error["notice"] = "ציוד לא מוכר"
         return jsonify(error)
 
@@ -336,12 +323,13 @@ def update_equipment(eq_id):
 
 @m_app.route("/del_equipment/<eq_id>", methods=["POST"])
 def del_equipment(eq_id):
-    error = dict(EQUIP_ERROR)
+    error = dict(getX(3))
 
     if not session.get("is_admin"):
-        return jsonify(TMP_DENIED)
+        return jsonify(getX(2))
     equip = DBSupplyApi(eq_id)
     if not equip.ok():
+        # 12
         error["notice"] = "נמחק או לא קיים"
         return jsonify(error)
     # delete
@@ -352,9 +340,9 @@ def del_equipment(eq_id):
 
 @m_app.route("/add_equipment_client", methods=["POST"])
 def add_equipment_client():
-    error = dict(EQUIP_ERROR)
+    error = dict(getX(3))
     if not session.get("is_admin"):
-        return jsonify(TMP_DENIED)
+        return jsonify(getX(2))
 
     cid = request.form.get("cid")
     supply = request.form.get("supply", "{}")
@@ -362,6 +350,7 @@ def add_equipment_client():
 
     status, equipment = DBSupplyApi.verify_equipments(supply)
     if not capi.ok() or not status:
+        # 13
         error["notice"] = "משהו השתבש בציוד או בלקוח"
         return jsonify(error)
 
@@ -370,12 +359,12 @@ def add_equipment_client():
 
 @m_app.route("/event_lead_action/<action>", methods=["POST", "GET"])
 def event_actions(action:str):
-    error = dict(LEAD_ERROR)
+    error = dict(getX(3))
     if not session.get("is_admin"):
         if request.method == "GET":
             return redirect(url_for("index"),302)
 
-        return jsonify(TMP_DENIED)
+        return jsonify(getX(2))
 
     client_id = request.form.get("client_id")
     capi = DBClientApi(client_id)
@@ -389,15 +378,14 @@ def event_actions(action:str):
     elif action == "1":
         aapi = DBAgreeApi(client_id, by_cid=True)
         if not aapi.ok() or not aapi.is_agreement_singed():
-            error["notice"] = "הלקוח לא חתם על החוזה"
-            return jsonify(error)
+            return jsonify(getX(14))
 
         if not capi.set_event_status(1):
             return jsonify(error)
     elif action == "2":
         # create invoice
         if not capi.create_invoice_event(session['user']):
-            return jsonify(INVOICE_ACTION_ERR)
+            return jsonify(getX(0))
 
     elif action == "3":
 
@@ -413,8 +401,7 @@ def event_actions(action:str):
     elif action == "4":
         usr = DBUserApi(session['user'])
         if not usr.ok() or not usr.info_exist():
-            error["notice"] = "הגדר חתימה ופרטי עוסק!"
-            return jsonify(error)
+            return jsonify(getX(15))
 
         capi.new(client_id)
         override = request.form.get("override", "0")
@@ -428,14 +415,12 @@ def event_actions(action:str):
 
     elif action == "5":
         if not capi.set_event_status(2):
-            error["notice"] = "שיחזור האירוע נכשל"
-            return jsonify(error)
+            return jsonify(getX(16))
 
     elif action == "6":
         aapi = DBAgreeApi(client_id, by_cid=True)
-        error["notice"] = "שגיאה במזהה לקוח"
         if not aapi.ok():
-            return jsonify(error)
+            return jsonify(getX(17))
 
         si = aapi.set_show_agreement()
         return jsonify({"success":True, "url_params":si})
@@ -450,7 +435,7 @@ def event_actions(action:str):
 @m_app.route("/update_lead/<kind>", methods=["POST"])
 def update_lead(kind):
     if not session.get("is_admin"):
-        return jsonify(TMP_DENIED)
+        return jsonify(getX(2))
 
     data = request.form.get("data")
     cid = request.form.get("client_id")
@@ -459,17 +444,18 @@ def update_lead(kind):
 
 @m_app.route("/import_txt", methods=["POST"])
 def upload_equipment_txt():
-    error = dict(IMPORT_TXT_ERROR)
+    error = getX(58)
     if not session.get("is_admin"):
-        return jsonify(TMP_DENIED)
+        return jsonify(getX(2))
 
     file_s:FileStorage = request.files.get("txt")
     nonce = request.form.get("nonce")
 
     if session.get("nonce_import") != nonce:
-        return jsonify(UN_ERROR)
+        return jsonify(getX(1))
 
     if not file_s:
+        #  18
         error["notice"] = "detected: burpsuite/proxy"
         return jsonify(error)
 
@@ -478,10 +464,12 @@ def upload_equipment_txt():
     binary = file_s.stream.read()
     key_xor = DBUserApi(session['user']).u.pwd
     if binary.__len__() > MAX_IMPORT_TXT:
+        # 19
         error["notice"] = "קובץ גדול מידיי"
         return jsonify(error)
 
     if not import_txt_equipment(binary, key_xor):
+        # 20
         error["notice"] = "ייבוא הקובץ נכשל"
         return jsonify(error)
 
@@ -506,7 +494,7 @@ def download_equipment_txt():
 @m_app.route("/agreement", methods=["POST", "GET"])
 @m_app.route("/agreement/", methods=["POST", "GET"])
 def agreement():
-    error = dict(AGREE_ERROR)
+    error = dict(getX(7))
     page_error = "/error_tmp/agreement_error.html"
 
     client_id = request.args.get("cid")
@@ -516,29 +504,23 @@ def agreement():
     aapi = DBAgreeApi(agree_id)
     capi = DBClientApi(client_id)
     if not any(request.args):
-        error["notice"] = "הקישור לא תקין"
-        return render_template(page_error, msg=error)
-
+        return render_template(page_error, msg=getX(21))
     if not show_id and (not capi.ok() or not aapi.ok()):
-        error["notice"] = "מזהה חוזה לא תקין"
-        return render_template(page_error, msg=error)
+
+        return render_template(page_error, msg=getX(22))
     elif show_id and not capi.ok():
-        error["notice"] = "מזהה חוזה לא תקין"
-        return render_template(page_error, msg=error)
+        return render_template(page_error, msg=getX(23))
 
     usr = DBUserApi(capi.cid.write_by)
 
     if not show_id:
         if aapi.is_expired():
-            error["notice"] = "פג תוקף הקישור"
-            return render_template(page_error, msg=error)
+            return render_template(page_error, msg=getX(24))
         elif aapi.is_accept():
-            error["notice"] = "מסמך זה נחתם ורשום במערכת"
-            return render_template(page_error, msg=error)
+            return render_template(page_error, msg=getX(25))
 
     elif show_id and not aapi.new(show_id, by_si=1) or not capi.ok():
-        error["notice"] = "לא ניתן לפתוח את חוזה השכרה"
-        return render_template(page_error, msg=error)
+        return render_template(page_error, msg=getX(26))
 
     # /* analyze equipment on this client */
     equipment = capi.get_client_equipment()
@@ -553,8 +535,7 @@ def agreement():
 @m_app.route("/add_agreement", methods=["POST"])
 @m_app.route("/add_agreement/", methods=["POST"])
 def add_agreement():
-    error = dict(AGREE_ERROR)
-    error["notice"] = "קישור לא תקין"
+    error = getX(21)
     page_error = "/error_tmp/agreement_error.html"
 
     if not any(request.args) or not any(request.form):
@@ -576,29 +557,27 @@ def add_agreement():
     signature = request.form.get("signature")
 
     if not signature or signature.__len__() < 4000:
-        error["notice"] = "החתימה קצרה מידיי"
-        return jsonify(error)
+        return jsonify(getX(27))
 
     desc = aapi.add_agreement(signature, [fname,location, identify, phone, udate], capi, error)
     if not desc["success"]:
         error["notice"] = desc["notice"]
         return error
 
-    return jsonify({"success":True, "template": render_template(page_error, msg=SUCCESS_AGREE)})
+    return jsonify({"success":True, "template": render_template(page_error, msg=getX(8))})
 
 
 @m_app.route("/setting/<ac>", methods=["POST"])
 def setting(ac:str):
 
-    error = dict(UN_ERROR)
+    error = dict(getX(1))
     if not session.get("is_admin"):
-        return jsonify(TMP_DENIED)
+        return jsonify(getX(2))
 
     if not ac or not ac.isdigit() or not any(request.form):
         return jsonify(error)
     elif not session.get("user"):
-        error["notice"] = "התחבר מחדש"
-        return jsonify(error)
+        return jsonify(getX(28))
 
     usr = DBUserApi(session['user'])
 
@@ -606,28 +585,24 @@ def setting(ac:str):
     if ac == "0":
         signature = request.form.get("signature", str())
         if signature.__len__() < 3500:
-            error["notice"] = "חתימה קצרה מידיי"
-            return jsonify(error)
+            return jsonify(getX(27))
 
         if not usr.ok():#or not usr.admin():
-            error["notice"] = "שגיאה בזיהוי המנהל"
-            return jsonify(error)
+            return jsonify(getX(29))
 
         usr.u.signature = signature
     # /*  email */
     elif ac == "1":
         email = request.form.get('email', str())
         if not verify_mail(email):
-            error["notice"] = "דואר לא תקין"
-            return jsonify(error)
+            return jsonify(getX(30))
 
         usr.u.email = email
     # /* identify */
     elif ac == "2":
         identify = request.form.get("identify", str())
         if not idValid(identify):
-            error["notice"] = "תעודת זהות שגויה"
-            return jsonify(error)
+            return jsonify(getX(31))
 
         usr.u.identify = identify
     # /* delete auto garbage */
@@ -645,10 +620,10 @@ def setting(ac:str):
 @m_app.route("/money/<ac>", methods=["POST"])
 def money_api(ac:str):
 
-    error = dict(UN_ERROR)
+    error = dict(getX(1))
     json_graph = []
     if not session.get("is_admin"):
-        return jsonify(TMP_DENIED)
+        return jsonify(getX(2))
 
     if not ac or not any(request.form):
         return jsonify(error)

@@ -2,7 +2,7 @@ import sys
 
 from flask import jsonify
 from time import gmtime, time, ctime, strptime, mktime
-from Api.protocol import UN_ERROR, LEAD_ERROR, BASEDIR, DOMAIN_NAME
+from Api.protocol import BASEDIR, DOMAIN_NAME, getX
 import calendar
 
 DAYS_HEBREW = {
@@ -22,44 +22,39 @@ def contain_html_entities(_str:str)-> bool:
 
 
 def check_level_new_lead(level:str, value:str) -> tuple[int, jsonify]:
-    __err = dict(LEAD_ERROR)
+    __err = dict(getX(1))
     __suc = {"success":True}
     # /* first
     if value == "error" or level == "-1":
-        return 0, jsonify(UN_ERROR)
+        return 0, jsonify(__err)
 
     # /* from 1 to 10
     if level == "1":
         return 1, jsonify(__suc)
     elif level == "2":
         if not (2 <= value.__len__() < 20) and not contain_html_entities(value):
-            __err['notice'] = "השם קצר/ארוך מידיי"
-            return 0, jsonify(__err)
+            return 0, jsonify(getX(32))
 
 
     elif level == "3":
         if value.__len__() != 10 or not value.isdigit():
-            __err['notice'] = " מספר פלאפון לא קיים"
-            return 0, jsonify(__err)
+            return 0, jsonify(getX(33))
     elif level == "4":
         # /* id : pass now
         if value.__len__() > 10 or not idValid(value):
-            __err["notice"] = "תז לא תקינה"
-            return 0, jsonify(__err)
+            return 0, jsonify(getX(31))
     elif level == "5":
         # /* irrelevant
         pass
     elif level == "6":
-        __err["notice"] = "התאריך שהוגדר עבר"
         try:
             if not value or not verify_date(value):
-                return 0, jsonify(__err)
+                return 0, jsonify(getX(34))
         except (ValueError, Exception):
-            return 0, jsonify(__err)
+            return 0, jsonify(getX(34))
     elif level == "7":
         if not (2 < value.__len__() < 100) and not contain_html_entities(value):
-            __err["notice"] = "הכתובת שצויינה לא ברורה"
-            return 0, jsonify(__err)
+            return 0, jsonify(getX(35))
     elif level == "8":
         try:
             value = float(value)
@@ -67,24 +62,19 @@ def check_level_new_lead(level:str, value:str) -> tuple[int, jsonify]:
             # /* float error */
             value = ""
         if not isinstance(value, float):
-            __err['notice'] = "מקדמה לא תקינה"
-            return 0, jsonify(__err)
+            return 0, jsonify(getX(36))
     elif level == "9":
         if not value.isdigit():
-            __err['notice'] = "סך כולל לא תקין"
-            return 0, jsonify(__err)
+            return 0, jsonify(getX(37))
     elif level == "10":
         if not value.isdigit():
-            __err["notice"] = 'הוצאות דלק שגוי'
-            return 0, jsonify(__err)
+            return 0, jsonify(getX(38))
     elif level == "11":
         if not value.isdigit():
-            __err["notice"] = "הוצאות עובדים לא תקין"
-            return 0, jsonify(__err)
+            return 0, jsonify(getX(39))
     elif level == "12":
         if not value.isdigit() or int(value) > 3:
-            __err["notice"] = 'אמצעי תשלום לא תקין'
-            return 0, jsonify(__err)
+            return 0, jsonify(getX(40))
     return 1, jsonify(__suc)
 
 def verify_date(value):
@@ -237,11 +227,11 @@ def check_equipment(data:dict[str]) -> tuple[bool, str]:
     exist:str = data.get("exist", "")
 
     if not name or name.__len__() > 15 or contain_html_entities(name):
-        return False, "שם ארוך מידיי"
+        return False, getX(42, n=True)
     if not price or not price.isdigit():
-        return False, "מחיר לא תקין"
+        return False, getX(42, n=True)
     if not exist or not exist.isdigit():
-        return False, "כמות לא תקינה"
+        return False, getX(43, n=True)
 
     # SUCCESS
     return True, ""
