@@ -1,8 +1,12 @@
+import json
 import sys
 
 from flask import jsonify
 from time import gmtime, time, ctime, strptime, mktime
-from Api.protocol import BASEDIR, DOMAIN_NAME, getX
+
+from werkzeug import Request
+
+from Api.protocol import BASEDIR, DOMAIN_NAME, getX, CON_FORM, CON_JSON, CON_ARGS
 import calendar
 
 DAYS_HEBREW = {
@@ -303,4 +307,19 @@ def verify_mail(mail:str) -> int:
         return 0
 
     return 1
+
+
+def getPostData(req:Request) -> dict:
+    if req.content_type is None:return dict()
+    if CON_FORM in req.content_type:
+        return req.form
+
+    elif CON_JSON in req.content_type:
+        return req.json
+
+    elif CON_ARGS and req.method == 'GET':
+        return req.args
+
+    # else return empty dictionary
+    return dict()
 

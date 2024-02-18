@@ -1,9 +1,7 @@
 from json import dumps
-from time import sleep
-
 from werkzeug.datastructures import FileStorage
 
-from Api.api_function import check_level_new_lead, check_equipment, verify_mail, idValid
+from Api.api_function import check_level_new_lead, check_equipment, verify_mail, idValid, getPostData
 from Api.protocol import *
 from flask import render_template, request, session, jsonify, redirect, url_for, \
     send_from_directory
@@ -11,20 +9,7 @@ from Api.databases import DBase, db_new_client, add_supply \
     , time, generate_id_supply, export_txt_equipment, import_txt_equipment
 
 from Api.db_api import DBClientApi, DBUserApi, DBSupplyApi, DBAgreeApi, MoneyApi, DBSettingApi
-
-
-# ==================== FILTER =========================
-@m_app.template_filter('decimal')
-def decimal_integer(value):
-    return f"{value:,}"
-
-#  ******************* ROUTES *************************
-
-#@m_app.errorhandler(500)
-@m_app.errorhandler(404)
-def _404(n_error=None):
-    sleep(2)
-    return render_template("./error_tmp/404.html")
+from Api.jinja_function import *
 
 @m_app.route("/l0g0ut", methods=["GET"])
 def logout():
@@ -53,14 +38,15 @@ def index():
 # response: <json>                           << API
 @m_app.route('/login', methods=['POST'])
 def login():
-
     if session.get('is_admin'):return jsonify(LOGIN_SUCCESS)
-    user= request.form.get("user", "?").lower().replace(" ", "")
-    pwd = request.form.get('pwd')
-    key = request.form.get('key')
+    bdict = getPostData(request)
+    print(bdict)
+    user = bdict.get("user", "?").lower().replace(" ", "")
+    pwd = bdict.get('pwd')
+    key = bdict.get('key', 1)
     usr = DBUserApi(user)
 
-    if (key == session.get('sess-login') or APP[0] == key) and usr.ok() and usr.u.pwd == pwd:
+    if (key == session.get('sess-login') or APP.get(key)) and usr.ok() and usr.u.pwd == pwd:
         session['is_admin'] = usr.u.is_admin
         session['user']     = user
         if session.get('sess-login'):
@@ -88,7 +74,8 @@ def get_template_dashboard(tmp):
     # /* default title */
     name = "404"
     # /* client id */
-    cid = request.form.get("identify", "C0")
+    bdict = getPostData(request)
+    cid = bdict.get("identify", "C0")
     # /* Api Client */
     capi = DBClientApi(cid)
     # /* <    *---MAIN TAB TEMPLATE---*    >
@@ -162,8 +149,9 @@ def new_lead():
     if not session.get("is_admin"):
         return jsonify(getX(2))
 
-    level    = request.form.get("level", "-1") or "-1"
-    value    = request.form.get('value', "error")
+    bdict = getPostData(request)
+    level    = bdict.get("level", "-1")
+    value    = bdict.get('value', "error")
     return check_level_new_lead(level, value)[1]
 
 @m_app.route("/add_lead", methods=["POST"])
@@ -171,23 +159,24 @@ def add_lead():
     if not session.get("is_admin"):
         return jsonify(getX(2))
 
-    name       = request.form.get("name", 0)
-    phone      = request.form.get("phone", 0)
-    id_client  = request.form.get("id_lead", "000 000 000")
-    equipment:str  = request.form.get("supply", "{}")
-    date       = request.form.get("date", 0)
-    location   = request.form.get("location", 0)
-    sub_pay    = request.form.get("sub_pay", 0)
-    payment    = request.form.get("payment", 0)
-    exp_fuel   = request.form.get("exp_fuel", 0)
-    exp_employee = request.form.get("exp_employee", 0)
-    type_pay    = request.form.get("type_pay", -1)
+    bdict = getPostData(request)
+    name       = bdict.get("name", 0)
+    phone      = bdict.get("phone", 0)
+    id_client  = bdict.get("id_lead", "000 000 000")
+    equipment:str  = bdict.get("supply", "{}")
+    date       = bdict.get("date", 0)
+    location   = bdict.get("location", 0)
+    sub_pay    = bdict.get("sub_pay", 0)
+    payment    = bdict.get("payment", 0)
+    exp_fuel   = bdict.get("exp_fuel", 0)
+    exp_employee =bdict.get("exp_employee", 0)
+    type_pay    = bdict.get("type_pay", -1)
     # /* Irrelevant
-    if not any(request.form.values()):
+    if not any(bdict.values()):
         return jsonify(getX(10))
 
     # // SUCCESS
-    for _index, (k, v) in enumerate(request.form.items()):
+    for _index, (k, v) in enumerate(bdict.items()):
         result:tuple[int, jsonify] = check_level_new_lead(str(_index+2), v)
         if isinstance(v, dict):continue
         if not result[0]:
@@ -217,7 +206,7 @@ def add_lead():
                   client_payment=int(payment)-(int(exp_fuel)+int(exp_employee)),
                   type_pay=type_pay)
     # SUCCESS
-    return jsonify(getX(4))
+    return jsonify(getX(4, suc=1))
 
 
 @m_app.route("/search_lead/<data>", methods=["POST"])
@@ -227,8 +216,9 @@ def search_lead(data):
     if not session.get("is_admin"):
         return jsonify(getX(2))
 
-    type_search = request.form.get("type_search")
-    template    = request.form.get("template")
+    bdict = getPostData(request)
+    type_search = bdict.get("type_search")
+    template    = bdict.get("template")
     if not data or not type_search or not template:
         return jsonify(error)
 
@@ -254,8 +244,9 @@ def filter_az():
     if not session.get("is_admin"):
         return jsonify(getX(2))
 
-    type_filter = request.form.get("type_filter")
-    tmp    = request.form.get("tmp")
+    bdict = getPostData(request)
+    type_filter = bdict.get("type_filter")
+    tmp    = bdict.get("tmp")
     if not tmp or not tmp.isdigit():
         return jsonify(error)
 
@@ -278,15 +269,18 @@ def add_equipment():
 
     if not session.get("is_admin"):
         return jsonify(getX(2))
-    result = check_equipment(request.form)
+
+    bdict = getPostData(request)
+    # noinspection PyTypeChecker
+    result = check_equipment(bdict)
     if not result[0]:
         error["notice"] = result[1]
         return jsonify(error)
 
     # add to the database
-    add_supply(name=request.form["name"],
-               price=int(request.form["price"]),
-               exist=int(request.form["exist"]),
+    add_supply(name=bdict["name"],
+               price=int(bdict["price"]),
+               exist=int(bdict["exist"]),
                desc="",
                _id=generate_id_supply(),
                count=0)
@@ -301,7 +295,8 @@ def update_equipment(eq_id):
     if not session.get("is_admin"):
         return jsonify(getX(2))
 
-    result = check_equipment(request.form)
+    bdict = getPostData(request)
+    result = check_equipment(bdict)
     if not result[0]:
         error["notice"] = result[1]
         return jsonify(error)
@@ -313,9 +308,9 @@ def update_equipment(eq_id):
         error["notice"] = "ציוד לא מוכר"
         return jsonify(error)
 
-    equip.name = request.form["name"]
-    equip.price = int(request.form["price"])
-    equip.exist = int(request.form["exist"])
+    equip.name = bdict["name"]
+    equip.price = int(bdict["price"])
+    equip.exist = int(bdict["exist"])
     # update db
     DBase.session.commit()
     return jsonify({"success":True})
@@ -343,9 +338,9 @@ def add_equipment_client():
     error = dict(getX(3))
     if not session.get("is_admin"):
         return jsonify(getX(2))
-
-    cid = request.form.get("cid")
-    supply = request.form.get("supply", "{}")
+    bdict = getPostData(request)
+    cid = bdict.get("cid")
+    supply = bdict.get("supply", "{}")
     capi = DBClientApi(cid)
 
     status, equipment = DBSupplyApi.verify_equipments(supply)
@@ -365,8 +360,8 @@ def event_actions(action:str):
             return redirect(url_for("index"),302)
 
         return jsonify(getX(2))
-
-    client_id = request.form.get("client_id")
+    bdict = getPostData(request)
+    client_id = bdict.get("client_id")
     capi = DBClientApi(client_id)
 
     if not capi.ok() and request.method == "POST":return jsonify(error)
@@ -404,7 +399,7 @@ def event_actions(action:str):
             return jsonify(getX(15))
 
         capi.new(client_id)
-        override = request.form.get("override", "0")
+        override = bdict.get("override", "0")
         params, status = capi.create_agreement(capi.cid.write_by, override)
 
         if not status:
@@ -436,9 +431,9 @@ def event_actions(action:str):
 def update_lead(kind):
     if not session.get("is_admin"):
         return jsonify(getX(2))
-
-    data = request.form.get("data")
-    cid = request.form.get("client_id")
+    bdict = getPostData(request)
+    data = bdict.get("data")
+    cid = bdict.get("client_id")
     status = DBClientApi(cid).update_lead_information(kind, data)
     return jsonify(status)
 
@@ -448,8 +443,9 @@ def upload_equipment_txt():
     if not session.get("is_admin"):
         return jsonify(getX(2))
 
+    bdict = getPostData(request)
     file_s:FileStorage = request.files.get("txt")
-    nonce = request.form.get("nonce")
+    nonce = bdict.get("nonce")
 
     if session.get("nonce_import") != nonce:
         return jsonify(getX(1))
@@ -548,13 +544,13 @@ def add_agreement():
     aapi = DBAgreeApi(agree_id)
     if not capi.ok() or not aapi.ok() or capi.cid.is_signature:
         return jsonify(error)
-
-    fname = request.form.get("fname") or capi.cid.full_name
-    location = request.form.get("_location")
-    identify = request.form.get("identify") or capi.cid.ID
-    phone = request.form.get("phone") or capi.cid.phone
-    udate = request.form.get("udate") or capi.cid.event_date
-    signature = request.form.get("signature")
+    bdict = getPostData(request)
+    fname = bdict.get("fname") or capi.cid.full_name
+    location =bdict.get("_location")
+    identify = bdict.get("identify") or capi.cid.ID
+    phone = bdict.get("phone") or capi.cid.phone
+    udate = bdict.get("udate") or capi.cid.event_date
+    signature = bdict.get("signature")
 
     if not signature or signature.__len__() < 4000:
         return jsonify(getX(27))
@@ -580,10 +576,10 @@ def setting(ac:str):
         return jsonify(getX(28))
 
     usr = DBUserApi(session['user'])
-
+    bdict = getPostData(request)
     # /* signature */
     if ac == "0":
-        signature = request.form.get("signature", str())
+        signature = bdict.get("signature", str())
         if signature.__len__() < 3500:
             return jsonify(getX(27))
 
@@ -593,14 +589,14 @@ def setting(ac:str):
         usr.u.signature = signature
     # /*  email */
     elif ac == "1":
-        email = request.form.get('email', str())
+        email = bdict.get('email', str())
         if not verify_mail(email):
             return jsonify(getX(30))
 
         usr.u.email = email
     # /* identify */
     elif ac == "2":
-        identify = request.form.get("identify", str())
+        identify = bdict.get("identify", str())
         if not idValid(identify):
             return jsonify(getX(31))
 
@@ -608,8 +604,8 @@ def setting(ac:str):
     # /* delete auto garbage */
     # /* finish auto old valid event */
     elif ac == "3" or ac == "4":
-        ts = request.form.get("ts")
-        value:bool = bool(int(request.form.get("value", "0")))
+        ts = bdict.get("ts")
+        value:bool = bool(int(bdict.get("value", "0")))
         sett = DBSettingApi()
         sett.events_setting(ts, value)
 
@@ -624,11 +620,11 @@ def money_api(ac:str):
     json_graph = []
     if not session.get("is_admin"):
         return jsonify(getX(2))
-
-    if not ac or not any(request.form):
+    bdict = getPostData(request)
+    if not ac or not any(bdict):
         return jsonify(error)
 
-    month = request.form.get("month", 0)
+    month = bdict.get("month", 0)
     if ac == '0':
         pass
     elif ac == '1':
@@ -645,6 +641,7 @@ def money_api(ac:str):
 
 
 if __name__ == "__main__":
+    ssl_context = ('server.cert', 'server.key')
     with m_app.app_context():
         DBase.create_all()
         # /* __ initial DBase __ */

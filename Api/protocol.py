@@ -22,23 +22,25 @@ migrate = Migrate(m_app, DBase)
 # /* conf
 
 get_random_key: callable = lambda: binascii.b2a_hex(os.urandom(5)).decode()
-APP = {0:"android"}
+APP = {0:"IOS",
+    1:"android"}
 # /* api json
 # /* global scope of flags
 SESSIONS                = [{"ip":0, "session":"", "gone":False}]
 
 # //** errors and notices **/
 
-def getX(_id:int, suc=0, t_title=0, n=False) -> dict | str:
-    _error = dict(success=bool(suc), title=TYPE_TITLE[t_title], notice=BASE_NOTICE[_id])
+def getX(_id:int, suc=0, n=False) -> dict | str:
+    _error = dict(success=bool(suc), title=TYPE_TITLE[suc], notice=BASE_NOTICE[_id])
     if n:
         return _error['notice']
     return _error
 
 TYPE_TITLE = {
     0:"שגיאה",
-    1:"שם לב",
-    2:"משהו השתבש"
+    1:"הושלם",
+    2:"שם לב",
+    3:"משהו השתבש"
 }
 BASE_NOTICE = {
     0:"הסיסמה או השם לא מוכרים",
@@ -143,3 +145,8 @@ DOMAIN_NAME     = "dror.pythonanywhere.com"
 D_SETTING = {"ge":{"delete":False, "after":MONTH},
              "ce":{"complete":False}
              }
+
+
+CON_FORM = "application/x-www-form-urlencoded"
+CON_JSON = "application/json"
+CON_ARGS = "a"

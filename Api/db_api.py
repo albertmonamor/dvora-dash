@@ -795,3 +795,5 @@ class DBSettingApi:
 
     def get_setting_events(self):
         return {"ge":self.sapi.garbage_event, "ce":self.sapi.close_event}
+
+
