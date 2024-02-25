@@ -779,7 +779,7 @@ function autoCompleteExitClient(data){
         phone.value = data.phone;
         lead_id.value = data.id;
         event_location.value = data.ep;
-    }, 200);
+    }, 1500);
 
 }
 
