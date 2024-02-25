@@ -755,8 +755,13 @@ function clientExist(t){
         data:{"id":id},
         success: (res) => {
           if (res.success) {
-                showModalContent(t);
-                autoCompleteExitClient(res.data[0]);
+                if (res.data.length != 0){
+                    showModalContent(t);
+                    autoCompleteExitClient(res.data[0]);
+                }
+                else{
+                    popNotice("error", res.title, res.notice);
+                }
           } else {
             popNotice("error", res.title, res.notice);
                 
