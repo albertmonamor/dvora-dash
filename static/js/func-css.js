@@ -755,12 +755,12 @@ function clientExist(t){
         data:{"id":id},
         success: (res) => {
           if (res.success) {
-                if (res.data.length != 0){
+                if (Object.keys(res.data).length != 0){
                     showModalContent(t);
                     autoCompleteExitClient(res.data[0]);
                 }
                 else{
-                    popNotice("error", res.title, res.notice);
+                    popNotice("error", "שם לב", "הלקוח לא קיים");
                 }
           } else {
             popNotice("error", res.title, res.notice);
