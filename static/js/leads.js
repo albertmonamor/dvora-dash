@@ -51,7 +51,7 @@ function openLeadInformationModal(_this){
 
             }
             else{
-                show_popup_error(res, null);
+                popNotice("error", res.title, res.notice);
             }
         }
 

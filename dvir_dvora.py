@@ -11,6 +11,18 @@ from Api.databases import DBase, db_new_client, add_supply \
 from Api.db_api import DBClientApi, DBUserApi, DBSupplyApi, DBAgreeApi, MoneyApi, DBSettingApi
 from Api.jinja_function import *
 
+
+# =============== MOBILE *********************
+
+@m_app.route("/m/get_supply", methods=["POST"])
+def mGetSupply():
+    if not session.get("is_admin"):
+        return jsonify(getX(2))
+
+    return jsonify({"success":True, "supply":DBSupplyApi.get_all_supply()})
+
+
+# =========== END MOBILE *********************
 @m_app.route("/l0g0ut", methods=["GET"])
 def logout():
     if not session.get("is_admin"):
@@ -40,7 +52,6 @@ def index():
 def login():
     if session.get('is_admin'):return jsonify(LOGIN_SUCCESS)
     bdict = getPostData(request)
-    print(bdict)
     user = bdict.get("user", "?").lower().replace(" ", "")
     pwd = bdict.get('pwd')
     key = bdict.get('key', 1)
@@ -154,6 +165,21 @@ def new_lead():
     value    = bdict.get('value', "error")
     return check_level_new_lead(level, value)[1]
 
+@m_app.route("/exit_lead", methods=["POST"])
+def exit_lead():
+    if not session.get("is_admin"):
+        return jsonify(getX(2))
+
+
+    bdict = getPostData(request)
+    _id = bdict.get("id")
+    result = check_level_new_lead("4", _id)
+    client = DBClientApi(None).get_all_client_by_mode(mode="all",ID=_id)
+    if not result[0]:
+        return result[1]
+
+    print(client)
+    return jsonify({"success":True, "data":client})
 @m_app.route("/add_lead", methods=["POST"])
 def add_lead():
     if not session.get("is_admin"):
@@ -502,7 +528,6 @@ def agreement():
     if not any(request.args):
         return render_template(page_error, msg=getX(21))
     if not show_id and (not capi.ok() or not aapi.ok()):
-
         return render_template(page_error, msg=getX(22))
     elif show_id and not capi.ok():
         return render_template(page_error, msg=getX(23))
@@ -545,17 +570,13 @@ def add_agreement():
     if not capi.ok() or not aapi.ok() or capi.cid.is_signature:
         return jsonify(error)
     bdict = getPostData(request)
-    fname = bdict.get("fname") or capi.cid.full_name
-    location =bdict.get("_location")
     identify = bdict.get("identify") or capi.cid.ID
-    phone = bdict.get("phone") or capi.cid.phone
-    udate = bdict.get("udate") or capi.cid.event_date
     signature = bdict.get("signature")
 
     if not signature or signature.__len__() < 4000:
         return jsonify(getX(27))
 
-    desc = aapi.add_agreement(signature, [fname,location, identify, phone, udate], capi, error)
+    desc = aapi.add_agreement(signature, [identify ], capi, error)
     if not desc["success"]:
         error["notice"] = desc["notice"]
         return error

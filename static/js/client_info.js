@@ -64,7 +64,7 @@ function reCancel_eventLead(_this){
                 closeLeadInforamtionModal(null, cid);
                 setTimeout(()=>{getTemplate($("#2")[0],"2", 1);cleanHash();}, 500);
             }else{
-                show_popup_error(res, null);
+                popNotice("error", res.title, res.notice);
 
             }
         }
@@ -93,7 +93,7 @@ function create_invoice_client(_this){
                 lhtml = _this.innerHTML;
             }
             else{
-                show_popup_error(res, _this);
+                popNotice("error", res.title, res.notice);
             }
             _this.innerHTML = lhtml;
         }
@@ -234,7 +234,7 @@ function reEditInformation(_this, _type, toUpdate=0){
                         openLeadInformationModal(document.getElementById("10|"+parent.role));
                     }
                     else{
-                        show_popup_error(res, "");
+                        popNotice("error", res.title, res.notice);
                     }
                 }
             })
@@ -260,7 +260,7 @@ function reEditInformation(_this, _type, toUpdate=0){
                         openLeadInformationModal(document.getElementById("10|"+parent.role));
                     }
                     else{
-                        show_popup_error(res, null)
+                        popNotice("error", res.title, res.notice);
                     }
                 }
             })
@@ -286,7 +286,7 @@ function reEditInformation(_this, _type, toUpdate=0){
                         openLeadInformationModal(document.getElementById("10|"+parent.role));
 
                     }else{
-                        show_popup_error(res, null)
+                        popNotice("error", res.title, res.notice);
                     }
                 }
             })
@@ -321,7 +321,7 @@ function reEditInformation(_this, _type, toUpdate=0){
                         openLeadInformationModal(document.getElementById("10|"+parent.role));
 
                     }else{
-                        show_popup_error(res, null);
+                        popNotice("error", res.title, res.notice);
                     }
                 }
             })
@@ -366,7 +366,7 @@ function reEditInformation(_this, _type, toUpdate=0){
                         openLeadInformationModal(document.getElementById("10|"+parent.role));
                     }
                     else{
-                        show_popup_error(res, null);
+                        popNotice("error", res.title, res.notice);
                     }
                 }
             })
@@ -425,7 +425,7 @@ function open_modal_add_equipment(_this){
                 supply_json = res.supply;
             }
             else{
-                show_popup_error(res, null)
+                popNotice("error", res.title, res.notice);
             }
         }
     })
@@ -550,7 +550,7 @@ function show_link_client(_t, acid, override){
                 
             }
             else{
-                show_popup_error(res, null);
+                popNotice("error", res.title, res.notice);
                 _t.innerHTML = lhtml;
             }
         }
@@ -615,7 +615,7 @@ function show_agreement(t, acid){
                 _body.appendChild(link)
             }
             else{
-                show_popup_error(res, null)
+                popNotice("error", res.title, res.notice);
                 t.innerHTML = lhtml
             }
     
@@ -646,7 +646,7 @@ function event_finished(t, acid){
 
             }
             else{
-                show_popup_error(res, null);
+                popNotice("error", res.title, res.notice);
             }
         }
     })
@@ -685,7 +685,7 @@ function removeEquipmentItem(t, cid, eid, _type){
                 openLeadInformationModal(document.getElementById("10|"+cid));
             }
             else{
-                show_popup_error(res, null);
+                popNotice("error", res.title, res.notice);
             }
         }
     })
@@ -715,7 +715,7 @@ function updateEquipmentClient(t, cid){
                 openLeadInformationModal(document.getElementById("10|"+cid));
             }
             else{
-                show_popup_error(res, null);
+                popNotice("error", res.title, res.notice);
             }
         }
     })

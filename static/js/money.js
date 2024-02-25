@@ -146,7 +146,7 @@ function setJson(g=2, month=0){
                 setValuesGraphEAP(type_graph);
             }
             else{
-                show_popup_error(res, null);
+                popNotice("error", res.title, res.notice);
             }
         }
     })

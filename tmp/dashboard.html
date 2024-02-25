@@ -63,8 +63,22 @@
                 <h1 id="aleadtitle" class="modal-dashboard-title"></h1>
             </div>
             <div id="modaldes" class="modal-dashboard-description"></div>
-            <div id="modalstart" class="modal-dashboard-start" onclick="showModalContent(this)">
-                <button class="button-start-addlead">התחלה <i class="fa-solid fa-arrow-left fa-fade"></i></button>
+            <div id="modalstart" class="modal-dashboard-start">
+                
+                <div class="xinput">
+                    <label for="name">הזן ת.ז לבדיקת לקוח<span></span> 
+                    <input id="id_exit" style="text-align: center;" type="tel" id="name" name="customer-id" oninput="checkClientId(this)" maxlength="9">
+                </div>
+                <!--showModalContent(this.parentElement)-->
+                <div class="modal-option">
+                    <button onclick="clientExist(t.parentElement)" class="button-start-addlead">בדוק</button>
+                    <button onclick="showModalContent(t.parentElement)" class="button-start-addlead">לקוח חדש</button>
+                </div>
+
+            </div>
+            <div id="modalequip" class="modal-dashboard-start" onclick="showModalContent(this)">
+                <button class="button-start-addlead">התחלה <i class="fa-solid fa-arrow-left fa-fade" aria-hidden="true"></i></button>
+                
             </div>
             <div id="modalcontent" class="modal-dashboard-content"></div>
             <footer></footer>
@@ -73,11 +87,6 @@
     <footer id="footer-dashboard">
             
     </footer>
-    <div id="popup" class="popup">
-        <i class="fa-solid fa-triangle-exclamation fa-bounce"></i>
-        <span id="popup-title"></span>
-        <span id="popup-notice"></span>
-    </div>
 </body>
 <script src="static/js/func-css.js"></script>
 <script src="static/js/requests.js"></script>

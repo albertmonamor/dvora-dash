@@ -9,7 +9,8 @@ from Api.databases import Client, DBase, m_app, Users, Invoice, Supply, ClientAg
 from Api.api_function import FormatTime, generate_invoice_path, check_level_new_lead, generate_link_edit_agree, \
     generate_link_show_agree
 from time import ctime, time, gmtime, mktime
-from Api.protocol import SIX_MONTH, BASEDIR, PDF_OPTIONS, getX, MONTH, PATH_PDFKIT_EXE, AGREE_SESS_LIFE, D_SETTING
+from Api.protocol import SIX_MONTH, BASEDIR, PDF_OPTIONS, getX, MONTH, PATH_PDFKIT_EXE, AGREE_SESS_LIFE, D_SETTING, \
+    UNKNOWN
 
 
 # =============== Users table ===================
@@ -63,6 +64,8 @@ class DBClientApi:
             _client: list[Client] = Client.query.filter_by(is_open=False, is_garbage=True, **kwargs).all()
         elif mode == "both":
             _client: list[Client] = Client.query.filter_by(is_open=False, **kwargs).all()
+        elif mode == "all":
+            _client: list[Client] = Client.query.filter_by(**kwargs).all()
         else:
             # undefined
             _client: list[Client] = Client.query.all()
@@ -452,10 +455,11 @@ class DBClientApi:
             elif client.is_open and FormatTime.get_days_left("".join(FormatTime.get_name_day_and_date(self.cid.event_date).split(" ")[2::])) < 0:
                 self.set_event_status(1)
 
-
     def delete_me(self):
         DBase.session.delete(self.cid)
         DBase.session.commit()
+
+
 
 
 # ============== Supply table ====================
@@ -570,7 +574,7 @@ class DBAgreeApi:
         if self.is_expired():
             return  getX(54)
 
-        for i, v in zip([2, 7, 4, 3, 6], data):
+        for i, v in zip([4], data):
             b, r = check_level_new_lead(str(i), v)
             if not b:
                 return loads(r.get_data(True))
@@ -579,7 +583,7 @@ class DBAgreeApi:
         self.aid.sig_date = time()
         self.aid.from_date = capi.cid.event_date
         self.aid.to_date = capi.cid.event_date
-        self.aid.location_client = data[1]
+        self.aid.location_client = UNKNOWN
         self.aid.is_accepted = True
         # /* success
         capi.cid.is_signature = True

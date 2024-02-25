@@ -57,7 +57,7 @@ function updateEquipment(_this){
                 reEditEquipment(_this, 0)
             }
             else{
-                show_popup_error(res, _this);
+                popNotice("error", res.title, res.notice);
             }
         }
 
@@ -84,7 +84,7 @@ function addEquipment(e, _this){
 
             }
             else{
-                show_popup_error(res, _this)
+                popNotice("error", res.title, res.notice);
             }
             unloading(button, 'הוסף');
             
@@ -104,7 +104,7 @@ function deleteEquipment(_this){
                 setTimeout(()=>{_this.parentElement.parentElement.remove();}, 300);
             }
             else{
-                show_popup_error(res, $("body"));
+                popNotice("error", res.title, res.notice);
 
             }
             
@@ -120,8 +120,10 @@ function openModalAddEquipment(_this){
         type:"post",
         success:(res)=>{
             if (res.success){
-                document.getElementById("aleadtitle").innerText = "הוספת ציוד למערכת"
-                document.getElementById("modaldes").innerText = res.welcome
+                $(document.getElementById("modalequip")).show(300);
+                $(document.getElementById("modalstart")).hide(100);
+                document.getElementById("aleadtitle").innerText = "הוספת ציוד למערכת";
+                document.getElementById("modaldes").innerText = res.welcome;
                 document.getElementById("modalcontent").innerHTML = res.template
                 document.getElementById("closeModalButton").onclick = ()=>{closeModalAddEquipment();};
                 supply_json = res.supply;
@@ -179,7 +181,7 @@ function uploadEquipmentTxt(e){
                 en.value = JSON.parse(JSON.stringify(res).replace(/(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '"$2": '))[en.value];
             }
             else{
-                show_popup_error(res, null)
+                popNotice("error", res.title, res.notice);
             }
             fileI.value = null;
         }

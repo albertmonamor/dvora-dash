@@ -216,6 +216,69 @@ function show_popup_error(res, _this){
     setTimeout(()=>{popup.style.display = "none";title.innerText="";notice.innerText="";$(_this).show(300);},2000);
 }
 
+/* SLEEP */
+function Sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+/* POPUPs */
+/**
+ * 
+ * @param {String} t 
+ * @param {String} title 
+ * @param {String} notice 
+ */
+function popNotice(t, title, notice){
+    console.log(title);
+    // PARENT
+    var popup_base = document.getElementById("popbase");
+    var is_new = false;
+    if (popup_base == undefined){
+        popup_base = document.createElement("div");
+        popup_base.classList.add("pop-notice-base");
+        popup_base.id = "popbase"
+        is_new = true;
+    }
+    var popup = document.createElement("div");
+    popup.classList.add("pop-notice");
+    popup.classList.add("shadow9-a");
+    const id = "popup"+popup_base.children.length;
+    popup.id = id;
+    popup.onclick = function(){document.getElementById(id)?.remove()};
+    // HEAD
+    head = document.createElement("div")
+    head.classList.add("pop-head");
+    head.classList.add(t);
+    tit = document.createElement("span");
+    tit.innerText = title;
+    icon = document.createElement("i");
+    if (t == "error"){
+        icon.className = "fa-solid fa-triangle-exclamation";
+    }
+    else{
+        icon.className = "fa-regular fa-circle-check";
+    }
+    // BODY
+    not = document.createElement("div");
+    not.classList.add("pop-body");
+    not.innerText = notice;
+
+    head.appendChild(icon);
+    head.appendChild(tit);
+    popup.appendChild(head);
+    popup.appendChild(not);
+    popup_base.appendChild(popup);
+    if (is_new){
+        document.body.appendChild(popup_base);
+    }
+
+    setTimeout(async function() {
+        $(popup).fadeOut("slow");
+        await Sleep(300);
+        popup.click();
+
+    }, 4000);
+}
+
 function show_loading_screen(){
     load = document.createElement("div")
     load.classList.add("load-screen")
@@ -257,13 +320,13 @@ function getTemplate(_this, _id, reget=0){
             document.getElementById("tab-name").innerText = res.name;
             templates[tmp_num] = { "tmp": res.template, "name": res.name };
           } else {
-            show_popup_error(res, _this);
+            popNotice("error", res.title, res.notice);
           }
           close_loading_screen();
         },
         error: (xhr, status, error) => {
           close_loading_screen();
-          show_popup_error({ "title": "שגיאת רשת", "notice": "וודא שאתה מחובר" });
+          popNotice("error", "שגיאת רשת", "וודא שאתה מחובר");
         }
       });
     
@@ -338,6 +401,8 @@ function openModalAddLead(_this){
         type:"post",
         success:(res)=>{
             if (res.success){
+                $(document.getElementById("modalstart")).show(300);
+                $(document.getElementById("modalequip")).hide(100);
                 document.getElementById("aleadtitle").innerText = "הוספת לקוח לרשימות"
                 document.getElementById("modaldes").innerText = res.welcome
                 document.getElementById("modalcontent").innerHTML = res.template
@@ -345,7 +410,7 @@ function openModalAddLead(_this){
                 supply_json = res.supply;
             }
             else{
-                show_popup_error(res, _this);
+                popNotice("error", res.title, res.notice);
             }
         }
     })
@@ -371,8 +436,9 @@ function hideSearchLeads(_this){
     search_is_open.client = 0;
 }
 function showModalContent(_this){
-    $(document.getElementById("modaldes")).fadeOut(300)
-    $(document.getElementById("modalstart")).fadeOut(300)
+    $(document.getElementById("modaldes")).fadeOut(300);
+    $(document.getElementById("modalequip")).fadeOut(300);
+    $(document.getElementById("modalstart")).fadeOut(300);
     $(document.getElementById("modalcontent")).fadeIn(300);
 }
 function searchLeads(_this, _type, t=0){
@@ -397,7 +463,7 @@ function searchLeads(_this, _type, t=0){
                 document.getElementById("searchinput").value = value;
             }
             else{
-                show_popup_error(res, _this);
+                popNotice("error", res.title, res.notice);
             }
             _this.innerHTML = bhtml;
         }
@@ -500,8 +566,8 @@ function showEquipmentBySearch(word){
             nameE.classList.add('box-equipment-title');
             nameE.textContent = value.name;
             // price of equipment
-            priceE = document.createElement('span');
-            priceE.textContent = value.price + "₪";
+            // priceE = document.createElement('span');
+            // priceE.textContent = value.price + "₪";
             // action of add or remove 1 value 
             LEAction = document.createElement('div');
             LEAction.classList.add('list-equipment-action');
@@ -530,7 +596,7 @@ function showEquipmentBySearch(word){
             LEAction.appendChild(MButton);
 
             boxE.appendChild(nameE);
-            boxE.appendChild(priceE);
+            //boxE.appendChild(priceE);
             boxE.appendChild(LEAction);
             ListE.appendChild(boxE);
         }
@@ -641,7 +707,7 @@ function logout(){
                 location.href="/";
             }
             else{
-                show_popup_error(res, null);
+                popNotice("error", res.title, res.notice);
             }
         }
     })
@@ -664,6 +730,60 @@ window.onclick = function(event) {
 
     }
 }
+
+
+/**
+ * 
+ * @param {Element} t 
+ */
+
+function checkClientId(t){
+    if (t.value == "" || t.value.length != 9 || !parseInt(t.value)){
+        return false;
+    }
+
+    return true;
+    
+
+}
+
+function clientExist(t){
+    const id = document.getElementById("id_exit").value;
+    $.ajax({
+        url: "/exit_lead",
+        type: "POST",
+        data:{"id":id},
+        success: (res) => {
+          if (res.success) {
+                showModalContent(t);
+                autoCompleteExitClient(res.data[0]);
+          } else {
+            popNotice("error", res.title, res.notice);
+                
+          }
+        },
+        error: (xhr, status, error) => {
+          popNotice("error", "שגיאת רשת", "וודא שאתה מחובר" );
+        }
+      });
+} 
+
+function autoCompleteExitClient(data){
+    console.log(data)
+    setTimeout(()=>{
+        let name = document.getElementById("name");
+        let phone = document.getElementById("phone");
+        let lead_id = document.getElementById("lead_id");
+        let event_location = document.getElementById("event-location");
+        name.value = data.fn;
+        phone.value = data.phone;
+        lead_id.value = data.id;
+        event_location.value = data.ep;
+    }, 200);
+
+}
+
+
 
 
 

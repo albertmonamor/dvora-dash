@@ -38,7 +38,7 @@ function open_modal_signature(t){
 function set_signature(t){
     pic_signa = signatureO._toSVG();
     if (pic_signa.length < 3500){
-        show_popup_error({"title":"שיגאה בחתימה","notice":"חתימה קצרה מידיי"}, null)
+        popNotice("error", "שיגאה בחתימה","חתימה קצרה מידיי")
         return;
     }
     update_or_set_ajax(t, {"signature":pic_signa})
@@ -74,7 +74,7 @@ function update_or_set_ajax(t, data, callb=null){
                 getTemplate($('#4')[0],'4', 1);
             }
             else{
-                show_popup_error(res, null);
+                popNotice("error", res.title, res.notice);
             }
         }
     

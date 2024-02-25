@@ -83,7 +83,8 @@ def check_level_new_lead(level:str, value:str) -> tuple[int, jsonify]:
 
 def verify_date(value):
     _time = gmtime()
-    value = value.split("-")
+    value = value.split("-") if "-" in value else (value.split(".") if "." in value else value.split("/"))
+    print(value)
     year:bool   = int(value[0]) >= _time.tm_year
     month       = int(value[1]) >= _time.tm_mon
     month_equal = int(value[1]) == _time.tm_mon
@@ -198,7 +199,8 @@ class FormatTime:
         :param _time: format YYYY.MM.DD
         :return:
         """
-        time_float = float(mktime(strptime(_time, "%Y-%m-%d"))) + (3400 * 24)
+        sep = "." if "." in _time else ("-" if "-" in _time else "/")
+        time_float = float(mktime(strptime(_time, f"%Y{sep}%m{sep}%d"))) + (3400 * 24)
         day = "יום " + DAYS_HEBREW[ctime(time_float).split(" ")[0]]
         date_l = gmtime(time_float)
         return f"{day} {date_l.tm_mday}.{date_l.tm_mon}.{date_l.tm_year}"

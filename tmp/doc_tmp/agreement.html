@@ -11,189 +11,192 @@
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;1,100;1,200;1,300;1,400;1,500;1,600&family=Noto+Serif+Hebrew:wght@100;200;300;400;500;600;700;800;900&family=Permanent+Marker&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="base-title">
-        חוזה השכרת ציוד לאירוע
-    </div>
-    <div class="agree">
-        <div class="agree-tab mrgn-20">
-            <div class="box-tab">
-                <span class="l">שם העסק</span>
-                <span class="c">דרור הפקות</span>
-            </div>
-            <div class="box-tab">
-                <span class="l"> מספר עוסק</span>
-                <span class="c">{{ u.identify }}</span>
-            </div>
-            <div class="box-tab last">
-                <span class="l"> אימייל </span>
-                <a class="c" href='mailto:{{ u.email }}'>{{ u.email }}</a>
+    <section class="base-agreement">
+        <div class="header">
+            <div class="header-title">
+                <span>חוזה השכרת ציוד לאירוע</span>
             </div>
         </div>
-        <div class="agree-form mrgn-15 ">
-            <div class="bbody">
-                <span>בין</span>
-                <div>
-                    <span class="name-side-A">דרור הפקות</span>
-                    <span>להלן <b>-  צד א'</b> </span>
+        <div class="body mrgn-10">
+            <div class="item">
+                <div class="about-owner">
+                    <div class="item">
+                        <span class="r">שם העסק</span>
+                        <span class="l">דרור הפקות</span>
+                    </div>
+                    <div class="item">
+                        <span class="r">מספר עוסק</span>
+                        <span class="l">{{ u.identify }}</span>
+                    </div>
+                    <div class="item mail">
+                        <span class="r" >מייל</span>
+                        <span class="l">{{ u.email }}</span>
+                    </div>
                 </div>
             </div>
-            <div class="between">
-                <div class="bbody">
-                    <span>ובן מר/גב'</span>
-                    {% if edit and not cid.full_name %}
-                        <input type="text" class="input-side-B" placeholder="שם מלא" id="fname">
-                    {% else %}
-                        <span value="0" class="auto-complete" id="fname">{{ cid.full_name }}</span>
-                    {% endif %}
-                </div>
-                <div class="bbody"> 
-                    <span>בכתובת</span>
-                    {% if edit and not aid.location_client %}
-                        <input type="text" class="input-side-B" placeholder="כתובת בית" id="_location">
-                    {% else %}
-                        <span value="0" class="auto-complete" id="fname">{{ aid.location_client or 'לא צויין'}}</span>
-                    {% endif %}
-                </div>
-                <div class="bbody"> 
-                    <span>ת.ז</span>
-                    {% if edit and not cid.ID %}
-                        <input type="tel" class="input-side-B input-ltr" placeholder="000-000-000" id="identify">
-                    {% else %}
-                        <span value="0" class="auto-complete" id="identify">{{ cid.ID}}</span>
-                    {% endif %}
-                </div>
-                <div class="bbody"> 
-                    <span>פלאפון</span>
-                    {% if edit and not cid.phone %}
-                        <input type="tel" class="input-side-B input-ltr" placeholder="+972" id="phone">
-                    {% else %}
-                        <span value="0" class="auto-complete" id="phone">{{ cid.phone }}</span>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div class="middle-title mrgn-15">
-            הואיל
-            <b>וצד ב'</b>
-            מעוניין לשכור ציוד  <b> מצד א'</b>: להלן פירוט הציוד וזמני ההשכרה 
-        </div>
-        <div class="equipments mrgn-15">
-            <div class="info-equip mrgn-10">5 סוגי ציוד</div>
-            <div class="equip-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th class="c-hth">שם הציוד</th>
-                            <th class="c-hth">כמות הציוד שהושכר</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for k, equip in equipment.items() %}
-                            <tr>
-                                <td class="c-bth">{{ equip.name }}</td>
-                                <td class="c-bth">{{ equip.count }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <div class="event-date mrgn-20">
-                <div>
-                    <span>בתאריך</span>
-                    <input type="date" class="input-side-B" value="{{ cid.event_date }}" id="fdate" disabled="true">
-                </div>
-                <div> 
-                    <span>עד </span>
-                    <input type="date" class="input-side-B" placeholder="שם מלא" id="udate" value="{{ cid.event_date }}" disabled="{{ 'false' if edit else 'false'}}">
- 
-                </div>
-            </div>
-        </div>
-        <div class="middle-title">
-            הואיל <b>וצד ב'</b> מעוניין בביצוע העיסקה, הוסכם בין הצדדים כדלקמן: 
-        </div> 
-        <div class="agree-policy mrgn-15">
-            <ol>
-                {% for line in equipment_p %}
-                    <li>{{ line }}</li>
-                {% endfor %}
-            </ol>
-        </div>
-        <div class="middle-title">
-            להלן התשלום שנקבע וחתימת באי הצדדים
-        </div>
-        <div class="payment-signature mrgn-15">
-            <span class="payment-title">
-                סה"כ הסכום לתשלום 
-            </span>
-            <div class="payment">
-                <div class="money">
-                    <span class="int">
-                        {{ (cid.client_payment|string).split(".")[0] }}.<span>{{ (cid.client_payment|string).split(".")[1]}} </span>
-                     </span>
-                     <span>₪ כולל מעמ</span>
-
-                </div>
-                <div class="invoice mrgn-10">
-                    <span>קבלה</span>
-                    <span class="innumber">{{ cid.invc_n }}</span>
-                </div>
-            </div>
-        </div>
-        <div class="middle-title"></div>
-        <div class="sig-agreement mrgn-15">
-            {% if not aid.sig_owner %}
-                <div class="sig-owner">
-                    <span>דביר הפקות - צד א'
-                        <i class="fa-solid fa-trash-can" onclick="clearSignature('sig-owner')"></i>
+            <div class="item">
+                <div class="item-level">
+                    <span class="title-level">
+                        חוזה בין 
+                        <span class="owner-name">דרור הפקות</span>
+                        להלן 
+                        <span class="owner-name">צד א'</span>
                     </span>
-                        <canvas id="sig-owner"></canvas>
+                    <div class="body-level">
+                        <div class="item">
+                            <span class="r">ובין מר/גברת</span>
+                            <span class="l">{{ cid.full_name }}</span>
+                        </div>
+                        <div class="item">
+                            <span class="r">בכתובת</span>
+                            <span class="l">לא צויין</span>
+                        </div>
+                        <div class="item">
+                            <span class="r">ת.ז</span>
+                            <span class="l" id="identify">{{ cid.ID}}</span>
+                        </div>
+                        <div class="item">
+                            <span class="r">פאלפון</span>
+                            <span class="l">{{ cid.phone }}</span>
+                        </div>
+                    </div>
                 </div>
-            {% else %}
-                <div id="sig-complate">
-                    <span class="title">חתימת המשכיר</span>                    
-
-                    <img src="{{ aid.sig_owner }}" alt="חתימת המשכיר">
-                </div>
-            {% endif %}
-
-            {% if edit and not aid.sig_client %}
-                <div class="sig-client">
-                    <span>הלקוח - צד ב'
-                        <i class="fa-solid fa-trash-can" onclick="clearSignature('sig-client')"></i>
+                <div class="item-level" style="padding-top: 10px; margin-top: 5rem;border-top: 1px solid rgba(0,0,0,.7);">
+                    <span class="title-level">
+                        הואיל
+                        <span class="client-name">וצד ב'</span> 
+                        מעוניין לשכור ציוד 
+                        <span class="owner-name">מצד א':</span>
+                        להלן פירוט הציוד וזמני ההשכרה
                     </span>
-                        <canvas id="sig-client"></canvas>
                 </div>
-            {% else %}
-                <div id="sig-complate">
-                    <span class="title">חתימת הלקוח</span>
-                    <img src="{{ aid.sig_client }}" alt="חתימת הלקוח">
+                <div class="item-level">
+                    <div class="equip-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="c-hth">שם הציוד</th>
+                                    <th class="c-hth">כמות הציוד שהושכר</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for k, equip in equipment.items() %}
+                                    <tr>
+                                        <td class="c-bth">{{ equip.name }}</td>
+                                        <td class="c-bth">{{ equip.count }}</td>
+                                    </tr>
+                                {% endfor %}
+                                    <tr>
+                                        <td class="c-bth">--</td>
+                                        <td class="c-bth">{{equipment.items()|length}} סוגי ציוד</td>
+                                    </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="agree-date">
+                        <span>מתאריך
+                            <input type="date" class="input-side-B" value="{{ cid.event_date }}"  disabled="true">
+                        </span>
+                        <span>עד סיום האירוע</span>
+                    </div>
                 </div>
-            {% endif %}
-        </div>
-        <div class="middle-title"></div>
-        {% if edit %}
-        <div class="submit-agreement">
-            <button class="button-submit-agreement" onclick="sent_agreement_client(this)">
-                <span>שליחה</span>
-            </button>
-            <span class="submit-notice"><i class="fa-solid fa-check fa-xl"></i>
-                בשליחת החוזה, אני מאשר את הסכמתי</span>
-        </div>
-        {% else %}
-            <div class="agreement-close">
-                <i class="fa-solid fa-file-shield"></i>
-                <span class="pre-agree-date">חוזה זה נחתם בתאריך</span>
-                <span class="agree-date">{{ aid.ctime_date }}</span>
+                <div class="item-level" style="padding-top: 10px; margin-top: 5rem;border-top: 1px solid rgba(0,0,0,.7);">
+                    <span class="title-level">
+                        הואיל
+                        <span class="client-name">וצד ב'</span>
+                        מעוניין בביצוע העיסקה, הוסכם בין הצדדים כדלקמן:
+                    </span>
+                    <div class="agree-policy mrgn-15">
+                        <div class="list-policy">
+                            {% for line in equipment_p %}
+                                <div class="item">
+                                    <i class="fa-regular fa-circle-check"></i>
+                                    <span>{{ line }}</span>
+                                </div>
+                            {% endfor %}
+                        </ol>
+                    </div>
+                </div>
+                <div class="item-level" style="padding-top: 10px; margin-top: 5rem;border-top: 1px solid rgba(0,0,0,.7);">
+                    <span class="title-level">
+                        להלן התשלום שנקבע וחתימת באי הצדדים
+                    </span>
+                </div>
+                <div class="item-level" style="padding-top: 10px; margin-top: 5rem">
+                    <div class="payment">
+                        <div class="total-money">
+                            <span class="label">
+                                סה"כ הסכום לתשלום
+                            </span>
+                            <div class="value innumber">
+                                {{ (cid.client_payment|string).split(".")[0] }}.<span>{{ (cid.client_payment|string).split(".")[1]}} </span>
+                                ₪
+                                <span style="color: black;"> כולל מעמ</span>
+                            </div>
+                            
+                        </div>
+                        <div class="total-money">
+                            <span class="label">מספר קבלה</span>
+                            <span class="innumber">{{ cid.invc_n }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="item-level" style="padding-top: 10px; margin-top: 3rem">
+                    <div class="sig-agreement">
+                        {% if not aid.sig_owner %}
+                            <div class="sig-owner">
+                                <span>דביר הפקות - צד א'
+                                    <i class="fa-solid fa-trash-can" onclick="clearSignature('sig-owner')"></i>
+                                </span>
+                                    <canvas id="sig-owner"></canvas>
+                            </div>
+                        {% else %}
+                            <div class="sig-complate total-money">
+                                <span class="label">חתימת המשכיר</span>                    
+            
+                                <img src="{{ aid.sig_owner }}" alt="חתימת המשכיר">
+                            </div>
+                        {% endif %}
+            
+                        {% if edit and not aid.sig_client %}
+                            <div class="sig-client">
+                                <span>הלקוח - צד ב'
+                                    <i class="fa-solid fa-trash-can" onclick="clearSignature('sig-client')"></i>
+                                </span>
+                                    <canvas id="sig-client"></canvas>
+                            </div>
+                        {% else %}
+                            <div id="sig-complate" class="total-money">
+                                <span class="label">חתימת הלקוח</span>
+                                <img src="{{ aid.sig_client }}" alt="חתימת הלקוח">
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="middle-title"></div>
+                    {% if edit %}
+                    <div class="submit-agreement">
+                        <button class="button-submit-agreement" onclick="sent_agreement_client(this)">
+                            <span>שליחה</span>
+                        </button>
+                        <span class="submit-notice"><i class="fa-solid fa-check fa-xl"></i>
+                            בשליחת החוזה, אני מאשר את הסכמתי</span>
+                    </div>
+                    {% else %}
+                        <div class="agreement-close">
+                            <i class="fa-solid fa-file-shield"></i>
+                            <span class="pre-agree-date">חוזה זה נחתם בתאריך</span>
+                            <span class="agree-date">{{ aid.ctime_date }}</span>
+                        </div>
+                    {% endif  %}
+                </div> 
+                </div>
             </div>
-        {% endif  %}
-    </div> 
-    <div id="popup" class="popup">
-        <i class="fa-solid fa-triangle-exclamation fa-bounce"></i>
-        <span id="popup-title"></span>
-        <span id="popup-notice"></span>
-    </div>
+
+        </div>
+    </section>
+
 </body>
+    
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 <script src="/static/js/agreement.js"></script>
 <script src="https://kit.fontawesome.com/11e3bcf364.js" crossorigin="anonymous"></script>

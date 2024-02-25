@@ -38,7 +38,7 @@ function filter_event(t){
                 document.getElementById(id_btn).classList.add("bfselcted")
             }
             else{
-                show_popup_error(res, null);
+                popNotice("error", res.title, res.notice);
             }
             close_loading_screen();
         }

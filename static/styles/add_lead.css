@@ -61,18 +61,21 @@
     border: 1px solid rgba(107, 107, 107, 0.155);
     border-radius: 6px;
     display: flex;
-    flex-direction: row;
-    justify-content: center;
-    flex-wrap: wrap;
+    gap: 10px;
+    flex-direction: column;
 }
 .box-equipment{
-    margin: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
     position: relative;
-    width: 40%;
+    align-items: center;
+    padding: 10px;
     border: 1px solid rgba(128, 128, 128, 0.132);
 }
 .box-equipment-title{
-    margin-right: 5%;
+    flex:1;
+    margin: 0;
     color: aliceblue;
     font-size: 25px;
 }
@@ -84,6 +87,7 @@
 }
 
 .list-equipment-action{
+    flex: 1;
     display: flex;
     justify-content:space-between;
 
@@ -298,7 +302,7 @@
 }
 .input-pay >i{
     position: absolute;
-    left: 25px;
+    right: 25px;
     bottom:20px;
 }
 .manager-expense-item .payment-total-safe:hover,
@@ -320,9 +324,7 @@
     .form-addlead label{
         font-size: 15px;
     }
-    .box-equipment{
-        width: 90%;
-    }
+
     #table-summary, .table-equipment, .title-section{
         width: 96% !important;
         margin-left: 2%;
@@ -357,5 +359,8 @@
     }
     .payment-button{
         padding: 4px 15px 4px 15px;
+    }
+    .box-equipment-title{
+        font-size: 1.2rem;
     }
 }

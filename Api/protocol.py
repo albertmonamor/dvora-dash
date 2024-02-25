@@ -121,6 +121,7 @@ AGREE_SESS_LIFE         = 960
 # /** empty lead
 EMPTY_LEAD_T            = "אין אירועים קרובים"
 EMPTY_HISTORY           = "ההיסטוריה ריקה"
+UNKNOWN:str = "unknown"
 # /** templates
 T404                    = "/error_tmp/404.html"
 # time
