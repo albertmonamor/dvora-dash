@@ -22,36 +22,26 @@
     <div class="table-title">
         <span>ציוד במערכת</span>
     </div>
-    <div class="equipment-table">
-        <table id="equipment-table-edit">
-            <thead>
-                <tr class="thitem-edit">
-                    <th>שם</th>
-                    <th>מחיר</th>
-                    <th>כמות</th>
-                    <th style="text-align: center;padding: 0;">פעולות</th>
-                </tr>
-
-            </thead>
-            <tbody>
-                {% for k,v in equipment.items() %}
-                <tr class="table-items" id={{k}}>
-                    <td class="table-item iname item-green">{{v.name}}</td>
-                    <td class="table-item iprice">{{v.price}} ₪</td>
-                    <td class="table-item iexist">{{v.exist}}</td>
-                    <td class="table-item iedit">
-                        <button onclick="editEquipment(this)">
-                            <i class="fa-solid fa-ellipsis fa-fade"></i>
-                        </button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% if equipment|length == 0 %}
-            <div class="empty-list-equipment">
-                <span>אין ציוד זמין</span>
+    <div class="equipment-container">
+        <div class="equipment-header shdaow-11a">
+            <div class="item border-trr">
+                <span>שם</span>
             </div>
-        {% endif %}
+            <div class="item tcenter">
+                <span>מחיר</span>
+            </div>
+            <div class="item border-tlr tcenter">
+                <span>כמות</span>
+            </div>
+        </div>
+        <div class="equipment-body">
+            {% for k,v in equipment.items() %}
+            <div class="item" id={{k}} onclick="openEditItem(this, '{{v.name}}', '{{v.price}}', '{{v.exist}}')">
+                <span class="table-item iname item-green">{{v.name}}</span>
+                <span class="table-item iprice tcenter">{{v.price}} ₪</span>
+                <span class="table-item iexist tcenter">{{v.exist}}</span>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </div>

@@ -1,3 +1,5 @@
+import requests
+
 from Api.protocol import m_app
 from flask import render_template
 from time import sleep

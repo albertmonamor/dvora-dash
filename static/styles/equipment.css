@@ -48,6 +48,7 @@
     display: flex;
     justify-content: center;
 }
+
 .table-title{
     width: auto;
     height: auto;
@@ -61,53 +62,134 @@
     color: rgb(197, 186, 244);
     text-shadow: 2px 2px 4px rgba(133, 133, 133, 0.498);;
 }
-
-.equipment-table{
+.equipment-container{
+    padding: 0;
     padding-top: 30px;
     width: auto;
     height: auto;
     margin-left: 15%;
     margin-right: 15%;
 }
-
-#equipment-table-edit{
-    width: 100%;
+.equipment-header{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    
 }
-.thitem-edit{
+.equipment-header > .item{
+    padding: 10px;
     color: aliceblue;
     font-weight: bold;
     background: rgb(34, 34, 34);
 }
-.thitem-edit > th{
-    padding-right: 10px;
+.border-tlr{
+    border-top-left-radius: 10px;
 }
-.table-items{
-    transition: 100ms;
-    margin: 2px 0px 2px 0px;
-    border-bottom: 1px solid rgba(153, 153, 153, 0.196);
-    
+.border-trr{
+    border-top-right-radius: 10px;
 }
-.table-items:hover,
-.table-items:focus-visible{
-    border-bottom: 1px solid rgb(83, 71, 107);
-    border-top: 1px solid rgb(83, 71, 107);
-    box-shadow: 0px 0px 11px 0px rgb(0, 0, 0);
-    background:rgba(29, 36, 33, 0.45);
-    
+.shdaow-11a{
+    box-shadow: 0 0 11px 0 rgba(0, 0, 0, 0.317) 
 }
+.equipment-body{
+    display: grid;
+    grid-template-columns: 1fr;
+}
+.equipment-body > .item{
+    padding-top: 15px;
+    border-bottom: 1px solid #8787873a;
+    padding-bottom: 15px;
+    overflow: hidden;
+    position: relative;
+    z-index: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    transition: 200ms;
+}
+
+.equipment-body > .item:hover,
+.equipment-body > .item:active{
+    background: rgba(179, 179, 179, 0.217);
+    transform: scale(1.01);
+}
+.equipment-body > .item:hover::before{
+    width: 100%;
+}
+
+.item-option{
+    content: '';
+    position: absolute;
+    right: 0;
+    display: none;
+    background: rgb(173, 141, 141);
+    z-index: 2;
+}
+.tcenter{
+    text-align: center ;
+}
+.options{
+    z-index: 3;
+    position: absolute;
+    content: '';
+    width: 100%;
+    background: rgba(0, 0, 0, 0.8);
+}
+.btn-option{
+    position: relative;
+    display: flex;
+    justify-content: right;
+    gap: 10px;
+    padding: 10px;
+}
+.btnoption, .btnEdit, .btnDelete, .btnCancel{
+    border-radius: 7px;
+    font-size: 1.4rem;
+    transition: 200ms;
+}
+.btnEdit{
+    background: rgb(15, 47, 176);
+    color: aliceblue;
+}
+
+.btnEdit:hover, 
+.btnEdit:active{
+    background:aliceblue;
+    color: rgb(15, 47, 176);
+    transform: scale(1.01);
+}
+.btnDelete{
+    background:rgb(142, 39, 39);
+    color: aliceblue;
+    flex:1;
+}
+.btnDelete:hover, 
+.btnDelete:active{
+    color: rgb(142, 39, 39);
+    background-color: aliceblue;
+    transform: scale(1.1);
+}
+.btnCancel{
+    background: rgb(114, 114, 114);
+    color: aliceblue;
+    border-right: 1px solid rgba(243, 243, 243, 0.664);
+    margin-right: 10px;
+}
+.btnCancel:hover,
+.btnCancel:active{
+    color: rgb(114, 114, 114);
+    background: aliceblue;
+    transform: scale(1.1);
+}
+
+/* to DELETE */
 
 
 .table-item{
-    text-align: right;
-    padding-bottom: 10px;
-    padding-top: 10px;
-    border-bottom: 1px solid #8787873a;
     color: aliceblue;
     white-space: nowrap; 
-    text-overflow: ellipsis; 
+    text-overflow:clip; 
 }
 .item-green{
-    color: #b7c4ff;
+    color: #dae1fd;
 }
 .iname{
     font-weight: bold;
@@ -126,22 +208,23 @@
     transition: 300ms;
     width: 100%;
 }
+
 .iedit > button:hover{
     box-shadow: 0 -1px 0 0 rgba(100, 121, 143, 0.434);
 }
+
+
 button.update-equip{
     margin-left: 2px;
 }
 
 .edit-table-input{
-    width: 50%;
     border-radius: 6px;
     background: rgba(25, 18, 45, 0.534);
     color: aliceblue;
     font-weight: bold;
     border: 1px solid rgba(128, 128, 128, 0.317);
-    margin-left: -40px;
-
+    padding: 10px;
 }
 .edit-table-input:hover,
 .edit-table-input:focus-visible{
@@ -180,7 +263,7 @@ button.update-equip{
     .empty-list-equipment{
         font-size: 25px;
     }
-    .equipment-table{
+    .equipment-container{
         width: auto;
         height: auto;
         margin-left: 1%;
@@ -195,7 +278,6 @@ button.update-equip{
         border-bottom: 1px solid rgb(83, 71, 107);
         border-top: 1px solid rgb(83, 71, 107);
         box-shadow: 0px 0px 11px 0px rgb(114, 114, 114);
-        background:rgba(29, 36, 33, 0.806);
         
     }
     .edit-table-input{

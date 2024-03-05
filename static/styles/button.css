@@ -147,6 +147,29 @@ button{
   
 
 
+.btn-classic, .btn-black, .btn-sea, .btn-nature, .btn-alert, .btn-deamon{
+    cursor: pointer;
+    outline: none;
+    border-radius: 6px;
+    padding: 10px;
+    border: none;
+    color: aliceblue;
+    font-size: 18px;
+    font-weight: bold;
+    background: linear-gradient(to left,rgb(52, 85, 83), rgba(39, 32, 44, 0.977));
+
+}
+
+.btn-sea{
+    background: rgb(67, 118, 198);
+    
+}
+.btn-nature{
+    background: rgb(30, 158, 107);
+}
+.btn-alert{
+    background: rgb(193, 72, 67);
+}
 
 
 @media screen and (max-width:1000px) {

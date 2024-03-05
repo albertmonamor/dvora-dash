@@ -1,3 +1,5 @@
+const roundWhenSearchEquipement = 2;
+
 function loading(_this){
     _this.children[0].remove();
     cntr = document.createElement("center");
@@ -555,8 +557,12 @@ function addLead(_this){
 function showEquipmentBySearch(word){
     ListE = document.getElementById("list-equipment");
     ListE.innerHTML = "";
+    let index = 0;
     for ([key, value] of Object.entries(supply_json)){
         if (value.name.indexOf(word) > -1 && word.length > 0){
+            if (roundWhenSearchEquipement == index){
+                return;
+            }
             // box
             boxE = document.createElement('div');
             boxE.classList.add('box-equipment');
@@ -599,6 +605,7 @@ function showEquipmentBySearch(word){
             //boxE.appendChild(priceE);
             boxE.appendChild(LEAction);
             ListE.appendChild(boxE);
+            index++;
         }
     }
 }
@@ -789,6 +796,56 @@ function autoCompleteExitClient(data){
 }
 
 
+
+/* small confirm */
+
+/**
+ * 
+ * @param {Element} t 
+ * @param {String} afor 
+ * @param {CallableFunction} cb_Y
+ * @param {CallableFunction} cb_N
+ */
+function openSmallConfirm(t, cb_Y, cb_N, afor="להמשיך?"){
+
+    closeSmallConfirm();
+    const parent = t.parentElement;
+    const small_conf = document.createElement("div");
+    small_conf.id ="smallconfirm";
+    small_conf.classList.add("small-confirm");
+
+    const about_for = document.createElement("span");
+    about_for.classList.add("about-confirm")
+    about_for.innerText = afor;
+
+    const buttons = document.createElement("div");
+    buttons.classList.add("confirm-action")
+    buttons.innerHTML = `
+    <button  type="button" class='btn-sea'>מאשר</button>
+    <button  type="button" class='btn-alert'>ביטול</button>
+    `
+    buttons.children[0].onclick = cb_Y;
+    buttons.children[1].onclick = cb_N;
+
+
+
+    small_conf.appendChild(about_for);
+    small_conf.appendChild(buttons);
+    parent.appendChild(small_conf);
+    
+    
+}
+
+function closeSmallConfirm(){
+    
+    const element = document.getElementById("smallconfirm");
+    
+    if (!element){
+        return;
+    }
+    
+    element.remove();
+}
 
 
 

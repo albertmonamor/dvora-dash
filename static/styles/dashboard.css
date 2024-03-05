@@ -319,6 +319,48 @@ footer{
 }
 
 
+/* small MENU when hover/active */
+
+.small-menu, .small-confirm{
+    display: none;
+    position: absolute;
+    bottom: 120%;
+    padding: 5px 10px;
+    border-radius: 7px;
+    background-color: rgb(18, 33, 32);
+    color: rgb(210, 211, 212);
+    width: 100px;
+    right: -40px;
+    text-align: center;
+    z-index: 1000;
+}
+
+.small-menu-trigger:hover + .small-menu{
+    display: block;  
+}
+
+.small-confirm{
+    display:flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 120px;
+    background: #c6c4cd;
+    color: black;
+}
+.confirm-action{
+    display: flex;
+    column-gap: 10px;
+    justify-content: center;
+}
+.about-confirm{
+    padding: 10px;
+}
+.confirm-action > button{
+    padding: 5px;
+    font-size: 16px;
+}
+
+
 /* MEDIA SCREEN */
 
 @media screen and (max-width:1000px) {
@@ -359,3 +401,4 @@ footer{
         font-size: 13px;
     }
 }
+

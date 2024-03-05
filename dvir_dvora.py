@@ -17,7 +17,7 @@ from Api.jinja_function import *
 @m_app.route("/m/get_supply", methods=["POST"])
 def mGetSupply():
     if not session.get("is_admin"):
-        return jsonify(getX(2))
+        return jsonify(getX(DENIED))
 
     return jsonify({"success":True, "supply":DBSupplyApi.get_all_supply()})
 
@@ -64,7 +64,7 @@ def login():
             del session['sess-login']
         return jsonify(LOGIN_SUCCESS)
     else:
-        return jsonify(getX(0))
+        return jsonify(getX(E_AUTH))
 
 # response: <html template>                  << HTML
 @m_app.route("/dashboard", methods=['GET'])
@@ -79,7 +79,7 @@ def dashboard():
 def get_template_dashboard(tmp):
 
     if not session.get('is_admin'):
-        return jsonify(getX(2))
+        return jsonify(getX(DENIED))
     # /* default template */
     res_tmp:str = T404
     # /* default title */
@@ -158,7 +158,7 @@ def get_template_dashboard(tmp):
 @m_app.route("/new_lead", methods=["POST"])
 def new_lead():
     if not session.get("is_admin"):
-        return jsonify(getX(2))
+        return jsonify(getX(DENIED))
 
     bdict = getPostData(request)
     level    = bdict.get("level", "-1")
@@ -168,7 +168,7 @@ def new_lead():
 @m_app.route("/exit_lead", methods=["POST"])
 def exit_lead():
     if not session.get("is_admin"):
-        return jsonify(getX(2))
+        return jsonify(getX(DENIED))
 
 
     bdict = getPostData(request)
@@ -178,12 +178,11 @@ def exit_lead():
     if not result[0]:
         return result[1]
 
-    print(client)
     return jsonify({"success":True, "data":client})
 @m_app.route("/add_lead", methods=["POST"])
 def add_lead():
     if not session.get("is_admin"):
-        return jsonify(getX(2))
+        return jsonify(getX(DENIED))
 
     bdict = getPostData(request)
     name       = bdict.get("name", 0)
@@ -240,7 +239,7 @@ def search_lead(data):
     error = dict(getX(5))
     res_tmp = ''
     if not session.get("is_admin"):
-        return jsonify(getX(2))
+        return jsonify(getX(DENIED))
 
     bdict = getPostData(request)
     type_search = bdict.get("type_search")
@@ -256,6 +255,7 @@ def search_lead(data):
 
     capi = DBClientApi("none")
     client_found = capi.search_client(data, type_search)
+    print(client_found)
     if not client_found:
         return jsonify(error)
     return jsonify({"success": True,
@@ -268,7 +268,7 @@ def filter_az():
     error = dict(getX(5))
     res_tmp = ''
     if not session.get("is_admin"):
-        return jsonify(getX(2))
+        return jsonify(getX(DENIED))
 
     bdict = getPostData(request)
     type_filter = bdict.get("type_filter")
@@ -294,7 +294,7 @@ def add_equipment():
     error = dict(getX(3))
 
     if not session.get("is_admin"):
-        return jsonify(getX(2))
+        return jsonify(getX(DENIED))
 
     bdict = getPostData(request)
     # noinspection PyTypeChecker
@@ -319,7 +319,7 @@ def update_equipment(eq_id):
     error = dict(getX(3))
 
     if not session.get("is_admin"):
-        return jsonify(getX(2))
+        return jsonify(getX(DENIED))
 
     bdict = getPostData(request)
     result = check_equipment(bdict)
@@ -327,16 +327,16 @@ def update_equipment(eq_id):
         error["notice"] = result[1]
         return jsonify(error)
 
-
+    print(bdict)
     equip = DBSupplyApi(eq_id)
     if not equip.ok():
         # // 11
         error["notice"] = "ציוד לא מוכר"
         return jsonify(error)
 
-    equip.name = bdict["name"]
-    equip.price = int(bdict["price"])
-    equip.exist = int(bdict["exist"])
+    equip.ei.name = bdict["name"]
+    equip.ei.price = int(bdict["price"])
+    equip.ei.exist = int(bdict["exist"])
     # update db
     DBase.session.commit()
     return jsonify({"success":True})
@@ -347,7 +347,7 @@ def del_equipment(eq_id):
     error = dict(getX(3))
 
     if not session.get("is_admin"):
-        return jsonify(getX(2))
+        return jsonify(getX(DENIED))
     equip = DBSupplyApi(eq_id)
     if not equip.ok():
         # 12
@@ -363,7 +363,7 @@ def del_equipment(eq_id):
 def add_equipment_client():
     error = dict(getX(3))
     if not session.get("is_admin"):
-        return jsonify(getX(2))
+        return jsonify(getX(DENIED))
     bdict = getPostData(request)
     cid = bdict.get("cid")
     supply = bdict.get("supply", "{}")
@@ -385,7 +385,7 @@ def event_actions(action:str):
         if request.method == "GET":
             return redirect(url_for("index"),302)
 
-        return jsonify(getX(2))
+        return jsonify(getX(DENIED))
     bdict = getPostData(request)
     client_id = bdict.get("client_id")
     capi = DBClientApi(client_id)
@@ -406,7 +406,7 @@ def event_actions(action:str):
     elif action == "2":
         # create invoice
         if not capi.create_invoice_event(session['user']):
-            return jsonify(getX(0))
+            return jsonify(getX(E_AUTH))
 
     elif action == "3":
 
@@ -456,7 +456,7 @@ def event_actions(action:str):
 @m_app.route("/update_lead/<kind>", methods=["POST"])
 def update_lead(kind):
     if not session.get("is_admin"):
-        return jsonify(getX(2))
+        return jsonify(getX(DENIED))
     bdict = getPostData(request)
     data = bdict.get("data")
     cid = bdict.get("client_id")
@@ -465,17 +465,13 @@ def update_lead(kind):
 
 @m_app.route("/import_txt", methods=["POST"])
 def upload_equipment_txt():
-    error = getX(58)
+    error = getX(E_IMPORT_TXT)
     if not session.get("is_admin"):
-        return jsonify(getX(2))
+        return jsonify(getX(DENIED))
 
     bdict = getPostData(request)
     file_s:FileStorage = request.files.get("txt")
     nonce = bdict.get("nonce")
-
-    if session.get("nonce_import") != nonce:
-        return jsonify(getX(1))
-
     if not file_s:
         #  18
         error["notice"] = "detected: burpsuite/proxy"
@@ -587,9 +583,9 @@ def add_agreement():
 @m_app.route("/setting/<ac>", methods=["POST"])
 def setting(ac:str):
 
-    error = dict(getX(1))
+    error = dict(getX(RELOAD_PAGE))
     if not session.get("is_admin"):
-        return jsonify(getX(2))
+        return jsonify(getX(DENIED))
 
     if not ac or not ac.isdigit() or not any(request.form):
         return jsonify(error)
@@ -637,10 +633,10 @@ def setting(ac:str):
 @m_app.route("/money/<ac>", methods=["POST"])
 def money_api(ac:str):
 
-    error = dict(getX(1))
+    error = dict(getX(RELOAD_PAGE))
     json_graph = []
     if not session.get("is_admin"):
-        return jsonify(getX(2))
+        return jsonify(getX(DENIED))
     bdict = getPostData(request)
     if not ac or not any(bdict):
         return jsonify(error)

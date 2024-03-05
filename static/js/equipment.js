@@ -1,60 +1,73 @@
-function editEquipment(_this){
-    parent = _this.parentElement.parentElement;
-    // css class input & button
-    cls = "edit-table-input";
-    ue = "update-equip";
-    // name
-    iname = parent.children[0];
-    iname.innerHTML = `<input type="text" class="${cls}" value="${iname.innerText}" placeholder="${iname.innerText}">`;
-    // price
-    iprice = parent.children[1];
-    iprice.innerHTML = `<input type="tel" class="${cls}" value="${iprice.innerText}" placeholder="${iprice.innerText}">`;
-    // count
-    iexist = parent.children[2];
-    iexist.innerHTML = `<input type="tel" class="${cls}" value="${iexist.innerText}" placeholder="${iexist.innerText}">`;
-    // button to update & cancel 
-    iedit = parent.children[3];
-    iedit.innerHTML = `<button onclick="reEditEquipment(this, 1)" class='${ue} cancel'><i class="fa-solid fa-xmark"></i></button>`;
-    iedit.innerHTML += `<button onclick="updateEquipment(this)" class='${ue} ok'><i class="fa-solid fa-check"></i></button`;
-    iedit.innerHTML += `<button onclick="deleteEquipment(this)" class='${ue} grab'><i class="fa-solid fa-trash-can"></i></button`;
-}
+/**
+ * 
+ * @param {Element} t 
+ * @param {String} exist 
+ * @param {String} price
+ */
 
-
-function reEditEquipment(_this, m){
-    parent = _this.parentElement.parentElement;
-    iname = parent.children[0];
-    iprice =  parent.children[1];
-    iexist =  parent.children[2];
-    iedit = parent.children[3];
-    if (m){
-        iname.innerHTML = iname.children[0].placeholder;
-        iprice.innerHTML = iprice.children[0].placeholder;
-        iexist.innerHTML = iexist.children[0].placeholder;
-    }else{
-        iname.innerHTML = iname.children[0].value;
-        iprice.innerHTML = iprice.children[0].value;
-        iexist.innerHTML = iexist.children[0].value;
-    }
-    iedit.innerHTML = `<button onclick="editEquipment(this)"><i class="fa-solid fa-ellipsis fa-fade"></i></button>`
-    
-}
-
-function updateEquipment(_this){
-    parent = _this.parentElement.parentElement;
-    iname = parent.children[0];
-    iprice =  parent.children[1];
-    iexist =  parent.children[2];
-    iedit = parent.children[3];
-    _name = iname.children[0].value;
-    _price = iprice.children[0].value;
-    _exist = iexist.children[0].value;
+function openEditItem(t, name, price, exist){
+    $(document.getElementById("model-addlead")).fadeIn(300);
+    if (document.getElementById("modalcontent").innerHTML!=""){return;}
     $.ajax({
-        url:"/update_equipment/"+parent.id,
+        url:"/template/16",
         type:"post",
-        data:{"name":_name, "price":_price.replace(/[\s₪]/g, ""), "exist":_exist.replace(/[\s₪]/g, "")},
         success:(res)=>{
             if (res.success){
-                reEditEquipment(_this, 0)
+                $(document.getElementById("modalequip")).fadeIn(300);
+                $(document.getElementById("modalstart")).fadeOut(100);
+                document.getElementById("aleadtitle").innerText = "עריכת ציוד "+ name;
+                document.getElementById("modaldes").innerText = res.welcome;
+                document.getElementById("modalcontent").innerHTML = res.template
+                document.getElementById("closeModalButton").onclick = ()=>{closeModalAddEquipment();};
+                supply_json = res.supply;
+                const btn = document.getElementById("addequipbutton");
+                const form = document.getElementById("add-lead-form");
+                const btnParent = btn.parentElement;
+                document.getElementById("name").value = name;
+                document.getElementById("tel").value = price;
+                document.getElementById("exist").value = exist;
+                btn.classList.add("btnEdit");
+                btn.children[0].textContent = 'עדכן';
+                // new delete
+                const divX = document.createElement("div");
+                divX.style.position = 'relative';
+                const btn_delete = document.createElement("button");
+                btn_delete.type= 'button';
+                btn_delete.classList.add("button-addlead-summary");
+                btn_delete.classList.add("btnDelete");
+                btn_delete.classList.add("small-menu-trigger");
+                btn_delete.onclick = function(){deleteEquipment(this, t.id);}
+                btn_delete.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
+                divX.appendChild(btn_delete);
+                btnParent.appendChild(divX);
+                form.onsubmit = function(){updateEquipment(event, this, t);}
+                document.getElementById("modalequip").click();
+            }
+            else{
+                popNotice("error", res.title, res.notice);
+            }
+        }
+    })
+}
+
+
+function updateEquipment(e, t, last_this){
+    e.preventDefault();
+    const name = document.getElementById("name");
+    const price = document.getElementById("tel");
+    const exist = document.getElementById("exist");
+    $.ajax({
+        url:"/update_equipment/"+last_this.id,
+        type:"post",
+        data:{"name":name.value, "price":price.value.replace(/[\s₪]/g, ""), "exist":exist.value.replace(/[\s₪]/g, "")},
+        success:(res)=>{
+            if (res.success){
+                closeModalAddEquipment(t, 0);
+                last_this.children[0].textContent = name.value;
+                last_this.children[1].textContent = price.value;
+                last_this.children[2].textContent = exist.value;
+                console.log(last_this);
+                
             }
             else{
                 popNotice("error", res.title, res.notice);
@@ -62,6 +75,7 @@ function updateEquipment(_this){
         }
 
     })
+    
 
     
 }
@@ -93,40 +107,47 @@ function addEquipment(e, _this){
 }
 
 
-function deleteEquipment(_this){
-    console.log("/del_equipment/"+_this.parentElement.parentElement.id)
-    $.ajax({
-        url:"/del_equipment/"+_this.parentElement.parentElement.id,
-        type:"post",
-        success:(res)=>{
-            if (res.success){
-                $(_this.parentElement.parentElement.id).fadeOut(300);
-                setTimeout(()=>{_this.parentElement.parentElement.remove();}, 300);
+function deleteEquipment(t, id){
+    const cby = function(){
+        $.ajax({
+            url:"/del_equipment/"+id,
+            type:"post",
+            success:(res)=>{
+                if (res.success){
+                    document.getElementById(id).remove();
+                    closeModalAddEquipment(0);
+                    popNotice("success", "נמחק", "הציוד " + id + " נמחק");
+                }
+                else{
+                    popNotice("error", res.title, res.notice);
+    
+                }
+                
             }
-            else{
-                popNotice("error", res.title, res.notice);
+        })
+    };
 
-            }
-            
-        }
-    })
+    const cbn = function(){closeSmallConfirm()}
+    openSmallConfirm(t, cby, cbn);
+
 }
 
 function openModalAddEquipment(_this){
-    $(document.getElementById("model-addlead")).show(300);
+    $(document.getElementById("model-addlead")).fadeIn(300);
     if (document.getElementById("modalcontent").innerHTML!=""){return;}
     $.ajax({
         url:"/template/"+_this.id,
         type:"post",
         success:(res)=>{
             if (res.success){
-                $(document.getElementById("modalequip")).show(300);
-                $(document.getElementById("modalstart")).hide(100);
+                $(document.getElementById("modalequip")).fadeIn(300);
+                $(document.getElementById("modalstart")).fadeOut(100);
                 document.getElementById("aleadtitle").innerText = "הוספת ציוד למערכת";
                 document.getElementById("modaldes").innerText = res.welcome;
                 document.getElementById("modalcontent").innerHTML = res.template
                 document.getElementById("closeModalButton").onclick = ()=>{closeModalAddEquipment();};
                 supply_json = res.supply;
+                
             }
             else{
 
@@ -136,17 +157,11 @@ function openModalAddEquipment(_this){
 }
 
 function closeModalAddEquipment(ask=0){
-    if (1){//ask || confirm("לבטל הוספת ציוד?")){
-        $(document.getElementById("model-addlead")).fadeOut(100);
-        $(document.getElementById("modaldes")).fadeIn(300);
-        $(document.getElementById("modalstart")).fadeIn(300);
-        document.getElementById("modalcontent").innerHTML = "";
-        $(document.getElementById("modalcontent")).fadeOut(0);
-
-    }
-    else{
-
-    }
+    $(document.getElementById("model-addlead")).fadeOut(100);
+    $(document.getElementById("modaldes")).fadeIn(300);
+    $(document.getElementById("modalstart")).fadeIn(300);
+    document.getElementById("modalcontent").innerHTML = "";
+    $(document.getElementById("modalcontent")).fadeOut(0);
 }
 
 
@@ -155,7 +170,7 @@ function closeModalAddEquipment(ask=0){
 
 function uploadEquipmentTxt(e){
     console.log(e)
-    // notice for stupid hackers:: just side client :(, the server verify this too
+    // notice stupid hackers:: just side client :(, the server verify this too
     MAX_SIZE = 1000*100;
     const fileI = e.target;
     const file = fileI.files[0];
