@@ -49,6 +49,9 @@ DENIED = 2
 E_ADD_EQUIP = 3
 CLIENT_ADDED = 4
 E_NO_DATA = 5
+E_EXEMPT_DEALER = 6
+E_NEED_ADMIN = 7
+S_AGREE_ACCEPTED = 8
 E_IMPORT_TXT = 58
 
 BASE_NOTICE = {
@@ -58,9 +61,9 @@ BASE_NOTICE = {
     E_ADD_EQUIP:"שגיאה בעת הוספת הציוד",
     CLIENT_ADDED:"הלקוח נוסף לרשימה",
     E_NO_DATA:"לא נמצאו פרטים",
-    6: "פרטי עוסק פטור שגויים או שהלקוח שגוי",
-    7: "צור קשר עם המערכת",
-    8:"חוזה השכרה נקלט בהצלחה!",
+    E_EXEMPT_DEALER: "פרטי עוסק פטור שגויים או שהלקוח שגוי",
+    E_NEED_ADMIN: "צור קשר עם המערכת",
+    S_AGREE_ACCEPTED:"חוזה השכרה נקלט בהצלחה!",
     9:"הוסף ציוד לפני הוספת לקוח",
     10:"אחד מהנתונים חסר או לא תקין!",
     11: "ציוד לא מוכר",
@@ -120,7 +123,6 @@ LOGIN_SUCCESS: dict     = {"success":True,  "title":None, "notice":None, 'locati
 MAX_IMPORT_TXT          = 1000*100
 FILENAME_IMPORT_TXT     = "equipment.txt"
 FILENAME_EXPORT_TXT     = "equipment.txt"
-AGREE_SESS_LIFE         = 960
 # /** empty lead
 EMPTY_LEAD_T            = "אין אירועים קרובים"
 EMPTY_HISTORY           = "ההיסטוריה ריקה"
@@ -131,6 +133,8 @@ T404                    = "/error_tmp/404.html"
 DAY       = 3600*24
 MONTH     = DAY*30
 SIX_MONTH = MONTH*6
+
+AGREE_SESS_LIFE = DAY
 PDF_OPTIONS = {
     'encoding': 'UTF-8',
     'margin-left': '0mm',

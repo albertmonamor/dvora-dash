@@ -463,6 +463,9 @@ function open_modal_link(_this, _title=null,btn=null, show_agree=null){
         <div class="lnk-countdown">
             <span id="lnks">--</span>
             <span id="lnkm">--</span>
+            <span id="lnkh">--</span>
+            <span id="lnkd">--</span>
+
         </div>
         דקות לחתום על החוזה 
         </span>`

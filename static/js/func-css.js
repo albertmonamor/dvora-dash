@@ -696,8 +696,8 @@ function countdown(ctime){
 
         };
         // end of story
-        // document.getElementById("lnkd").innerText = days;
-        // document.getElementById("lnkh").innerText = hours;
+        document.getElementById("lnkd").innerText = days;
+        document.getElementById("lnkh").innerText = hours;
         document.getElementById("lnkm").innerText = minutes;
         document.getElementById("lnks").innerText = seconds;
 

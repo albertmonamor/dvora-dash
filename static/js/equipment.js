@@ -133,15 +133,15 @@ function deleteEquipment(t, id){
 }
 
 function openModalAddEquipment(_this){
-    $(document.getElementById("model-addlead")).fadeIn(300);
+    $(document.getElementById("model-addlead")).fadeIn(10);
     if (document.getElementById("modalcontent").innerHTML!=""){return;}
     $.ajax({
         url:"/template/"+_this.id,
         type:"post",
         success:(res)=>{
             if (res.success){
-                $(document.getElementById("modalequip")).fadeIn(300);
-                $(document.getElementById("modalstart")).fadeOut(100);
+                $(document.getElementById("modalequip")).fadeIn(10);
+                $(document.getElementById("modalstart")).fadeOut(10);
                 document.getElementById("aleadtitle").innerText = "הוספת ציוד למערכת";
                 document.getElementById("modaldes").innerText = res.welcome;
                 document.getElementById("modalcontent").innerHTML = res.template

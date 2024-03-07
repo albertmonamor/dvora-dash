@@ -917,6 +917,16 @@ ul.leads-menu-action li:hover{
     content: ":";
     margin-right: 4px;
 }
+#lnkm::after{
+    position: absolute;
+    content: ":";
+    margin-right: 4px;
+}
+#lnkh::after{
+    position: absolute;
+    content: ":";
+    margin-right: 4px;
+}
 .modal-buttons-actions-link{
     display: flex;
     margin-right: 15%;
