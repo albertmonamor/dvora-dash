@@ -90,6 +90,19 @@
           </div>
         </div>
       </div>
+      <div class="item">
+        <span class="title">צבעי רקע יום/לילה</span>
+        <div class="body body-signature">
+          <div class="switch-binary">
+            {% if sett.c.color %}
+              <input type="checkbox" checked id="tgl-event-color" onchange=";switchDayNight('false');update_setting(this, 'color')" role="5" class="tgl-input">
+            {% else %}
+            <input type="checkbox" id="tgl-event-color" onchange=";switchDayNight('true');update_setting(this, 'color')" role="5" class="tgl-input"> 
+            {% endif %}
+            <label for="tgl-event-color" class="tgl-label"></label>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>

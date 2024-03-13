@@ -1,5 +1,24 @@
 const roundWhenSearchEquipement = 2;
 
+
+function switchDayNight(m){
+    const o = document.body;
+    if (m == "true"){
+        o.classList.add("day");
+        o.classList.remove("night")
+    }
+    else if (m == "false"){
+        o.classList.add("night");
+        o.classList.remove("day");
+
+    }
+    else{
+        return;
+    }
+    console.log(m)
+    localStorage.setItem("color", m);
+}
+
 function loading(_this){
     _this.children[0].remove();
     cntr = document.createElement("center");
@@ -781,17 +800,14 @@ function clientExist(t){
 } 
 
 function autoCompleteExitClient(data){
-    console.log(data)
-    setTimeout(()=>{
-        let name = document.getElementById("name");
-        let phone = document.getElementById("phone");
-        let lead_id = document.getElementById("lead_id");
-        let event_location = document.getElementById("event-location");
-        name.value = data.fn;
-        phone.value = data.phone;
-        lead_id.value = data.id;
-        event_location.value = data.ep;
-    }, 1500);
+    let name = document.getElementById("name");
+    let phone = document.getElementById("phone");
+    let lead_id = document.getElementById("lead_id");
+    let event_location = document.getElementById("event-location");
+    name.value = data.fn;
+    phone.value = data.phone;
+    lead_id.value = data.id;
+    event_location.value = data.ep;
 
 }
 

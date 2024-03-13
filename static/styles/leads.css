@@ -1,11 +1,7 @@
 
 .empty-lead{
     margin-top: 40px;
-    margin-left: 25%;
-    margin-right: 25%;
-    width: auto;
-    height: auto;
-    color: rgb(197, 197, 197);
+    color: var(--c-empty-list);
     font-size: 40px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
@@ -33,8 +29,8 @@
 .input-search-leads{
     padding: 8px;
     border-radius: 0px 6px 6px 0px ;
-    background: rgba(25, 18, 45, 0.534);
-    color: aliceblue;
+    background: var(--bg-xinput);
+    color: var(--ab-color);
     font-weight: bold;
     height:42px !important;
     border: 1px solid rgba(128, 128, 128, 0.317);
@@ -574,7 +570,6 @@ ul.leads-menu-action li:hover{
     display: flex;
     flex-direction: column;
     margin-top: 3rem;
-    margin-bottom: 2rem;
     margin-right: 15%;
     margin-left: 15%;
 }
@@ -602,8 +597,9 @@ ul.leads-menu-action li:hover{
     background: #101010;
     
 }
-.search-result{
-    margin-top: 10px !important;
+.search-result.info-client{
+    margin-left: 15%;
+    margin-right: 15%;
 }
 .search-action{
     display: flex;
@@ -856,8 +852,6 @@ ul.leads-menu-action li:hover{
 
 }
 .modal-link-body{
-    width: auto;
-    height: auto;
     margin-right: 20%;
     margin-left: 20%;
     background-color: rgb(40, 41, 50);
@@ -989,6 +983,8 @@ ul.leads-menu-action li:hover{
         font-size: 25px;
         margin-right: 0;
         margin-right: 0;
+        text-align: center;
+        width: 100%;
     }
     .leads{
         margin-left: 2%;
@@ -1084,9 +1080,6 @@ ul.leads-menu-action li:hover{
         font-size: 20px;
         margin-left: 1px !important;
     }
-    .search-form{
-        margin: 0;
-    }
     .c-pth > .total{
         display: none;
     }
@@ -1121,8 +1114,8 @@ ul.leads-menu-action li:hover{
         display: none;
     }
     .modal-link-body{
-        margin-right: 2%;
-        margin-left: 2%;
+        margin-right: 0%;
+        margin-left: 0%;
     }
     .modal-link-body > .modal-link-title > i{
         top: -10px;
@@ -1134,5 +1127,9 @@ ul.leads-menu-action li:hover{
     .modal-buttons-actions-link{
         margin-right: 1px;
         margin-left: 1px;
+    }
+    .search-result.info-client{
+        margin-left: 0;
+        margin-right: 0;
     }
 }

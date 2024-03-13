@@ -1,8 +1,10 @@
 
 interval_id = 0
 json_exp_inc=  []
-MAX_exp_inc = 30000
+MAX_exp_inc = 2000;
 MIN_exp_inc = 2
+MAX_pro_inc = 2000;
+var MAX_ALL = 2000
 type_graph = 'year'
 type_gapi  = 2
 const listen = new IntersectionObserver(showGraphAgain, {
@@ -70,14 +72,14 @@ async function setValuesGraphEAP(type='year'){
             div.classList.add('money-item')
             span1 = document.createElement('span')
             span1.title='הכנסות'
-            span1.style.height = `${MIN_exp_inc+parseInt((100*value.json.p)/MAX_exp_inc)}px`
+            span1.style.height = `${MIN_exp_inc+parseInt((MAX_exp_inc*value.json.p)/MAX_ALL)}px`
             span1.classList.add('i')
             span1.classList.add('width-year')
             span1.id = value.json.p
             span1.onmouseover= function(){showGraphMenu()}
             span2 = document.createElement("span")
             span2.title='הוצאות'
-            span2.style.height = `${MIN_exp_inc+parseInt((100*value.json.e)/MAX_exp_inc)}px`
+            span2.style.height = `${MIN_exp_inc+parseInt((MAX_exp_inc*value.json.e)/MAX_ALL)}px`
             span2.classList.add('e')
             span2.classList.add('width-year')
             span2.id = value.json.e
@@ -104,14 +106,14 @@ async function setValuesGraphEAP(type='year'){
             div.classList.add('money-item')
             span1 = document.createElement('span')
             span1.title='הכנסות'
-            span1.style.height = `${MIN_exp_inc+parseInt((200*value.json.p)/MAX_exp_inc)}px`
+            span1.style.height = `${MIN_exp_inc+parseInt((MAX_exp_inc*value.json.p)/MAX_ALL)}px`
             span1.classList.add('i')
             span1.classList.add('width-month')
             span1.id = value.json.p
             span1.onmouseover= function(){showGraphMenu()}
             span2 = document.createElement("span")
             span2.title='הוצאות'
-            span2.style.height = `${MIN_exp_inc+parseInt((200*value.json.e)/MAX_exp_inc)}px`
+            span2.style.height = `${MIN_exp_inc+parseInt((MAX_exp_inc*value.json.e)/MAX_ALL)}px`
             span2.classList.add('e')
             span2.classList.add('width-month')
             span2.id = value.json.e
@@ -143,6 +145,9 @@ function setJson(g=2, month=0){
         success:(res)=>{
             if (res.success){
                 json_exp_inc = res.json;
+                MAX_exp_inc = res.maxe;
+                MAX_pro_inc = res.maxp;
+                MAX_ALL = Math.max(MAX_exp_inc,MAX_pro_inc);
                 setValuesGraphEAP(type_graph);
             }
             else{

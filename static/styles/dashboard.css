@@ -1,14 +1,42 @@
 :root{
-    --d-color:rgb(52, 53, 65);
-    --l-color: rgb(235, 236, 249) ;
+    --bg-color:rgb(52, 53, 65);
 }
 
 
 body{
-    background: var(--d-color) !important;
     font-family: 'Roboto', 'consolas';
     direction: rtl;
+    background: var(--bg-color) !important;
 }
+body.night{
+    --bg-color:rgb(52, 53, 65);
+    --ab-color: aliceblue;
+    --bg-tabs:transparent;
+    --bg-tabs-btn-hover:#201c30;
+    --bg-xinput:rgba(25, 18, 45, 0.534);
+    --bg-modal:#201c30;
+    --c-close-modal:rgb(196, 184, 240);
+    --c-summary-title:rgb(197, 186, 244);
+    --c-gray:rgb(205, 205, 205);
+    --bg-table-summary:rgb(43, 36, 61);
+    --c-empty-list:rgb(197, 197, 197);
+    --footer-labels-color:#262732;
+}
+body.day{
+    --bg-color:#f3f3ff;
+    --ab-color: rgb(23,23,23);
+    --bg-tabs:#dcd7ed;
+    --bg-tabs-btn-hover: #b9a8f3;
+    --bg-xinput:aliceblue;
+    --bg-modal:#e4e0f3;
+    --c-close-modal:rgb(49, 24, 138);
+    --c-summary-title:rgb(63, 41, 159);
+    --c-gray:rgb(77, 77, 77);
+    --bg-table-summary:rgb(192, 186, 206);
+    --c-empty-list:rgb(36, 36, 36);
+    --footer-labels-color:#ffffffef;
+}
+
 body::-webkit-scrollbar,
 body::-webkit-scrollbar-thumb,
 body::-webkit-scrollbar-track{
@@ -26,7 +54,7 @@ input{
     position: relative;
     font-size: 18px;
     font-weight: bold;
-    color: rgb(255, 255, 255);
+    color: var(--ab-color);
 
 }
 .xinput label > span{
@@ -41,7 +69,7 @@ input{
     top: 0;
 }
 .xinput label > p:hover{
-    color: aliceblue;
+    color: var(--ab-color);
 }
 
 
@@ -51,8 +79,8 @@ input{
     width: 100%;
     padding: 8px;
     border-radius: 6px;
-    background: rgba(25, 18, 45, 0.534);
-    color: aliceblue;
+    background: var(--bg-xinput);
+    color: var(--ab-color);
     font-weight: bold;
     height:42px !important;
     border: 1px solid rgba(128, 128, 128, 0.317);
@@ -68,7 +96,7 @@ input{
     margin-top: 20px;
     display: flex;
     justify-content: center;
-    color: aliceblue;
+    color: var(--ab-color);
     font-size: 39px !important;
     font-weight: bold;
     margin-bottom: 20px;
@@ -85,6 +113,7 @@ input{
     overflow-x: auto;
     overflow-y: hidden;
     white-space: nowrap;
+    background: var(--bg-tabs);
 
 }
 .tabs-dashboard::-webkit-scrollbar,
@@ -103,7 +132,7 @@ input{
     padding-left: 10px !important;
     border: 0px solid white ;
     background: transparent;
-    color: aliceblue;
+    color: var(--ab-color);
     padding-top:8px;
     padding-bottom: 8px;
     padding-right: 25px;
@@ -112,7 +141,7 @@ input{
 }
 
 .tabs-button:hover{
-    background: #201c30;
+    background: var(--bg-tabs-btn-hover);
 }
 
 .tabs-button:not(:hover)::after{
@@ -162,9 +191,9 @@ input{
     display: block;
     position: absolute;
     border-radius: 6px;
-    border: 2px solid rgb(17, 14, 32);
+    border: 2px solid var(--ab-color);
     z-index: 11;
-    background: #201c30;
+    background: var(--bg-modal);
     margin-top: 10%;
     right: 15%;
     left: 15%;
@@ -172,6 +201,7 @@ input{
     overflow: auto;
     color: rgb(141, 119, 226);
     opacity: 1 !important;
+    
 }
 .modal-dashboard-head{
     display: flex;
@@ -186,13 +216,13 @@ input{
     
 }
 .modal-dashboard-head > i:hover{
-    color:rgb(196, 184, 240);
+    color:var(--c-close-modal);
     transform: rotate(180deg);
 }
 
 .modal-dashboard-title{
     position: relative;
-    color: aliceblue;
+    color: var(--ab-color);
     font-weight: bold;
 }
 .modal-dashboard-title::after{
@@ -201,7 +231,7 @@ input{
     top: 60px;
     right: 40%;
     width: 110px;
-    border-bottom: 2px solid rgba(240, 248, 255, 0.628);
+    border-bottom: 2px solid var(--ab-color);
 }
 .modal-dashboard-description{
     margin-right: 15%;
@@ -210,7 +240,7 @@ input{
     height: auto;
     margin-top: 50px;
     font-weight: bold;
-    color: rgba(240, 248, 255, 0.582);
+    color: var(--ab-color);
 
 }
 .modal-dashboard-start{
@@ -304,7 +334,7 @@ footer{
 }
 
 .pop-head{
-    border-left: 1px solid aliceblue;
+    border-left: 1px solid var(--ab-color);
     padding: 10px;
 
 }

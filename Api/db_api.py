@@ -538,7 +538,7 @@ class DBAgreeApi:
     def ok(self):
         return bool(self.aid)
     def is_expired(self):
-        return not (time() - self.aid.agree_sesslife) < 960
+        return not (time() - self.aid.agree_sesslife) < AGREE_SESS_LIFE
 
     @staticmethod
     def get_agreement_by_cid(cid:str):
@@ -696,7 +696,7 @@ class MoneyApi:
 
         return result
 
-    def get_e_and_p_year(self):
+    def get_e_and_p_year(self) -> list:
         result = self.get_empty_jf('y')
         for c in self.dbc._all_:
             gm = gmtime(c.date_closed)
@@ -758,6 +758,19 @@ class MoneyApi:
             t[i]["json"]["p"] = c.client_payment
             t[i]["json"]["e"] = c.expen_fuel + c.expen_employee
 
+    def get_max_e_year(self) -> int:
+        return self.__get_max_p_or_e("e")
+    def get_max_p_year(self):
+        return self.__get_max_p_or_e("p")
+
+    def __get_max_p_or_e(self, who:str):
+        _json = self.get_e_and_p_year()
+        m = -1
+        for v in _json:
+            if v["json"][who] > m:
+                m=v["json"][who]
+
+        return m
 
 class DBSettingApi:
     def __init__(self):
@@ -790,14 +803,17 @@ class DBSettingApi:
             new_setting = deepcopy(D_SETTING['ce'])
             new_setting[_type] = value
             self.sapi.close_event = new_setting
+        elif _type == "color":
+            new_setting = deepcopy(D_SETTING[_type])
+            new_setting[_type] = value
+            self.sapi.color = new_setting
         else:
             return False
 
         DBase.session.commit()
-        print(self.sapi.close_event, self.sapi.garbage_event)
         return True
 
     def get_setting_events(self):
-        return {"ge":self.sapi.garbage_event, "ce":self.sapi.close_event}
+        return {"ge":self.sapi.garbage_event, "ce":self.sapi.close_event, "c":self.sapi.color}
 
 

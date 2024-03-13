@@ -404,15 +404,12 @@ function open_modal_add_equipment(_this){
         <span>חפש מתוך הרשימה</span>
         <input class="search-input" id="searchinputadd" placeholder="לדוגמא: הגברה" oninput='showEquipmentBySearch(this.value)' name="search-equip">
     </div>
-    <div class='list-equipment search-result' id="list-equipment">
-
-    </div>
+    <div class='list-equipment search-result info-client' id="list-equipment"> </div>
     <div class="search-action">
         <button type="button" class="search-save-btn" onclick="updateEquipmentClient(this, '${cid}')">
             <span>שמירה</span>
             <i class="fa-solid fa-check"></i>
         </button>
-    </div>
     </div>
     
     `;

@@ -16,7 +16,7 @@
     font-size: 18px;
     margin-bottom: 10px;
     font-weight: bold;
-    color: rgb(255, 255, 255);
+    color: var(--ab-color);
 
 }
 .form-addlead label > span{
@@ -26,12 +26,12 @@
 }
 .form-addlead label > p{
     position: absolute;
-    color: rgba(128, 128, 128, 0.642);
+    color: var(--ab-color);
     left: 10px;
     top: 0;
 }
 .form-addlead label > p:hover{
-    color: aliceblue;
+    color: var(--ab-color);
 }
 
 
@@ -42,11 +42,11 @@
     padding: 8px;
     margin-bottom: 40px;
     border-radius: 6px;
-    background: rgba(25, 18, 45, 0.534);
-    color: aliceblue;
+    background: var(--bg-xinput);
+    color:  var(--ab-color);
     font-weight: bold;
     height:42px !important;
-    border: 1px solid rgba(128, 128, 128, 0.317);
+    border: 1px solid var(--bg-xinput);
 }
 .form-addlead input:hover,
 .form-addlead input:focus-visible{
@@ -56,12 +56,14 @@
 
 
 .list-equipment{
-    margin-top: -40px;
     margin-bottom: 20px;
     border: 1px solid rgba(107, 107, 107, 0.155);
     border-radius: 6px;
     display: flex;
     gap: 10px;
+    margin-right: 15%;
+    margin-left: 15%;
+    background: var(--bg-modal);
     flex-direction: column;
 }
 .box-equipment{
@@ -76,8 +78,7 @@
 .box-equipment-title{
     flex:1;
     margin: 0;
-    color: aliceblue;
-    font-size: 25px;
+    color: var(--ab-color);
 }
 .box-equipment>span{
     position: absolute;
@@ -101,6 +102,9 @@
 .list-equipment-action>#minus{
     width: 30%;
 }
+#count-equipment{
+    color: var(--ab-color);
+}
 
 
 .thitem, .tditem{
@@ -115,7 +119,7 @@
 }
 
 .tditem{
-    color: aliceblue;
+    color: var(--ab-color);
     text-align: center;
 }
 
@@ -130,11 +134,11 @@
     width: auto;
     height: auto;
     font-weight: bold;
-    color: rgb(197, 186, 244);
+    color: var(--c-summary-title);
     text-align: center;
     text-shadow: 2px 2px 4px rgba(133, 133, 133, 0.498);
     padding-bottom: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.135);
+    border-bottom: 1px solid var(--ab-color);
 }
 
 .lead-summary-title>i{
@@ -155,7 +159,7 @@
     margin-right: 15%;
     height: auto;
     font-size: 20px;
-    color: rgb(205, 205, 205);
+    color: var(--c-gray);
 }
 #table-summary, .table-equipment{
     width: 70% !important;
@@ -164,7 +168,7 @@
     margin-right: 15%;
     margin-top: 3rem;
     border-radius: 6px;
-    background: rgb(43, 36, 61);
+    background: var(--bg-table-summary);
     box-shadow: 0px 0px 11px 0px rgba(0, 0, 0, 0.267);
 }
 
@@ -174,7 +178,6 @@
 .t-e-thead{
     background: rgb(11, 11, 11);
     padding: 10px;
-    color: rgb(197, 186, 244);
     box-shadow: 0 0 5px 0 rgb(21, 19, 23);
     font-size: 19px;
 }
@@ -182,7 +185,7 @@
     border-left: 1px solid rgba(197, 186, 244, 0.219);
 }
 .t-e-tbody{
-    color: aliceblue;
+    color: var(--ab-color);
     padding: 10px;
     font-weight: bold;
 }
@@ -218,31 +221,27 @@
     border-radius: 5px;
     position: relative;
 }
-.manager-expense-item:hover{
-    box-shadow: 0px 0px 3px 3px rgba(57, 57, 57, 0.345);
-}
+
 .manager-expense-item>label{
     padding-bottom: 10px;
     font-size: 20px;
     margin-right: 10px;
-    color: rgb(237, 237, 237);
+    color: var(--ab-color);
     font-weight: bold;
 }   
 
 .manager-expense-item>output{
-    color: aliceblue;
     font-size: 20px;
     margin-left: 15px;
-    color: rgb(78, 70, 97);
 }
 .payment-option{
     margin-right: 10px;
     margin-bottom: 10px;
 }
 .payment-button{
-    box-shadow: 0px 0px 11px 0px rgba(0, 0, 0, 0.66);
+    box-shadow: 0px 0px 11px 0px rgba(0, 0, 0, 0.106);
     background: transparent;
-    color: rgb(197, 186, 244);
+    color: var(--c-summary-title);
     font-weight: bold;
     font-size: 18px;
     margin-left: 30px;
@@ -258,12 +257,18 @@
 
 .type-payment{
     border: 1px solid rgba(128, 128, 128, 0.146);
-    display: flex;
-    padding: 15px;
+    display: grid;
     border-radius: 5px !important;
     justify-content: center;
-}
+    background: var(--bg-tabs);
+    padding: 5px;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 5px;
 
+}
+.type-payment > .btn-fil{
+    padding: 10px;
+}
 .type-payment:last-child{
     border-radius: 6px 0px 0px 6px !important;
 }
@@ -280,7 +285,7 @@
 .tpayb-selected{
     transition: 300ms;
     margin: 0;
-    background: rgb(197, 186, 244);
+    background: rgb(121, 99, 207) !important;
     color: rgb(43, 36, 61);
     border-radius: 15px;
 }
@@ -290,8 +295,8 @@
     margin: 0 10px 0 10px;
     padding: 10px;
     border-radius: 5px;
-    background: rgba(25, 18, 45, 0.534);
-    color: aliceblue;
+    background: var(--bg-xinput);
+    color: var(--ab-color);
     font-weight: bold;
     height:42px !important;
     border: 1px solid rgba(128, 128, 128, 0.317);

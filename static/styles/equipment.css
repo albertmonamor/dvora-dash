@@ -59,7 +59,7 @@
     text-align: center;
     font-size: 18px;
     font-weight: bold;
-    color: rgb(197, 186, 244);
+    color: var(--c-summary-title);
     text-shadow: 2px 2px 4px rgba(133, 133, 133, 0.498);;
 }
 .equipment-container{
@@ -95,6 +95,7 @@
     grid-template-columns: 1fr;
 }
 .equipment-body > .item{
+    cursor: pointer;
     padding-top: 15px;
     border-bottom: 1px solid #8787873a;
     padding-bottom: 15px;
@@ -184,12 +185,13 @@
 
 
 .table-item{
-    color: aliceblue;
+    color: var(--ab-color);
     white-space: nowrap; 
     text-overflow:clip; 
 }
 .item-green{
-    color: #dae1fd;
+    color: var(--ab-color);
+    text-shadow: 0 0 11px var(--bg-table-summary);
 }
 .iname{
     font-weight: bold;

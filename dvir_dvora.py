@@ -626,6 +626,12 @@ def setting(ac:str):
         sett = DBSettingApi()
         sett.events_setting(ts, value)
 
+    elif ac == '5':
+        ts = bdict.get("ts")
+        value: bool = bool(int(bdict.get("value", "0")))
+        sett = DBSettingApi()
+        sett.events_setting(ts, value)
+
     DBase.session.commit()
     return jsonify({"success":True})
 
@@ -635,25 +641,31 @@ def money_api(ac:str):
 
     error = dict(getX(RELOAD_PAGE))
     json_graph = []
+    max_e:int = MAX_IMPORT_TXT//30
+    max_p:int = MAX_IMPORT_TXT//30
     if not session.get("is_admin"):
         return jsonify(getX(DENIED))
     bdict = getPostData(request)
     if not ac or not any(bdict):
         return jsonify(error)
 
-    month = bdict.get("month", 0)
+    month = bdict.get("month", "0")
     if ac == '0':
         pass
     elif ac == '1':
         mapi = MoneyApi()
         json_graph = mapi.get_e_and_p_month(month)
-
+        max_e = mapi.get_max_e_year()
+        max_p = mapi.get_max_p_year()
+        print(f"max e:{max_e} -- max p:{max_p}")
     elif ac == '2':
         mapi = MoneyApi()
         json_graph = mapi.get_e_and_p_year()
+        max_e = mapi.get_max_e_year()
+        max_p = mapi.get_max_p_year()
 
 
-    return jsonify({"success":True, "json":json_graph})
+    return jsonify({"success":True, "json":json_graph, "maxp":max_p, "maxe":max_e})
 
 
 

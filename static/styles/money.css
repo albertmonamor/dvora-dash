@@ -144,7 +144,7 @@
     flex-direction: row;
 }
 .graph-money > .header > .title{
-    color: aliceblue;
+    color: var(--ab-color);
     font-size: 20px;
     font-weight: bold;
     margin-left: 10px;
@@ -221,7 +221,7 @@
     grid-template-columns: repeat(31, 1fr);
 }
 .width-year{
-    width: 20px;
+    width: 30px;
 }
 .width-month{
     width: 8px;
@@ -230,6 +230,7 @@
     margin-left: 20px;
     height: 100%;
     display: flex;
+    justify-content: center;
     align-items: end;
     
 }
@@ -259,11 +260,12 @@
 .footer-labels{
     padding: 10px;
     display: flex;
+    text-align: center;
 
 }
 .footer-labels > span{
     margin-left: 10px;
-    color: aliceblue;
+    color: var(--ab-color);
     font-weight: lighter;
     font-size: 14px;
     padding: 5px;
@@ -272,7 +274,7 @@
 }
 
 .footer-labels > span:hover{
-    background-color: #262732;
+    background-color: var(--footer-labels-color);
 }
 
 

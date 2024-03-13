@@ -151,7 +151,8 @@ else:
 
 DOMAIN_NAME     = "dror.pythonanywhere.com"
 D_SETTING = {"ge":{"delete":False, "after":MONTH},
-             "ce":{"complete":False}
+             "ce":{"complete":False},
+             "color":{"color":False } # night by default
              }
 
 

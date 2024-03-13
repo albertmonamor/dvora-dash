@@ -14,6 +14,7 @@ class Setting(DBase.Model):
     index           = DBase.Column(DBase.Integer, primary_key=True)
     garbage_event   = DBase.Column(DBase.JSON, nullable=False)
     close_event     = DBase.Column(DBase.JSON, nullable=False)
+    color           = DBase.Column(DBase.JSON, nullable=True)
 
 
 class Users(DBase.Model):
@@ -179,5 +180,4 @@ def create_agreement_pdf():
                              r"C:\Users\saban\Desktop\web-pro\dvora-dash\agreements\test.pdf",
                              configuration=pdfkit.configuration(wkhtmltopdf=PATH_PDFKIT_EXE),
                              options=PDF_OPTIONS)
-
 

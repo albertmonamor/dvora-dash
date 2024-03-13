@@ -17,7 +17,7 @@
     <label for="equipment">ציוד שהלקוח בחר<span>*</span>
          <p>שלב 4</p>
     </label>
-    <input type="text" id="equipment" name="equipment" placeholder="חפש/י ציוד" oninput="showEquipmentBySearch(this.value)" ondblclick="this.value='';showEquipmentBySearch(this.value)">
+    <input type="text" id="equipment" name="equipment" placeholder="חפש/י ציוד" oninput="showEquipmentBySearch(this.value)" onclick="this.value='';showEquipmentBySearch(this.value)">
     <div id="list-equipment" class="list-equipment">
     </div>
     <label for="event-date">תאריך האירוע<span>*</span>
@@ -100,11 +100,11 @@
   <div class="manager-expense-item">
     <label for="type-pay">אמצעי תשלום</label>
     <div class="type-payment">
-      <button class="payment-button tpayb-selected" onclick="selectTypePay(this, 0)">מזומן</button>
-      <button class="payment-button tpayb" onclick="selectTypePay(this, 1)">העברה בנקאית</button>
-      <button class="payment-button tpayb" onclick="selectTypePay(this, 2)">צ'ק</button>
+      <button type="button" class="btn-fil" onclick="selectTypePay(this, 0)">מזומן</button>
+      <button type="button" class="btn-fil" onclick="selectTypePay(this, 1)">העברה בנקאית</button>
+      <button type="button" class="btn-fil tpayb-selected" onclick="selectTypePay(this, 2)">צ'ק</button>
       <input type="hidden" id="type-pay" value="0" name="type-pay">
-    </div>
+  </div>
 </div>
     <div class="manager-expense-item">
         <label for="payment-safe" style="display: flex;">מקדמה
