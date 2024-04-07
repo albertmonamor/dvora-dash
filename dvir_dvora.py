@@ -675,8 +675,6 @@ if __name__ == "__main__":
         DBase.create_all()
         # /* __ initial DBase __ */
         DBSettingApi().create()
-        #signup(user='דבורה', pwd='משי', ip='2.55.187.108', is_admin=True)
-        #signup(user='דביר', pwd='משי', ip='2.55.187.108', is_admin=True)
     m_app.run(host="0.0.0.0", port=80, debug=True)
 
 
